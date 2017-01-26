@@ -28,3 +28,15 @@ func TestService(t *testing.T) {
 	}
 	fmt.Println(stmt)
 }
+
+func TestMessage(t *testing.T) {
+	proto := `message AccountOut {
+  optional ServiceFault 	fault 		= 1;
+  required int64 		account_id 	= 2;
+}`
+	stmt, err := NewParser(strings.NewReader(proto)).Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(stmt)
+}

@@ -13,13 +13,15 @@ const (
 	IDENT // main
 
 	// Misc characters
-	COLON      // ;
-	EQUALS     // =
-	QUOTE      // "
-	LEFTPAREN  // (
-	RIGHTPAREN // )
-	LEFTCURLY  // {
-	RIGHTCURLY // }
+	SEMICOLON   // ;
+	EQUALS      // =
+	QUOTE       // "
+	LEFTPAREN   // (
+	RIGHTPAREN  // )
+	LEFTCURLY   // {
+	RIGHTCURLY  // }
+	LEFTSQUARE  // [
+	RIGHTSQUARE // ]
 
 	// Keywords
 	SYNTAX
@@ -27,4 +29,9 @@ const (
 	RPC
 	RETURNS
 	MESSAGE
+	IMPORT
+	PACKAGE
+	OPTION
+	OPTIONAL
+	REPEATED
 )

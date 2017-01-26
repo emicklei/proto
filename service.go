@@ -5,33 +5,6 @@ import (
 	"fmt"
 )
 
-type Proto struct {
-	Syntax   string
-	Services []*Service
-	Messages []*Message
-}
-
-func NewProto() *Proto {
-	return &Proto{Services: []*Service{}}
-}
-
-func ParseSyntax(p *Parser) (string, error) {
-	if tok, lit := p.scanIgnoreWhitespace(); tok != EQUALS {
-		return "", fmt.Errorf("found %q, expected EQUALS", lit)
-	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected QUOTE", lit)
-	}
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
-		return "", fmt.Errorf("found %q, expected string", lit)
-	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected QUOTE", lit)
-	}
-	return lit, nil
-}
-
 type Service struct {
 	Name    string
 	RPCalls []*RPCall
@@ -136,17 +109,4 @@ func ParseRPC(p *Parser) (*RPCall, error) {
 		return nil, fmt.Errorf("found %q, expected }", lit)
 	}
 	return rpc, nil
-}
-
-type Message struct {
-	Name string
-}
-
-func (m Message) String() string {
-	return "message"
-}
-
-func ParseMessage(p *Parser) (*Message, error) {
-	m := new(Message)
-	return m, nil
 }

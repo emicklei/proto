@@ -19,7 +19,7 @@ func NewParser(r io.Reader) *Parser {
 
 // Parse parses a proto definition.
 func (p *Parser) Parse() (*Proto, error) {
-	proto := NewProto()
+	proto := new(Proto)
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case SYNTAX:

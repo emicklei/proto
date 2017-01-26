@@ -40,7 +40,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	case eof:
 		return EOF, ""
 	case ';':
-		return COLON, string(ch)
+		return SEMICOLON, string(ch)
 	case '=':
 		return EQUALS, string(ch)
 	case '"':
@@ -53,6 +53,10 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return LEFTCURLY, string(ch)
 	case '}':
 		return RIGHTCURLY, string(ch)
+	case '[':
+		return LEFTSQUARE, string(ch)
+	case ']':
+		return RIGHTSQUARE, string(ch)
 	}
 	return ILLEGAL, string(ch)
 }
@@ -110,6 +114,16 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		return RPC, buf.String()
 	case "RETURNS":
 		return RETURNS, buf.String()
+	case "IMPORT":
+		return IMPORT, buf.String()
+	case "PACKAGE":
+		return PACKAGE, buf.String()
+	case "REPEATED":
+		return REPEATED, buf.String()
+	case "OPTION":
+		return OPTION, buf.String()
+	case "OPTIONAL":
+		return OPTIONAL, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
