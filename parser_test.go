@@ -1,0 +1,30 @@
+package proto3parser
+
+import (
+	"fmt"
+	"strings"
+	"testing"
+)
+
+func TestSyntax(t *testing.T) {
+	proto := `syntax = "proto3";`
+	stmt, err := NewParser(strings.NewReader(proto)).Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := stmt.Syntax, "proto3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestService(t *testing.T) {
+	proto := `service AccountService {
+		rpc CreateAccount (CreateAccount) returns    (ServiceFault) {}
+		rpc GetAccount 	  (Int64)           returns (Account) {}	
+	}`
+	stmt, err := NewParser(strings.NewReader(proto)).Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(stmt)
+}
