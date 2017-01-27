@@ -20,11 +20,8 @@ func newScanner(r io.Reader) *scanner {
 	return &scanner{r: bufio.NewReader(r)}
 }
 
-// Line returns the current line being scanned
-func (s *scanner) Line() int { return s.line }
-
-// Scan returns the next token and literal value.
-func (s *scanner) Scan() (tok token, lit string) {
+// scan returns the next token and literal value.
+func (s *scanner) scan() (tok token, lit string) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -40,7 +37,7 @@ func (s *scanner) Scan() (tok token, lit string) {
 		return s.scanIdent()
 	} else if ch == '/' {
 		if ch = s.read(); ch == '/' {
-			return COMMENT, s.scanUntilLineEnd()
+			return COMMENT, s.scanUntil('\n')
 		}
 		s.unread()
 		s.unread()
@@ -95,6 +92,26 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 	return WS, buf.String()
 }
 
+func (s *scanner) scanIntegerString() string {
+	// Create a buffer and read the current character into it.
+	var buf bytes.Buffer
+	buf.WriteRune(s.read())
+
+	// Read every subsequent digit character into the buffer.
+	// Non-digiti characters and EOF will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if !isDigit(ch) {
+			s.unread()
+			break
+		} else {
+			_, _ = buf.WriteRune(ch)
+		}
+	}
+	return buf.String()
+}
+
 // scanIdent consumes the current rune and all contiguous ident runes.
 func (s *scanner) scanIdent() (tok token, lit string) {
 	// Create a buffer and read the current character into it.
@@ -134,6 +151,8 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return REPEATED, buf.String()
 	case "OPTION":
 		return OPTION, buf.String()
+	case "ENUM":
+		return ENUM, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
@@ -168,8 +187,8 @@ func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 // eof represents a marker rune for the end of the reader.
 var eof = rune(0)
 
-// scanUntilLineEnd return the string up to (not including) a line end or EOF.
-func (s *scanner) scanUntilLineEnd() string {
+// scanUntil returns the string up to (not including) the rune or EOF.
+func (s *scanner) scanUntil(ch rune) string {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())

@@ -3,12 +3,12 @@ package proto3parser
 import "fmt"
 
 type Option struct {
-	Name     string
-	Constant string
+	Name    string
+	String  string
+	Boolean bool
 }
 
-func ParseOption(p *Parser) (*Option, error) {
-	o := new(Option)
+func (o *Option) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
 	case IDENT:
@@ -16,24 +16,32 @@ func ParseOption(p *Parser) (*Option, error) {
 	case LEFTPAREN:
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT {
-			return nil, fmt.Errorf("found %q, expected identifier", lit)
+			return fmt.Errorf("found %q, expected identifier", lit)
 		}
 		o.Name = lit
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != RIGHTPAREN {
-			return nil, fmt.Errorf("found %q, expected )", lit)
+			return fmt.Errorf("found %q, expected )", lit)
 		}
 	default:
-		return nil, fmt.Errorf("found %q, expected identifier or (", lit)
+		return fmt.Errorf("found %q, expected identifier or (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != EQUALS {
-		return nil, fmt.Errorf("found %q, expected =", lit)
+		return fmt.Errorf("found %q, expected =", lit)
 	}
-	ident, err := p.scanQuotedIdent()
-	if err != nil {
-		return nil, err
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok == QUOTE {
+		p.unscan()
+		ident := p.s.scanUntil('\n')
+		if len(ident) == 0 {
+			return fmt.Errorf("unexpected end of quoted string") // TODO create constant for this
+		}
+		o.String = ident
+		return nil
 	}
-	o.Constant = ident
-	return o, nil
+	if TRUE == tok || FALSE == tok {
+		o.Boolean = lit == "true"
+	}
+	return nil
 }

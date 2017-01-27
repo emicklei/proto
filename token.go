@@ -11,6 +11,8 @@ const (
 
 	// Literals
 	IDENT // main
+	TRUE
+	FALSE
 
 	// Misc characters
 	SEMICOLON   // ;

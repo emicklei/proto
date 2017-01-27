@@ -9,7 +9,7 @@ func TestScanUntilLineEnd(t *testing.T) {
 	r := strings.NewReader(`hello
 world`)
 	s := newScanner(r)
-	v := s.scanUntilLineEnd()
+	v := s.scanUntil('\n')
 	if got, want := v, "hello"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}

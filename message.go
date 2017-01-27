@@ -6,6 +6,7 @@ import (
 )
 
 type Message struct {
+	Line   int
 	Name   string
 	Fields []*Field
 }

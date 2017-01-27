@@ -4,6 +4,8 @@ import "fmt"
 
 type Proto struct {
 	Syntax   string
+	Imports  []*Import
+	Enums    []*Enum
 	Services []*Service
 	Messages []*Message
 	Comments []*Comment
@@ -40,7 +42,7 @@ func parseProto(proto *Proto, p *Parser) error {
 	switch tok {
 	case COMMENT:
 		proto.Comments = append(proto.Comments, &Comment{
-			Line:    p.s.Line() - 1, // line number before EOL was seen
+			Line:    p.s.line - 1, // line number before EOL was seen
 			Message: lit,
 		})
 	case SYNTAX:
@@ -49,6 +51,18 @@ func parseProto(proto *Proto, p *Parser) error {
 		} else {
 			proto.Syntax = syntax
 		}
+	case IMPORT:
+		im := new(Import)
+		if err := im.parse(p); err != nil {
+			return err
+		}
+		proto.Imports = append(proto.Imports, im)
+	case ENUM:
+		enum := new(Enum)
+		if err := enum.parse(p); err != nil {
+			return err
+		}
+		proto.Enums = append(proto.Enums, enum)
 	case SERVICE:
 		if service, err := parseService(p); err != nil {
 			return err

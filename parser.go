@@ -1,9 +1,6 @@
 package proto3parser
 
-import (
-	"fmt"
-	"io"
-)
+import "io"
 
 // Parser represents a parser.
 type Parser struct {
@@ -36,7 +33,7 @@ func (p *Parser) scan() (tok token, lit string) {
 	}
 
 	// Otherwise read the next token from the scanner.
-	tok, lit = p.s.Scan()
+	tok, lit = p.s.scan()
 
 	// Save it to the buffer in case we unscan later.
 	p.buf.tok, p.buf.lit = tok, lit
@@ -55,25 +52,3 @@ func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
-
-// scanQuotedIdent returns the identifier between 2 quotes.
-func (p *Parser) scanQuotedIdent() (string, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected \"", lit)
-	}
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != IDENT {
-		return "", fmt.Errorf("found %q, expected identifier", lit)
-	}
-	ident := lit
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected \"", lit)
-	}
-	return ident, nil
-}
-
-func (p *Parser) scanUntilLineEnd() string {
-	return p.s.scanUntilLineEnd()
-}

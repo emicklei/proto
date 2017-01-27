@@ -1,0 +1,90 @@
+package proto3parser
+
+import "fmt"
+
+type Enum struct {
+	Line       int
+	Name       string
+	Options    []*Option
+	EnumFields []*EnumField
+}
+
+type EnumField struct {
+	Name        string
+	Constant    string
+	ValueOption *Option
+}
+
+func (f *EnumField) parse(p *Parser) error {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT {
+		return fmt.Errorf("found %q, expected identifier", lit)
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != EQUALS {
+		return fmt.Errorf("found %q, expected =", lit)
+	}
+	ns := p.s.scanIntegerString()
+	if len(ns) != 0 {
+		f.Constant = ns
+	} else {
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT {
+			return fmt.Errorf("found %q, expected string", lit)
+		}
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok == LEFTSQUARE {
+		o := new(Option)
+		err := o.parse(p)
+		if err != nil {
+			return err
+		}
+		f.ValueOption = o
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != RIGHTSQUARE {
+			return fmt.Errorf("found %q, expected ]", lit)
+		}
+	}
+	return nil
+}
+
+func (e *Enum) parse(p *Parser) error {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT {
+		return fmt.Errorf("found %q, expected identifier", lit)
+	}
+	e.Name = lit
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != LEFTCURLY {
+		return fmt.Errorf("found %q, expected {", lit)
+	}
+	for {
+		tok, lit = p.scanIgnoreWhitespace()
+		switch tok {
+		case RIGHTCURLY:
+			goto done
+		case SEMICOLON:
+		case OPTION:
+			v := new(Option)
+			err := v.parse(p)
+			if err != nil {
+				return err
+			}
+			e.Options = append(e.Options, v)
+		default:
+			p.unscan()
+			f := new(EnumField)
+			err := f.parse(p)
+			if err != nil {
+				return err
+			}
+			e.EnumFields = append(e.EnumFields, f)
+		}
+	}
+done:
+	if tok != RIGHTCURLY {
+		return fmt.Errorf("found %q, expected }", lit)
+	}
+	return nil
+}

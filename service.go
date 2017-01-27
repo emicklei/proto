@@ -6,6 +6,7 @@ import (
 )
 
 type Service struct {
+	Line    int
 	Name    string
 	RPCalls []*rpcall
 }
