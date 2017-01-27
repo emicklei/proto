@@ -7,7 +7,7 @@ import (
 
 type Service struct {
 	Name    string
-	RPCalls []*RPCall
+	RPCalls []*rpcall
 }
 
 func (s Service) String() string {
@@ -20,7 +20,7 @@ func (s Service) String() string {
 	return buf.String()
 }
 
-func ParseService(p *Parser) (*Service, error) {
+func parseService(p *Parser) (*Service, error) {
 	s := new(Service)
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
@@ -34,7 +34,7 @@ func ParseService(p *Parser) (*Service, error) {
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == RPC {
-			if rpc, err := ParseRPC(p); err != nil {
+			if rpc, err := parseRPC(p); err != nil {
 				return nil, err
 			} else {
 				s.RPCalls = append(s.RPCalls, rpc)
@@ -51,20 +51,20 @@ func ParseService(p *Parser) (*Service, error) {
 	return s, nil
 }
 
-type RPCall struct {
+type rpcall struct {
 	Method      string
 	RequestType string
 	Streaming   bool
 	ReturnsType string
 }
 
-func (r RPCall) String() string {
+func (r rpcall) String() string {
 	return fmt.Sprintf("rpc %s (%s) returns (%s) {}", r.Method, r.RequestType, r.ReturnsType)
 }
 
 // rpc CreateAccount (CreateAccount) returns    (ServiceFault) {}
-func ParseRPC(p *Parser) (*RPCall, error) {
-	rpc := new(RPCall)
+func parseRPC(p *Parser) (*rpcall, error) {
+	rpc := new(rpcall)
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
 		return nil, fmt.Errorf("found %q, expected method", lit)

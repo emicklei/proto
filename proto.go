@@ -9,8 +9,8 @@ type Proto struct {
 	Comments []*Comment
 }
 
-// ParseSyntax returns the syntax value. Parser has seen "syntax".
-func ParseSyntax(p *Parser) (string, error) {
+// parseSyntax returns the syntax value. Parser has seen "syntax".
+func parseSyntax(p *Parser) (string, error) {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != EQUALS {
 		return "", fmt.Errorf("found %q, expected EQUALS", lit)
 	}
@@ -33,8 +33,8 @@ type Comment struct {
 	Message string
 }
 
-// ParseProto parsers a complete .proto definition source.
-func ParseProto(proto *Proto, p *Parser) error {
+// parseProto parsers a complete .proto definition source.
+func parseProto(proto *Proto, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	//log.Println(tok, lit)
 	switch tok {
@@ -44,19 +44,19 @@ func ParseProto(proto *Proto, p *Parser) error {
 			Message: lit,
 		})
 	case SYNTAX:
-		if syntax, err := ParseSyntax(p); err != nil {
+		if syntax, err := parseSyntax(p); err != nil {
 			return err
 		} else {
 			proto.Syntax = syntax
 		}
 	case SERVICE:
-		if service, err := ParseService(p); err != nil {
+		if service, err := parseService(p); err != nil {
 			return err
 		} else {
 			proto.Services = append(proto.Services, service)
 		}
 	case MESSAGE:
-		if msg, err := ParseMessage(p); err != nil {
+		if msg, err := parseMessage(p); err != nil {
 			return err
 		} else {
 			proto.Messages = append(proto.Messages, msg)
@@ -64,5 +64,5 @@ func ParseProto(proto *Proto, p *Parser) error {
 	case EOF:
 		return nil
 	}
-	return ParseProto(proto, p)
+	return parseProto(proto, p)
 }

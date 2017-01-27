@@ -1,11 +1,11 @@
 package proto3parser
 
-// Token represents a lexical token.
-type Token int
+// token represents a lexical token.
+type token int
 
 const (
 	// Special tokens
-	ILLEGAL Token = iota
+	ILLEGAL token = iota
 	EOF
 	WS
 
@@ -43,4 +43,4 @@ const (
 	ENUM
 )
 
-const TypeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"
+const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"

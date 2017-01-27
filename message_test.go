@@ -11,7 +11,7 @@ func TestMessage(t *testing.T) {
 	proto := `message AccountOut {}`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
-	m, err := ParseMessage(p)
+	m, err := parseMessage(p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func TestMessageWithFields(t *testing.T) {
 	}`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
-	m, err := ParseMessage(p)
+	m, err := parseMessage(p)
 	if err != nil {
 		t.Fatal(err)
 	}

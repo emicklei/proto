@@ -20,7 +20,7 @@ func (m Message) String() string {
 	return buf.String()
 }
 
-func ParseMessage(p *Parser) (*Message, error) {
+func parseMessage(p *Parser) (*Message, error) {
 	m := new(Message)
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
@@ -40,7 +40,7 @@ func ParseMessage(p *Parser) (*Message, error) {
 		default:
 			p.unscan()
 			f := new(Field)
-			err := ParseField(f, p)
+			err := parseField(f, p)
 			if err != nil {
 				return nil, err
 			}

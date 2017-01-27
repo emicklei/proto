@@ -10,7 +10,7 @@ func TestSyntax(t *testing.T) {
 	proto := `syntax = "proto3";`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
-	syntax, err := ParseSyntax(p)
+	syntax, err := parseSyntax(p)
 	if err != nil {
 		t.Fatal(err)
 	}

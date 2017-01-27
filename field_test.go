@@ -9,7 +9,7 @@ func TestRepeatedField(t *testing.T) {
 	proto := `repeated string lots = 1;`
 	p := NewParser(strings.NewReader(proto))
 	f := new(Field)
-	err := ParseField(f, p)
+	err := parseField(f, p)
 	if err != nil {
 		t.Fatal(err)
 	}

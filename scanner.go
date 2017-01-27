@@ -9,22 +9,22 @@ import (
 	"strings"
 )
 
-// Scanner represents a lexical scanner.
-type Scanner struct {
+// scanner represents a lexical scanner.
+type scanner struct {
 	r    *bufio.Reader
 	line int
 }
 
-// NewScanner returns a new instance of Scanner.
-func NewScanner(r io.Reader) *Scanner {
-	return &Scanner{r: bufio.NewReader(r)}
+// newScanner returns a new instance of Scanner.
+func newScanner(r io.Reader) *scanner {
+	return &scanner{r: bufio.NewReader(r)}
 }
 
 // Line returns the current line being scanned
-func (s *Scanner) Line() int { return s.line }
+func (s *scanner) Line() int { return s.line }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok Token, lit string) {
+func (s *scanner) Scan() (tok token, lit string) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -74,7 +74,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok Token, lit string) {
+func (s *scanner) scanWhitespace() (tok token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -96,7 +96,7 @@ func (s *Scanner) scanWhitespace() (tok Token, lit string) {
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok Token, lit string) {
+func (s *scanner) scanIdent() (tok token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -142,7 +142,7 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 
 // read reads the next rune from the bufferred reader.
 // Returns the rune(0) if an error occurs (or io.EOF is returned).
-func (s *Scanner) read() rune {
+func (s *scanner) read() rune {
 	ch, _, err := s.r.ReadRune()
 	if err != nil {
 		return eof
@@ -154,7 +154,7 @@ func (s *Scanner) read() rune {
 }
 
 // unread places the previously read rune back on the reader.
-func (s *Scanner) unread() { _ = s.r.UnreadRune() }
+func (s *scanner) unread() { _ = s.r.UnreadRune() }
 
 // isWhitespace returns true if the rune is a space, tab, or newline.
 func isWhitespace(ch rune) bool { return ch == ' ' || ch == '\t' || ch == '\n' }
@@ -169,7 +169,7 @@ func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 var eof = rune(0)
 
 // scanUntilLineEnd return the string up to (not including) a line end or EOF.
-func (s *Scanner) scanUntilLineEnd() string {
+func (s *scanner) scanUntilLineEnd() string {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
