@@ -1,17 +1,20 @@
 package proto3parser
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 )
 
 func TestSyntax(t *testing.T) {
 	proto := `syntax = "proto3";`
-	stmt, err := NewParser(strings.NewReader(proto)).Parse()
+	p := NewParser(strings.NewReader(proto))
+	p.scanIgnoreWhitespace() // consume first token
+	syntax, err := ParseSyntax(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := stmt.Syntax, "proto3"; got != want {
+	if got, want := syntax, "proto3"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -41,25 +44,59 @@ func TestServiceWithRPCs(t *testing.T) {
 	}
 }
 
-func TestField(t *testing.T) {
-	proto := `repeated inner inner_message = 2;`
+func TestOption(t *testing.T) {
+	proto := `option java_package = "com.example.foo";`
 	p := NewParser(strings.NewReader(proto))
-	f, err := ParseField(p)
+	p.scanIgnoreWhitespace() // consume first token
+	o, err := ParseOption(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := f.Repeated, true; got != want {
+	if got, want := o.Name, "java_package"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Constant, "com.example.foo"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
-func TestMessage(t *testing.T) {
-	proto := `message AccountOut {}`
-	stmt, err := NewParser(strings.NewReader(proto)).Parse()
+func TestOptionFull(t *testing.T) {
+	proto := `option (full.java_package) = "com.example.foo";`
+	p := NewParser(strings.NewReader(proto))
+	p.scanIgnoreWhitespace() // consume first token
+	o, err := ParseOption(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := stmt.Messages[0].Name, "AccountOut"; got != want {
+	if got, want := o.Name, "full.java_package"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Constant, "com.example.foo"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestCommentAroundSyntax(t *testing.T) {
+	proto := `
+	// comment1
+	// comment2
+	syntax = "proto3"; // comment3
+	// comment4
+`
+	p := NewParser(strings.NewReader(proto))
+	r, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(r.Comments), 4; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	for i := 1; i <= 4; i++ {
+		if got, want := r.Comments[i-1].Message, " comment"+strconv.Itoa(i); got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+		if got, want := r.Comments[i-1].Line, i+1; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
 	}
 }

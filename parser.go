@@ -1,6 +1,9 @@
 package proto3parser
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 // Parser represents a parser.
 type Parser struct {
@@ -20,28 +23,7 @@ func NewParser(r io.Reader) *Parser {
 // Parse parses a proto definition.
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
-	tok, _ := p.scanIgnoreWhitespace()
-	switch tok {
-	case SYNTAX:
-		if syntax, err := ParseSyntax(p); err != nil {
-			return nil, err
-		} else {
-			proto.Syntax = syntax
-		}
-	case SERVICE:
-		if service, err := ParseService(p); err != nil {
-			return nil, err
-		} else {
-			proto.Services = append(proto.Services, service)
-		}
-	case MESSAGE:
-		if msg, err := ParseMessage(p); err != nil {
-			return nil, err
-		} else {
-			proto.Messages = append(proto.Messages, msg)
-		}
-	}
-	return proto, nil
+	return proto, ParseProto(proto, p)
 }
 
 // scan returns the next token from the underlying scanner.
@@ -73,3 +55,25 @@ func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
 
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
+
+// scanQuotedIdent returns the identifier between 2 quotes.
+func (p *Parser) scanQuotedIdent() (string, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != QUOTE {
+		return "", fmt.Errorf("found %q, expected \"", lit)
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != IDENT {
+		return "", fmt.Errorf("found %q, expected identifier", lit)
+	}
+	ident := lit
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != QUOTE {
+		return "", fmt.Errorf("found %q, expected \"", lit)
+	}
+	return ident, nil
+}
+
+func (p *Parser) scanUntilLineEnd() string {
+	return p.s.scanUntilLineEnd()
+}

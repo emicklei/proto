@@ -11,13 +11,17 @@ import (
 
 // Scanner represents a lexical scanner.
 type Scanner struct {
-	r *bufio.Reader
+	r    *bufio.Reader
+	line int
 }
 
 // NewScanner returns a new instance of Scanner.
 func NewScanner(r io.Reader) *Scanner {
 	return &Scanner{r: bufio.NewReader(r)}
 }
+
+// Line returns the current line being scanned
+func (s *Scanner) Line() int { return s.line }
 
 // Scan returns the next token and literal value.
 func (s *Scanner) Scan() (tok Token, lit string) {
@@ -27,10 +31,18 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
 	// If we see a digit then consume as a number.
+	// If we see a double slash then consume all as a comment line
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
 	} else if isLetter(ch) {
+		s.unread()
+		return s.scanIdent()
+	} else if ch == '/' {
+		if ch = s.read(); ch == '/' {
+			return COMMENT, s.scanUntilLineEnd()
+		}
+		s.unread()
 		s.unread()
 		return s.scanIdent()
 	}
@@ -94,7 +106,7 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' {
+		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' && ch != '.' { // underscore and dot can be part of identifier
 			s.unread()
 			break
 		} else {
@@ -135,6 +147,9 @@ func (s *Scanner) read() rune {
 	if err != nil {
 		return eof
 	}
+	if '\n' == ch {
+		s.line++
+	}
 	return ch
 }
 
@@ -152,3 +167,22 @@ func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // eof represents a marker rune for the end of the reader.
 var eof = rune(0)
+
+// scanUntilLineEnd return the string up to (not including) a line end or EOF.
+func (s *Scanner) scanUntilLineEnd() string {
+	// Create a buffer and read the current character into it.
+	var buf bytes.Buffer
+	buf.WriteRune(s.read())
+	// Read every subsequent character into the buffer.
+	// New line character and EOF will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if ch == '\n' {
+			break
+		} else {
+			buf.WriteRune(ch)
+		}
+	}
+	return buf.String()
+}
