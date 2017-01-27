@@ -3,6 +3,8 @@ package proto3parser
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"strings"
 )
 
 type Message struct {
@@ -33,22 +35,14 @@ func ParseMessage(p *Parser) (*Message, error) {
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
-		// TODO rewrite this
-		if tok == OPTIONAL {
-			if f, err := ParseField(p); err != nil {
+		if tok != RIGHTCURLY {
+			f, err := ParseField(p)
+			if err != nil {
 				return nil, err
-			} else {
-				f.Optional = true
-				m.Fields = append(m.Fields, f)
 			}
-		} else if tok == REPEATED {
-			if f, err := ParseField(p); err != nil {
-				return nil, err
-			} else {
-				f.Repeated = true
-				m.Fields = append(m.Fields, f)
-			}
+			m.Fields = append(m.Fields, f)
 		} else {
+			// NEEDED?
 			p.unscan()
 			break
 		}
@@ -62,10 +56,40 @@ func ParseMessage(p *Parser) (*Message, error) {
 
 type Field struct {
 	Name     string
-	Optional bool
+	Type     string
 	Repeated bool
+	Messages []*Message
 }
 
 func ParseField(p *Parser) (*Field, error) {
-	return new(Field), nil
+	f := new(Field)
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+		switch tok {
+		case IDENT:
+			// normal type?
+			if strings.Contains(TypeTokens, lit) {
+				f.Type = lit
+				return f, ParseNormalField(f, p)
+			}
+		case MESSAGE:
+			m, err := ParseMessage(p)
+			if err != nil {
+				return f, err
+			}
+			f.Messages = append(f.Messages, m)
+		case REPEATED:
+			f.Repeated = true
+			return f, ParseNormalField(f, p)
+		default:
+			log.Println("default", tok, lit)
+			goto done
+		}
+	}
+done:
+	return f, nil
+}
+
+func ParseNormalField(f *Field, p *Parser) error {
+	return nil
 }

@@ -122,8 +122,6 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		return REPEATED, buf.String()
 	case "OPTION":
 		return OPTION, buf.String()
-	case "OPTIONAL":
-		return OPTIONAL, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
