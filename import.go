@@ -18,7 +18,11 @@ func (i *Import) parse(p *Parser) error {
 	}
 	i.Line = p.s.line
 	i.Kind = lit
-	name := p.s.scanUntil('\n')
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != QUOTE {
+		return fmt.Errorf("found %q, expected \"", lit)
+	}
+	name := p.s.scanUntil('"')
 	if len(name) == 0 {
 		return fmt.Errorf("unexpected end of quoted string")
 	}

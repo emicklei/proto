@@ -3,15 +3,14 @@ package proto3parser
 import (
 	"strings"
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestMessage(t *testing.T) {
 	proto := `message AccountOut {}`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
-	m, err := parseMessage(p)
+	m := new(Message)
+	err := m.parse(p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +26,8 @@ func TestMessageWithFields(t *testing.T) {
 	}`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
-	m, err := parseMessage(p)
+	m := new(Message)
+	err := m.parse(p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,5 +37,4 @@ func TestMessageWithFields(t *testing.T) {
 	if got, want := len(m.Fields), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	spew.Dump(m)
 }

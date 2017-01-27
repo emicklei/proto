@@ -3,6 +3,7 @@ package proto3parser
 import "fmt"
 
 type Option struct {
+	Line    int
 	Name    string
 	String  string
 	Boolean bool
@@ -12,6 +13,7 @@ func (o *Option) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
 	case IDENT:
+		o.Line = p.s.line
 		o.Name = lit
 	case LEFTPAREN:
 		tok, lit = p.scanIgnoreWhitespace()
@@ -32,8 +34,7 @@ func (o *Option) parse(p *Parser) error {
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok == QUOTE {
-		p.unscan()
-		ident := p.s.scanUntil('\n')
+		ident := p.s.scanUntil('"')
 		if len(ident) == 0 {
 			return fmt.Errorf("unexpected end of quoted string") // TODO create constant for this
 		}
@@ -42,6 +43,8 @@ func (o *Option) parse(p *Parser) error {
 	}
 	if TRUE == tok || FALSE == tok {
 		o.Boolean = lit == "true"
+	} else {
+		return fmt.Errorf("found %q, expected true or false", lit)
 	}
 	return nil
 }

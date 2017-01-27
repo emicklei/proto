@@ -28,7 +28,8 @@ func parseField(f *Field, p *Parser) error {
 			//if tok == ONEOF {}
 			//if tok == ONEOFFIELD {}
 		case MESSAGE:
-			m, err := parseMessage(p)
+			m := new(Message)
+			err := m.parse(p)
 			if err != nil {
 				return err
 			}

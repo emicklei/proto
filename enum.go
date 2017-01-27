@@ -1,6 +1,9 @@
 package proto3parser
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Enum struct {
 	Line       int
@@ -11,7 +14,7 @@ type Enum struct {
 
 type EnumField struct {
 	Name        string
-	Constant    string
+	Integer     int
 	ValueOption *Option
 }
 
@@ -24,15 +27,12 @@ func (f *EnumField) parse(p *Parser) error {
 	if tok != EQUALS {
 		return fmt.Errorf("found %q, expected =", lit)
 	}
-	ns := p.s.scanIntegerString()
-	if len(ns) != 0 {
-		f.Constant = ns
-	} else {
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT {
-			return fmt.Errorf("found %q, expected string", lit)
-		}
+	is := p.s.scanIntegerString()
+	i, err := strconv.Atoi(is)
+	if err != nil {
+		return fmt.Errorf("found %q, expected integer", is)
 	}
+	f.Integer = i
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok == LEFTSQUARE {
 		o := new(Option)

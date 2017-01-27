@@ -1,32 +1,12 @@
 package proto3parser
 
-import "fmt"
-
 type Proto struct {
-	Syntax   string
+	Syntax   *Syntax
 	Imports  []*Import
 	Enums    []*Enum
 	Services []*Service
 	Messages []*Message
 	Comments []*Comment
-}
-
-// parseSyntax returns the syntax value. Parser has seen "syntax".
-func parseSyntax(p *Parser) (string, error) {
-	if tok, lit := p.scanIgnoreWhitespace(); tok != EQUALS {
-		return "", fmt.Errorf("found %q, expected EQUALS", lit)
-	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected QUOTE", lit)
-	}
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
-		return "", fmt.Errorf("found %q, expected string", lit)
-	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != QUOTE {
-		return "", fmt.Errorf("found %q, expected QUOTE", lit)
-	}
-	return lit, nil
 }
 
 // Comment holds a message and line number.
@@ -46,11 +26,11 @@ func parseProto(proto *Proto, p *Parser) error {
 			Message: lit,
 		})
 	case SYNTAX:
-		if syntax, err := parseSyntax(p); err != nil {
+		s := new(Syntax)
+		if err := s.parse(p); err != nil {
 			return err
-		} else {
-			proto.Syntax = syntax
 		}
+		proto.Syntax = s
 	case IMPORT:
 		im := new(Import)
 		if err := im.parse(p); err != nil {
@@ -70,11 +50,11 @@ func parseProto(proto *Proto, p *Parser) error {
 			proto.Services = append(proto.Services, service)
 		}
 	case MESSAGE:
-		if msg, err := parseMessage(p); err != nil {
+		msg := new(Message)
+		if err := msg.parse(p); err != nil {
 			return err
-		} else {
-			proto.Messages = append(proto.Messages, msg)
 		}
+		proto.Messages = append(proto.Messages, msg)
 	case EOF:
 		return nil
 	}

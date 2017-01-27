@@ -6,44 +6,6 @@ import (
 	"testing"
 )
 
-func TestSyntax(t *testing.T) {
-	proto := `syntax = "proto3";`
-	p := NewParser(strings.NewReader(proto))
-	p.scanIgnoreWhitespace() // consume first token
-	syntax, err := parseSyntax(p)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := syntax, "proto3"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-}
-
-func TestService(t *testing.T) {
-	proto := `service AccountService {}`
-	stmt, err := NewParser(strings.NewReader(proto)).Parse()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := stmt.Services[0].Name, "AccountService"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-}
-
-func TestServiceWithRPCs(t *testing.T) {
-	proto := `service AccountService {
-		rpc CreateAccount (CreateAccount) returns    (ServiceFault) {}
-		rpc GetAccount 	  (Int64)           returns (Account) {}	
-	}`
-	stmt, err := NewParser(strings.NewReader(proto)).Parse()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := len(stmt.Services[0].RPCalls), 2; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-}
-
 func TestCommentAroundSyntax(t *testing.T) {
 	proto := `
 	// comment1

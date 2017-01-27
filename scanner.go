@@ -93,6 +93,7 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 }
 
 func (s *scanner) scanIntegerString() string {
+	s.scanWhitespace()
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -153,6 +154,10 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return OPTION, buf.String()
 	case "ENUM":
 		return ENUM, buf.String()
+	case "TRUE":
+		return TRUE, buf.String()
+	case "FALSE":
+		return FALSE, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
@@ -187,8 +192,8 @@ func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 // eof represents a marker rune for the end of the reader.
 var eof = rune(0)
 
-// scanUntil returns the string up to (not including) the rune or EOF.
-func (s *scanner) scanUntil(ch rune) string {
+// scanUntil returns the string up to (not including) the terminator or EOF.
+func (s *scanner) scanUntil(terminator rune) string {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -197,7 +202,7 @@ func (s *scanner) scanUntil(ch rune) string {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if ch == '\n' {
+		} else if ch == terminator {
 			break
 		} else {
 			buf.WriteRune(ch)

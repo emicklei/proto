@@ -21,6 +21,11 @@ func (s Service) String() string {
 	return buf.String()
 }
 
+// Accept dispatches the call to the visitor.
+func (s *Service) Accept(v Visitor) {
+	v.VisitService(s)
+}
+
 func parseService(p *Parser) (*Service, error) {
 	s := new(Service)
 	tok, lit := p.scanIgnoreWhitespace()
