@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"strings"
 )
 
 // scanner represents a lexical scanner.
@@ -18,7 +17,7 @@ type scanner struct {
 
 // newScanner returns a new instance of Scanner.
 func newScanner(r io.Reader) *scanner {
-	return &scanner{r: bufio.NewReader(r)}
+	return &scanner{r: bufio.NewReader(r), line: 1}
 }
 
 // scan returns the next token and literal value.
@@ -31,10 +30,10 @@ func (s *scanner) scan() (tok token, lit string) {
 	// If we see a digit then consume as a number.
 	// If we see a slash then consume all as a comment (can be multiline)
 	if isWhitespace(ch) {
-		s.unread()
+		s.unread(ch)
 		return s.scanWhitespace()
 	} else if isLetter(ch) {
-		s.unread()
+		s.unread(ch)
 		return s.scanIdent()
 	}
 
@@ -78,7 +77,7 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 		if ch := s.read(); ch == eof {
 			break
 		} else if !isWhitespace(ch) {
-			s.unread()
+			s.unread(ch)
 			break
 		} else {
 			buf.WriteRune(ch)
@@ -100,7 +99,7 @@ func (s *scanner) scanIntegerString() string {
 		if ch := s.read(); ch == eof {
 			break
 		} else if !isDigit(ch) {
-			s.unread()
+			s.unread(ch)
 			break
 		} else {
 			_, _ = buf.WriteRune(ch)
@@ -121,7 +120,7 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		if ch := s.read(); ch == eof {
 			break
 		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' && ch != '.' { // underscore and dot can be part of identifier
-			s.unread()
+			s.unread(ch)
 			break
 		} else {
 			_, _ = buf.WriteRune(ch)
@@ -129,35 +128,40 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 	}
 
 	// If the string matches a keyword then return that keyword.
-	switch strings.ToUpper(buf.String()) {
-	case "SYNTAX":
+	ident := buf.String()
+	switch ident {
+	case "syntax":
 		return SYNTAX, buf.String()
-	case "SERVICE":
+	case "service":
 		return SERVICE, buf.String()
-	case "MESSAGE":
+	case "message":
 		return MESSAGE, buf.String()
-	case "RPC":
+	case "rpc":
 		return RPC, buf.String()
-	case "RETURNS":
+	case "returns":
 		return RETURNS, buf.String()
-	case "IMPORT":
+	case "import":
 		return IMPORT, buf.String()
-	case "PACKAGE":
+	case "package":
 		return PACKAGE, buf.String()
-	case "REPEATED":
+	case "repeated":
 		return REPEATED, buf.String()
-	case "OPTION":
+	case "option":
 		return OPTION, buf.String()
-	case "ENUM":
+	case "enum":
 		return ENUM, buf.String()
-	case "TRUE":
+	case "true":
 		return TRUE, buf.String()
-	case "FALSE":
+	case "false":
 		return FALSE, buf.String()
+	case "weak":
+		return WEAK, buf.String()
+	case "public":
+		return PUBLIC, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
-	return IDENT, buf.String()
+	return IDENT, ident
 }
 
 // read reads the next rune from the bufferred reader.
@@ -174,7 +178,13 @@ func (s *scanner) read() rune {
 }
 
 // unread places the previously read rune back on the reader.
-func (s *scanner) unread() { _ = s.r.UnreadRune() }
+// decrement the line count if it was a newline.
+func (s *scanner) unread(ch rune) {
+	_ = s.r.UnreadRune()
+	if '\n' == ch {
+		s.line--
+	}
+}
 
 // isWhitespace returns true if the rune is a space, tab, or newline.
 func isWhitespace(ch rune) bool { return ch == ' ' || ch == '\t' || ch == '\n' }
@@ -208,7 +218,7 @@ func (s *scanner) scanUntil(terminator rune) string {
 // peek returns true if a rune is ahead.
 func (s *scanner) peek(ch rune) bool {
 	r := s.read()
-	s.unread()
+	s.unread(r)
 	return r == ch
 }
 
@@ -220,7 +230,7 @@ func (s *scanner) scanComment() string {
 		return s.scanUntil('\n')
 	}
 	if '*' != next {
-		s.unread()
+		s.unread(next)
 		return fmt.Sprintf("%d %s", next, string(next))
 	}
 	var buf bytes.Buffer

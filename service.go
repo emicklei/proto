@@ -1,50 +1,38 @@
 package proto3
 
-import (
-	"bytes"
-	"fmt"
-)
+import "fmt"
 
+// Service defines a set of RPC calls.
 type Service struct {
 	Line    int
 	Name    string
-	RPCalls []*rpcall
+	RPCalls []*RPcall
 }
 
-func (s Service) String() string {
-	buf := new(bytes.Buffer)
-	fmt.Fprintf(buf, "service %s {\n", s.Name)
-	for _, each := range s.RPCalls {
-		fmt.Fprintln(buf, each)
-	}
-	fmt.Fprintf(buf, "}\n")
-	return buf.String()
-}
-
-// Accept dispatches the call to the visitor.
-func (s *Service) Accept(v Visitor) {
+// accept dispatches the call to the visitor.
+func (s *Service) accept(v Visitor) {
 	v.VisitService(s)
 }
 
-func parseService(p *Parser) (*Service, error) {
-	s := new(Service)
+func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected string", lit)
+		return fmt.Errorf("found %q, expected string", lit)
 	}
 	s.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != LEFTCURLY {
-		return nil, fmt.Errorf("found %q, expected {", lit)
+		return fmt.Errorf("found %q, expected {", lit)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == RPC {
-			if rpc, err := parseRPC(p); err != nil {
-				return nil, err
-			} else {
-				s.RPCalls = append(s.RPCalls, rpc)
+			rpc := new(RPcall)
+			err := rpc.parse(p)
+			if err != nil {
+				return err
 			}
+			s.RPCalls = append(s.RPCalls, rpc)
 		} else {
 			p.unscan()
 			break
@@ -52,67 +40,61 @@ func parseService(p *Parser) (*Service, error) {
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != RIGHTCURLY {
-		return nil, fmt.Errorf("found %q, expected }", lit)
+		return fmt.Errorf("found %q, expected }", lit)
 	}
-	return s, nil
+	return nil
 }
 
-type rpcall struct {
+type RPcall struct {
 	Method      string
 	RequestType string
 	Streaming   bool
 	ReturnsType string
 }
 
-func (r rpcall) String() string {
-	return fmt.Sprintf("rpc %s (%s) returns (%s) {}", r.Method, r.RequestType, r.ReturnsType)
-}
-
-// rpc CreateAccount (CreateAccount) returns    (ServiceFault) {}
-func parseRPC(p *Parser) (*rpcall, error) {
-	rpc := new(rpcall)
+func (r *RPcall) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected method", lit)
+		return fmt.Errorf("found %q, expected method", lit)
 	}
-	rpc.Method = lit
+	r.Method = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != LEFTPAREN {
-		return nil, fmt.Errorf("found %q, expected (", lit)
+		return fmt.Errorf("found %q, expected (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected request type", lit)
+		return fmt.Errorf("found %q, expected request type", lit)
 	}
-	rpc.RequestType = lit
+	r.RequestType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != RIGHTPAREN {
-		return nil, fmt.Errorf("found %q, expected )", lit)
+		return fmt.Errorf("found %q, expected )", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != RETURNS {
-		return nil, fmt.Errorf("found %q, expected returns", lit)
+		return fmt.Errorf("found %q, expected returns", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != LEFTPAREN {
-		return nil, fmt.Errorf("found %q, expected (", lit)
+		return fmt.Errorf("found %q, expected (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return nil, fmt.Errorf("found %q, expected returns type", lit)
+		return fmt.Errorf("found %q, expected returns type", lit)
 	}
-	rpc.ReturnsType = lit
+	r.ReturnsType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != RIGHTPAREN {
-		return nil, fmt.Errorf("found %q, expected )", lit)
+		return fmt.Errorf("found %q, expected )", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != LEFTCURLY {
-		return nil, fmt.Errorf("found %q, expected {", lit)
+		return fmt.Errorf("found %q, expected {", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != RIGHTCURLY {
-		return nil, fmt.Errorf("found %q, expected }", lit)
+		return fmt.Errorf("found %q, expected }", lit)
 	}
-	return rpc, nil
+	return nil
 }

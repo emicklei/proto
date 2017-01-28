@@ -2,11 +2,17 @@ package proto3
 
 import "fmt"
 
+// Option is a protoc compiler option
 type Option struct {
 	Line    int
 	Name    string
 	String  string
 	Boolean bool
+}
+
+// accept dispatches the call to the visitor.
+func (o *Option) accept(v Visitor) {
+	v.VisitOption(o)
 }
 
 func (o *Option) parse(p *Parser) error {

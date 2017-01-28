@@ -13,7 +13,7 @@ world`)
 	if got, want := v, "hello"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := s.line, 1; got != want {
+	if got, want := s.line, 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

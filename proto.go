@@ -23,8 +23,8 @@ func (c Comment) IsMultiline() bool {
 	return strings.Contains(c.Message, "\n")
 }
 
-// parseProto parsers a complete .proto definition source.
-func parseProto(proto *Proto, p *Parser) error {
+// parse parsers a complete .proto definition source.
+func (proto *Proto) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
 	case COMMENT:
@@ -49,7 +49,8 @@ func parseProto(proto *Proto, p *Parser) error {
 		proto.Enums = append(proto.Enums, enum)
 	case SERVICE:
 		// TODO
-		service, err := parseService(p)
+		service := new(Service)
+		err := service.parse(p)
 		if err != nil {
 			return err
 		}
@@ -63,5 +64,5 @@ func parseProto(proto *Proto, p *Parser) error {
 	case EOF:
 		return nil
 	}
-	return parseProto(proto, p)
+	return proto.parse(p)
 }

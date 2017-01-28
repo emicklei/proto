@@ -40,6 +40,8 @@ const (
 	PACKAGE
 	OPTION
 	REPEATED
+	WEAK
+	PUBLIC
 
 	// special fields
 

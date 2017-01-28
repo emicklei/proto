@@ -1,31 +1,28 @@
 package proto3
 
-import (
-	"fmt"
-	"strings"
-)
+import "fmt"
 
+// Import holds a filename to another .proto definition.
 type Import struct {
 	Line     int
 	Filename string
-	Kind     string // weak, public
+	Kind     string // weak, public, <empty>
 }
 
 func (i *Import) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT || !strings.Contains("weak public", lit) {
-		return fmt.Errorf("found %q, expected kind (weak|public)", lit)
-	}
 	i.Line = p.s.line
-	i.Kind = lit
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != QUOTE {
-		return fmt.Errorf("found %q, expected \"", lit)
+	switch tok {
+	case WEAK:
+		i.Kind = lit
+		return i.parse(p)
+	case PUBLIC:
+		i.Kind = lit
+		return i.parse(p)
+	case QUOTE:
+		i.Filename = p.s.scanUntil('"')
+	default:
+		return fmt.Errorf("found %q, expected weak|public|quoted identifier", lit)
 	}
-	name := p.s.scanUntil('"')
-	if len(name) == 0 {
-		return fmt.Errorf("unexpected end of quoted string")
-	}
-	i.Filename = name
 	return nil
 }

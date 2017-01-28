@@ -7,6 +7,10 @@ type Syntax struct {
 	Value string
 }
 
+func (s *Syntax) accept(v Visitor) {
+	v.VisitSyntax(s)
+}
+
 func (s *Syntax) parse(p *Parser) error {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != EQUALS {
 		return fmt.Errorf("found %q, expected EQUALS", lit)

@@ -21,7 +21,7 @@ func NewParser(r io.Reader) *Parser {
 // Parse parses a proto definition.
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
-	return proto, parseProto(proto, p)
+	return proto, proto.parse(p)
 }
 
 // scan returns the next token from the underlying scanner.
@@ -61,3 +61,6 @@ func (p *Parser) newComment(lit string) *Comment {
 		Message: lit,
 	}
 }
+
+// Line returns the line number on which the last token was read.
+func (p *Parser) Line() int { return p.s.line }

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Field is a message field.
 type Field struct {
 	Name     string
 	Type     string
@@ -14,8 +15,7 @@ type Field struct {
 	Sequence int
 }
 
-// parseField parsers one field.
-func parseField(f *Field, p *Parser) error {
+func (f *Field) parse(p *Parser) error {
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
@@ -36,7 +36,7 @@ func parseField(f *Field, p *Parser) error {
 			f.Messages = append(f.Messages, m)
 		case REPEATED:
 			f.Repeated = true
-			return parseField(f, p)
+			return f.parse(p)
 		default:
 			goto done
 		}

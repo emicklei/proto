@@ -14,7 +14,7 @@ type Message struct {
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT {
-		return fmt.Errorf("found %q, expected name", lit)
+		return fmt.Errorf("found %q, expected identifier", lit)
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
@@ -32,7 +32,7 @@ func (m *Message) parse(p *Parser) error {
 		default:
 			p.unscan()
 			f := new(Field)
-			err := parseField(f, p)
+			err := f.parse(p)
 			if err != nil {
 				return err
 			}
