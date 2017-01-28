@@ -5,16 +5,19 @@ type token int
 
 const (
 	// Special tokens
+
 	ILLEGAL token = iota
 	EOF
 	WS
 
 	// Literals
+
 	IDENT // main
 	TRUE
 	FALSE
 
 	// Misc characters
+
 	SEMICOLON   // ;
 	EQUALS      // =
 	QUOTE       // "
@@ -27,6 +30,7 @@ const (
 	COMMENT     // /
 
 	// Keywords
+
 	SYNTAX
 	SERVICE
 	RPC
@@ -38,6 +42,7 @@ const (
 	REPEATED
 
 	// special fields
+
 	ONEOF
 	ONEOFFIELD
 	MAP

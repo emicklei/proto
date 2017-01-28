@@ -1,24 +1,14 @@
 package proto3
 
-import (
-	"bytes"
-	"fmt"
-)
+import "fmt"
 
+// Message consists of a message name and a message body.
 type Message struct {
-	Line   int
+	Line     int
+	Comments []*Comment
+
 	Name   string
 	Fields []*Field
-}
-
-func (m Message) String() string {
-	buf := new(bytes.Buffer)
-	fmt.Fprintf(buf, "message %s {\n", m.Name)
-	for _, each := range m.Fields {
-		fmt.Fprintln(buf, each)
-	}
-	fmt.Fprintf(buf, "}\n")
-	return buf.String()
 }
 
 func (m *Message) parse(p *Parser) error {
@@ -34,6 +24,8 @@ func (m *Message) parse(p *Parser) error {
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
+		case COMMENT:
+			m.Comments = append(m.Comments, p.newComment(lit))
 		case RIGHTCURLY:
 			goto done
 		case SEMICOLON:

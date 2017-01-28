@@ -10,6 +10,7 @@ type Parser struct {
 		lit string // last read literal
 		n   int    // buffer size (max=1)
 	}
+	comments []*Comment
 }
 
 // NewParser returns a new instance of Parser.
@@ -52,3 +53,11 @@ func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
+
+// newComment returns a comment with line indication.
+func (p *Parser) newComment(lit string) *Comment {
+	return &Comment{
+		Line:    p.s.line - 1, // line number that started the comment
+		Message: lit,
+	}
+}

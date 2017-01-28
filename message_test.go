@@ -19,10 +19,13 @@ func TestMessage(t *testing.T) {
 	}
 }
 
-func TestMessageWithFields(t *testing.T) {
-	proto := `message AccountOut {
+func TestMessageWithFieldsAndComments(t *testing.T) {
+	proto := `
+		message AccountOut {
+		// identifier
 		string id   = 1;
-		int64  size = 2;
+		// size
+		int64 size = 2;
 	}`
 	p := NewParser(strings.NewReader(proto))
 	p.scanIgnoreWhitespace() // consume first token
@@ -35,6 +38,9 @@ func TestMessageWithFields(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(m.Fields), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(m.Comments), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

@@ -2,6 +2,7 @@ package proto3
 
 import "fmt"
 
+// Syntax should have value "proto3"
 type Syntax struct {
 	Value string
 }

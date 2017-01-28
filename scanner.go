@@ -5,6 +5,7 @@ package proto3
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -28,18 +29,11 @@ func (s *scanner) scan() (tok token, lit string) {
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
 	// If we see a digit then consume as a number.
-	// If we see a double slash then consume all as a comment line
+	// If we see a slash then consume all as a comment (can be multiline)
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
 	} else if isLetter(ch) {
-		s.unread()
-		return s.scanIdent()
-	} else if ch == '/' {
-		if ch = s.read(); ch == '/' {
-			return COMMENT, s.scanUntil('\n')
-		}
-		s.unread()
 		s.unread()
 		return s.scanIdent()
 	}
@@ -66,6 +60,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return LEFTSQUARE, string(ch)
 	case ']':
 		return RIGHTSQUARE, string(ch)
+	case '/':
+		return COMMENT, s.scanComment()
 	}
 	return ILLEGAL, string(ch)
 }
@@ -194,15 +190,47 @@ var eof = rune(0)
 
 // scanUntil returns the string up to (not including) the terminator or EOF.
 func (s *scanner) scanUntil(terminator rune) string {
-	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
-	buf.WriteRune(s.read())
 	// Read every subsequent character into the buffer.
 	// New line character and EOF will cause the loop to exit.
 	for {
 		if ch := s.read(); ch == eof {
 			break
 		} else if ch == terminator {
+			break
+		} else {
+			buf.WriteRune(ch)
+		}
+	}
+	return buf.String()
+}
+
+// peek returns true if a rune is ahead.
+func (s *scanner) peek(ch rune) bool {
+	r := s.read()
+	s.unread()
+	return r == ch
+}
+
+// scaneComment returns the string after // or between /* and */. COMMENT token was consumed.
+func (s *scanner) scanComment() string {
+	next := s.read()
+	if '/' == next {
+		// single line
+		return s.scanUntil('\n')
+	}
+	if '*' != next {
+		s.unread()
+		return fmt.Sprintf("%d %s", next, string(next))
+	}
+	var buf bytes.Buffer
+	// Read every subsequent character into the buffer.
+	// */ and EOF will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if ch == '*' && s.peek('/') {
+			s.read() // consume /
 			break
 		} else {
 			buf.WriteRune(ch)

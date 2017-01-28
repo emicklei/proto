@@ -1,5 +1,8 @@
 package proto3
 
+import "strings"
+
+// Proto represents a .proto definition
 type Proto struct {
 	Syntax   *Syntax
 	Imports  []*Import
@@ -15,16 +18,17 @@ type Comment struct {
 	Message string
 }
 
+// IsMultiline returns whether its message has one or more lineends.
+func (c Comment) IsMultiline() bool {
+	return strings.Contains(c.Message, "\n")
+}
+
 // parseProto parsers a complete .proto definition source.
 func parseProto(proto *Proto, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	//log.Println(tok, lit)
 	switch tok {
 	case COMMENT:
-		proto.Comments = append(proto.Comments, &Comment{
-			Line:    p.s.line - 1, // line number before EOL was seen
-			Message: lit,
-		})
+		proto.Comments = append(proto.Comments, p.newComment(lit))
 	case SYNTAX:
 		s := new(Syntax)
 		if err := s.parse(p); err != nil {
@@ -44,11 +48,12 @@ func parseProto(proto *Proto, p *Parser) error {
 		}
 		proto.Enums = append(proto.Enums, enum)
 	case SERVICE:
-		if service, err := parseService(p); err != nil {
+		// TODO
+		service, err := parseService(p)
+		if err != nil {
 			return err
-		} else {
-			proto.Services = append(proto.Services, service)
 		}
+		proto.Services = append(proto.Services, service)
 	case MESSAGE:
 		msg := new(Message)
 		if err := msg.parse(p); err != nil {
