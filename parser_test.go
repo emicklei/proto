@@ -1,4 +1,4 @@
-package proto3parser
+package proto3
 
 import (
 	"strconv"
