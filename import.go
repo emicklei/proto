@@ -13,13 +13,13 @@ func (i *Import) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	i.Line = p.s.line
 	switch tok {
-	case WEAK:
+	case tWEAK:
 		i.Kind = lit
 		return i.parse(p)
-	case PUBLIC:
+	case tPUBLIC:
 		i.Kind = lit
 		return i.parse(p)
-	case QUOTE:
+	case tQUOTE:
 		i.Filename = p.s.scanUntil('"')
 	default:
 		return fmt.Errorf("found %q, expected weak|public|quoted identifier", lit)

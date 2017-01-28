@@ -24,6 +24,7 @@ func TestEnum(t *testing.T) {
 
 func TestEnumWithBody(t *testing.T) {
 	proto := `
+// EnumAllowingAlias is part of TestEnumWithBody	
 enum EnumAllowingAlias {
   option allow_alias = true;
   UNKNOWN = 0;

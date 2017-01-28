@@ -18,28 +18,28 @@ func (o *Option) accept(v Visitor) {
 func (o *Option) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
-	case IDENT:
+	case tIDENT:
 		o.Line = p.s.line
 		o.Name = lit
-	case LEFTPAREN:
+	case tLEFTPAREN:
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT {
+		if tok != tIDENT {
 			return fmt.Errorf("found %q, expected identifier", lit)
 		}
 		o.Name = lit
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != RIGHTPAREN {
+		if tok != tRIGHTPAREN {
 			return fmt.Errorf("found %q, expected )", lit)
 		}
 	default:
 		return fmt.Errorf("found %q, expected identifier or (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != EQUALS {
+	if tok != tEQUALS {
 		return fmt.Errorf("found %q, expected =", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok == QUOTE {
+	if tok == tQUOTE {
 		ident := p.s.scanUntil('"')
 		if len(ident) == 0 {
 			return fmt.Errorf("unexpected end of quoted string") // TODO create constant for this
@@ -47,7 +47,7 @@ func (o *Option) parse(p *Parser) error {
 		o.String = ident
 		return nil
 	}
-	if TRUE == tok || FALSE == tok {
+	if tTRUE == tok || tFALSE == tok {
 		o.Boolean = lit == "true"
 	} else {
 		return fmt.Errorf("found %q, expected true or false", lit)

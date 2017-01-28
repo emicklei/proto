@@ -9,26 +9,34 @@ type Message struct {
 
 	Name   string
 	Fields []*Field
+	Enums  []*Enum
 }
 
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected identifier", lit)
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTCURLY {
+	if tok != tLEFTCURLY {
 		return fmt.Errorf("found %q, expected {", lit)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
-		case COMMENT:
+		case tCOMMENT:
 			m.Comments = append(m.Comments, p.newComment(lit))
-		case RIGHTCURLY:
+		case tRIGHTCURLY:
 			goto done
-		case SEMICOLON:
+		case tSEMICOLON:
+		case tENUM:
+			e := new(Enum)
+			err := e.parse(p)
+			if err != nil {
+				return err
+			}
+			m.Enums = append(m.Enums, e)
 		default:
 			p.unscan()
 			f := new(Field)
@@ -40,7 +48,7 @@ func (m *Message) parse(p *Parser) error {
 		}
 	}
 done:
-	if tok != RIGHTCURLY {
+	if tok != tRIGHTCURLY {
 		return fmt.Errorf("found %q, expected }", lit)
 	}
 	return nil

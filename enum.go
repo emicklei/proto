@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Enum definition consists of a name and an enum body.
 type Enum struct {
 	Line       int
 	Name       string
@@ -12,6 +13,7 @@ type Enum struct {
 	EnumFields []*EnumField
 }
 
+// EnumField is part of the body of an Enum.
 type EnumField struct {
 	Name        string
 	Integer     int
@@ -20,11 +22,11 @@ type EnumField struct {
 
 func (f *EnumField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected identifier", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != EQUALS {
+	if tok != tEQUALS {
 		return fmt.Errorf("found %q, expected =", lit)
 	}
 	is := p.s.scanIntegerString()
@@ -34,7 +36,7 @@ func (f *EnumField) parse(p *Parser) error {
 	}
 	f.Integer = i
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok == LEFTSQUARE {
+	if tok == tLEFTSQUARE {
 		o := new(Option)
 		err := o.parse(p)
 		if err != nil {
@@ -42,7 +44,7 @@ func (f *EnumField) parse(p *Parser) error {
 		}
 		f.ValueOption = o
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != RIGHTSQUARE {
+		if tok != tRIGHTSQUARE {
 			return fmt.Errorf("found %q, expected ]", lit)
 		}
 	}
@@ -51,21 +53,21 @@ func (f *EnumField) parse(p *Parser) error {
 
 func (e *Enum) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected identifier", lit)
 	}
 	e.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTCURLY {
+	if tok != tLEFTCURLY {
 		return fmt.Errorf("found %q, expected {", lit)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
-		case RIGHTCURLY:
+		case tRIGHTCURLY:
 			goto done
-		case SEMICOLON:
-		case OPTION:
+		case tSEMICOLON:
+		case tOPTION:
 			v := new(Option)
 			err := v.parse(p)
 			if err != nil {
@@ -83,7 +85,7 @@ func (e *Enum) parse(p *Parser) error {
 		}
 	}
 done:
-	if tok != RIGHTCURLY {
+	if tok != tRIGHTCURLY {
 		return fmt.Errorf("found %q, expected }", lit)
 	}
 	return nil

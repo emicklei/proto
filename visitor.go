@@ -9,7 +9,7 @@ type Visitor interface {
 	VisitOption(o *Option)
 }
 
-// visitee is implemented by all Proto elements.
-type visitee interface {
-	accept(v Visitor)
+// Visitee is implemented by all Proto elements.
+type Visitee interface {
+	Accept(v Visitor)
 }

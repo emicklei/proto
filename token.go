@@ -5,51 +5,46 @@ type token int
 
 const (
 	// Special tokens
-
-	ILLEGAL token = iota
-	EOF
-	WS
+	tILLEGAL token = iota
+	tEOF
+	tWS
 
 	// Literals
-
-	IDENT // main
-	TRUE
-	FALSE
+	tIDENT
+	tTRUE
+	tFALSE
 
 	// Misc characters
-
-	SEMICOLON   // ;
-	EQUALS      // =
-	QUOTE       // "
-	LEFTPAREN   // (
-	RIGHTPAREN  // )
-	LEFTCURLY   // {
-	RIGHTCURLY  // }
-	LEFTSQUARE  // [
-	RIGHTSQUARE // ]
-	COMMENT     // /
+	tSEMICOLON   // ;
+	tEQUALS      // =
+	tQUOTE       // "
+	tLEFTPAREN   // (
+	tRIGHTPAREN  // )
+	tLEFTCURLY   // {
+	tRIGHTCURLY  // }
+	tLEFTSQUARE  // [
+	tRIGHTSQUARE // ]
+	tCOMMENT     // /
 
 	// Keywords
-
-	SYNTAX
-	SERVICE
-	RPC
-	RETURNS
-	MESSAGE
-	IMPORT
-	PACKAGE
-	OPTION
-	REPEATED
-	WEAK
-	PUBLIC
+	tSYNTAX
+	tSERVICE
+	tRPC
+	tRETURNS
+	tMESSAGE
+	tIMPORT
+	tPACKAGE
+	tOPTION
+	tREPEATED
+	tWEAK
+	tPUBLIC
 
 	// special fields
-
-	ONEOF
-	ONEOFFIELD
-	MAP
-	RESERVED
-	ENUM
+	tONEOF
+	tONEOFFIELD
+	tMAP
+	tRESERVED
+	tENUM
 )
 
 const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"

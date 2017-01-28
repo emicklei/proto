@@ -27,41 +27,40 @@ func (c Comment) IsMultiline() bool {
 func (proto *Proto) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
-	case COMMENT:
+	case tCOMMENT:
 		proto.Comments = append(proto.Comments, p.newComment(lit))
-	case SYNTAX:
+	case tSYNTAX:
 		s := new(Syntax)
 		if err := s.parse(p); err != nil {
 			return err
 		}
 		proto.Syntax = s
-	case IMPORT:
+	case tIMPORT:
 		im := new(Import)
 		if err := im.parse(p); err != nil {
 			return err
 		}
 		proto.Imports = append(proto.Imports, im)
-	case ENUM:
+	case tENUM:
 		enum := new(Enum)
 		if err := enum.parse(p); err != nil {
 			return err
 		}
 		proto.Enums = append(proto.Enums, enum)
-	case SERVICE:
-		// TODO
+	case tSERVICE:
 		service := new(Service)
 		err := service.parse(p)
 		if err != nil {
 			return err
 		}
 		proto.Services = append(proto.Services, service)
-	case MESSAGE:
+	case tMESSAGE:
 		msg := new(Message)
 		if err := msg.parse(p); err != nil {
 			return err
 		}
 		proto.Messages = append(proto.Messages, msg)
-	case EOF:
+	case tEOF:
 		return nil
 	}
 	return proto.parse(p)

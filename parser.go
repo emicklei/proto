@@ -45,7 +45,7 @@ func (p *Parser) scan() (tok token, lit string) {
 // scanIgnoreWhitespace scans the next non-whitespace token.
 func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 	tok, lit = p.scan()
-	if tok == WS {
+	if tok == tWS {
 		tok, lit = p.scan()
 	}
 	return

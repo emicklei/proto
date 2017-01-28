@@ -16,17 +16,17 @@ func (s *Service) accept(v Visitor) {
 
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected string", lit)
 	}
 	s.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTCURLY {
+	if tok != tLEFTCURLY {
 		return fmt.Errorf("found %q, expected {", lit)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == RPC {
+		if tok == tRPC {
 			rpc := new(RPcall)
 			err := rpc.parse(p)
 			if err != nil {
@@ -39,12 +39,13 @@ func (s *Service) parse(p *Parser) error {
 		}
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != RIGHTCURLY {
+	if tok != tRIGHTCURLY {
 		return fmt.Errorf("found %q, expected }", lit)
 	}
 	return nil
 }
 
+// RPcall represents an rpc entry in a message.
 type RPcall struct {
 	Method      string
 	RequestType string
@@ -54,46 +55,46 @@ type RPcall struct {
 
 func (r *RPcall) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected method", lit)
 	}
 	r.Method = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTPAREN {
+	if tok != tLEFTPAREN {
 		return fmt.Errorf("found %q, expected (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected request type", lit)
 	}
 	r.RequestType = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != RIGHTPAREN {
+	if tok != tRIGHTPAREN {
 		return fmt.Errorf("found %q, expected )", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != RETURNS {
+	if tok != tRETURNS {
 		return fmt.Errorf("found %q, expected returns", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTPAREN {
+	if tok != tLEFTPAREN {
 		return fmt.Errorf("found %q, expected (", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected returns type", lit)
 	}
 	r.ReturnsType = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != RIGHTPAREN {
+	if tok != tRIGHTPAREN {
 		return fmt.Errorf("found %q, expected )", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != LEFTCURLY {
+	if tok != tLEFTCURLY {
 		return fmt.Errorf("found %q, expected {", lit)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != RIGHTCURLY {
+	if tok != tRIGHTCURLY {
 		return fmt.Errorf("found %q, expected }", lit)
 	}
 	return nil

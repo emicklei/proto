@@ -19,7 +19,7 @@ func (f *Field) parse(p *Parser) error {
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
-		case IDENT:
+		case tIDENT:
 			// normal type?
 			if strings.Contains(typeTokens, lit) {
 				f.Type = lit
@@ -27,14 +27,14 @@ func (f *Field) parse(p *Parser) error {
 			}
 			//if tok == ONEOF {}
 			//if tok == ONEOFFIELD {}
-		case MESSAGE:
+		case tMESSAGE:
 			m := new(Message)
 			err := m.parse(p)
 			if err != nil {
 				return err
 			}
 			f.Messages = append(f.Messages, m)
-		case REPEATED:
+		case tREPEATED:
 			f.Repeated = true
 			return f.parse(p)
 		default:
@@ -48,12 +48,12 @@ done:
 // parseNormalField proceeds after reading the type of f.
 func parseNormalField(f *Field, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT {
+	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected identifier", lit)
 	}
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != EQUALS {
+	if tok != tEQUALS {
 		return fmt.Errorf("found %q, expected =", lit)
 	}
 	_, lit = p.scanIgnoreWhitespace()

@@ -40,29 +40,29 @@ func (s *scanner) scan() (tok token, lit string) {
 	// Otherwise read the individual character.
 	switch ch {
 	case eof:
-		return EOF, ""
+		return tEOF, ""
 	case ';':
-		return SEMICOLON, string(ch)
+		return tSEMICOLON, string(ch)
 	case '=':
-		return EQUALS, string(ch)
+		return tEQUALS, string(ch)
 	case '"':
-		return QUOTE, string(ch)
+		return tQUOTE, string(ch)
 	case '(':
-		return LEFTPAREN, string(ch)
+		return tLEFTPAREN, string(ch)
 	case ')':
-		return RIGHTPAREN, string(ch)
+		return tRIGHTPAREN, string(ch)
 	case '{':
-		return LEFTCURLY, string(ch)
+		return tLEFTCURLY, string(ch)
 	case '}':
-		return RIGHTCURLY, string(ch)
+		return tRIGHTCURLY, string(ch)
 	case '[':
-		return LEFTSQUARE, string(ch)
+		return tLEFTSQUARE, string(ch)
 	case ']':
-		return RIGHTSQUARE, string(ch)
+		return tRIGHTSQUARE, string(ch)
 	case '/':
-		return COMMENT, s.scanComment()
+		return tCOMMENT, s.scanComment()
 	}
-	return ILLEGAL, string(ch)
+	return tILLEGAL, string(ch)
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
@@ -84,7 +84,7 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 		}
 	}
 
-	return WS, buf.String()
+	return tWS, buf.String()
 }
 
 func (s *scanner) scanIntegerString() string {
@@ -131,37 +131,37 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 	ident := buf.String()
 	switch ident {
 	case "syntax":
-		return SYNTAX, buf.String()
+		return tSYNTAX, buf.String()
 	case "service":
-		return SERVICE, buf.String()
+		return tSERVICE, buf.String()
 	case "message":
-		return MESSAGE, buf.String()
+		return tMESSAGE, buf.String()
 	case "rpc":
-		return RPC, buf.String()
+		return tRPC, buf.String()
 	case "returns":
-		return RETURNS, buf.String()
+		return tRETURNS, buf.String()
 	case "import":
-		return IMPORT, buf.String()
+		return tIMPORT, buf.String()
 	case "package":
-		return PACKAGE, buf.String()
+		return tPACKAGE, buf.String()
 	case "repeated":
-		return REPEATED, buf.String()
+		return tREPEATED, buf.String()
 	case "option":
-		return OPTION, buf.String()
+		return tOPTION, buf.String()
 	case "enum":
-		return ENUM, buf.String()
+		return tENUM, buf.String()
 	case "true":
-		return TRUE, buf.String()
+		return tTRUE, buf.String()
 	case "false":
-		return FALSE, buf.String()
+		return tFALSE, buf.String()
 	case "weak":
-		return WEAK, buf.String()
+		return tWEAK, buf.String()
 	case "public":
-		return PUBLIC, buf.String()
+		return tPUBLIC, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
-	return IDENT, ident
+	return tIDENT, ident
 }
 
 // read reads the next rune from the bufferred reader.
