@@ -7,6 +7,13 @@ type Visitor interface {
 	VisitSyntax(s *Syntax)
 	VisitPackage(p *Package)
 	VisitOption(o *Option)
+	VisitImport(i *Import)
+	VisitField(i *Field)
+	VisitEnumField(i *EnumField)
+	VisitEnum(e *Enum)
+	VisitComment(e *Comment)
+	VisitOneof(o *Oneof)
+	VisitOneofField(o *OneOfField)
 }
 
 // Visitee is implemented by all Proto elements.

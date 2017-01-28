@@ -11,7 +11,7 @@ func TestService(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := stmt.Services[0].Name, "AccountService"; got != want {
+	if got, want := collect(stmt).Services()[0].Name, "AccountService"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -25,7 +25,7 @@ func TestServiceWithRPCs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := len(stmt.Services[0].RPCalls), 2; got != want {
+	if got, want := len(collect(stmt).Services()[0].RPCalls), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

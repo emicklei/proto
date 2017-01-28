@@ -61,6 +61,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tRIGHTSQUARE, string(ch)
 	case '/':
 		return tCOMMENT, s.scanComment()
+	case '<':
+		return tLESS, string(ch)
 	}
 	return tILLEGAL, string(ch)
 }
@@ -158,6 +160,10 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tWEAK, buf.String()
 	case "public":
 		return tPUBLIC, buf.String()
+	case "map":
+		return tMAP, buf.String()
+	case "oneof":
+		return tONEOF, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.

@@ -9,6 +9,11 @@ type Import struct {
 	Kind     string // weak, public, <empty>
 }
 
+// Accept dispatches the call to the visitor.
+func (i *Import) Accept(v Visitor) {
+	v.VisitImport(i)
+}
+
 func (i *Import) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	i.Line = p.s.line

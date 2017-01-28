@@ -7,10 +7,14 @@ import (
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
-	Line       int
-	Name       string
-	Options    []*Option
-	EnumFields []*EnumField
+	Line     int
+	Name     string
+	Elements []Visitee
+}
+
+// Accept dispatches the call to the visitor.
+func (e *Enum) Accept(v Visitor) {
+	v.VisitEnum(e)
 }
 
 // EnumField is part of the body of an Enum.
@@ -20,11 +24,17 @@ type EnumField struct {
 	ValueOption *Option
 }
 
+// Accept dispatches the call to the visitor.
+func (f *EnumField) Accept(v Visitor) {
+	v.VisitEnumField(f)
+}
+
 func (f *EnumField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected identifier", lit)
 	}
+	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
 		return fmt.Errorf("found %q, expected =", lit)
@@ -64,16 +74,18 @@ func (e *Enum) parse(p *Parser) error {
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
-		case tRIGHTCURLY:
-			goto done
-		case tSEMICOLON:
+		case tCOMMENT:
+			e.Elements = append(e.Elements, p.newComment(lit))
 		case tOPTION:
 			v := new(Option)
 			err := v.parse(p)
 			if err != nil {
 				return err
 			}
-			e.Options = append(e.Options, v)
+			e.Elements = append(e.Elements, v)
+		case tRIGHTCURLY:
+			goto done
+		case tSEMICOLON:
 		default:
 			p.unscan()
 			f := new(EnumField)
@@ -81,7 +93,7 @@ func (e *Enum) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			e.EnumFields = append(e.EnumFields, f)
+			e.Elements = append(e.Elements, f)
 		}
 	}
 done:

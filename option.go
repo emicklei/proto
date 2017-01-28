@@ -10,8 +10,8 @@ type Option struct {
 	Boolean bool
 }
 
-// accept dispatches the call to the visitor.
-func (o *Option) accept(v Visitor) {
+// Accept dispatches the call to the visitor.
+func (o *Option) Accept(v Visitor) {
 	v.VisitOption(o)
 }
 

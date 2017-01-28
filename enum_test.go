@@ -36,13 +36,14 @@ enum EnumAllowingAlias {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := len(pr.Enums), 1; got != want {
+	if got, want := len(collect(pr).Enums()), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(pr.Enums[0].EnumFields), 3; got != want {
+	if got, want := len(collect(pr).Enums()[0].Elements), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := pr.Enums[0].EnumFields[0].Integer, 0; got != want {
+	e := collect(pr).Enums()[0].Elements[1].(*EnumField)
+	if got, want := e.Integer, 0; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

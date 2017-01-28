@@ -7,7 +7,8 @@ type Syntax struct {
 	Value string
 }
 
-func (s *Syntax) accept(v Visitor) {
+// Accept dispatches the call to the visitor.
+func (s *Syntax) Accept(v Visitor) {
 	v.VisitSyntax(s)
 }
 

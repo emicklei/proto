@@ -25,6 +25,7 @@ const (
 	tLEFTSQUARE  // [
 	tRIGHTSQUARE // ]
 	tCOMMENT     // /
+	tLESS        // <
 
 	// Keywords
 	tSYNTAX
@@ -41,7 +42,6 @@ const (
 
 	// special fields
 	tONEOF
-	tONEOFFIELD
 	tMAP
 	tRESERVED
 	tENUM

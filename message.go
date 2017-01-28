@@ -4,12 +4,13 @@ import "fmt"
 
 // Message consists of a message name and a message body.
 type Message struct {
-	Line     int
-	Comments []*Comment
+	Name     string
+	Elements []Visitee
+}
 
-	Name   string
-	Fields []*Field
-	Enums  []*Enum
+// Accept dispatches the call to the visitor.
+func (m *Message) Accept(v Visitor) {
+	v.VisitMessage(m)
 }
 
 func (m *Message) parse(p *Parser) error {
@@ -26,7 +27,7 @@ func (m *Message) parse(p *Parser) error {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			m.Comments = append(m.Comments, p.newComment(lit))
+			m.Elements = append(m.Elements, p.newComment(lit))
 		case tRIGHTCURLY:
 			goto done
 		case tSEMICOLON:
@@ -36,15 +37,24 @@ func (m *Message) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			m.Enums = append(m.Enums, e)
+			m.Elements = append(m.Elements, e)
+		case tONEOF:
+			o := new(Oneof)
+			err := o.parse(p)
+			if err != nil {
+				return err
+			}
+			m.Elements = append(m.Elements, o)
 		default:
+			// tFIELD
+			// tMAP
 			p.unscan()
 			f := new(Field)
 			err := f.parse(p)
 			if err != nil {
 				return err
 			}
-			m.Fields = append(m.Fields, f)
+			m.Elements = append(m.Elements, f)
 		}
 	}
 done:

@@ -37,10 +37,25 @@ func TestMessageWithFieldsAndComments(t *testing.T) {
 	if got, want := m.Name, "AccountOut"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(m.Fields), 2; got != want {
+	if got, want := len(m.Elements), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(m.Comments), 2; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+}
+
+func TestOneOf(t *testing.T) {
+	proto := `
+	message Sample {
+		oneof foo {
+			string name = 4;
+			SubMessage sub_message = 9;
+		}	
+	}
+`
+	p := NewParser(strings.NewReader(proto))
+	p.scanIgnoreWhitespace() // consume first token
+	m := new(Message)
+	err := m.parse(p)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

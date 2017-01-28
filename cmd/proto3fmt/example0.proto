@@ -1,0 +1,43 @@
+// example0
+syntax = "proto3";
+
+
+
+
+    // using Any
+import "google/protobuf/any.proto";
+
+import public    "testdata/test.proto";
+
+
+
+/* This pkg
+        */
+package         here.proto3_proto   ;
+
+
+// from a bottle
+message Message 
+{
+    
+    string   name =1;
+// this is thing
+    google.protobuf.Any anything = 2 [packed=true, danger=false];
+
+    repeated 
+    Message 
+    children 
+    = 3;
+
+
+      enum Humour {
+          // something we dont know
+    UNKNOWN = 0;
+    PUNS = 1;
+    SLAPSTICK = 2;
+    /* who is this? */
+    BILL_BAILEY = 3;
+  }
+
+  map<string, Nested> terrain = 4;
+}

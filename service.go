@@ -9,8 +9,8 @@ type Service struct {
 	RPCalls []*RPcall
 }
 
-// accept dispatches the call to the visitor.
-func (s *Service) accept(v Visitor) {
+// Accept dispatches the call to the visitor.
+func (s *Service) Accept(v Visitor) {
 	v.VisitService(s)
 }
 

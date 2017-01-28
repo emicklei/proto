@@ -3,7 +3,6 @@ package proto3
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // Field is a message field.
@@ -11,8 +10,13 @@ type Field struct {
 	Name     string
 	Type     string
 	Repeated bool
-	Messages []*Message
 	Sequence int
+	Messages []*Message
+}
+
+// Accept dispatches the call to the visitor.
+func (f *Field) Accept(v Visitor) {
+	v.VisitField(f)
 }
 
 func (f *Field) parse(p *Parser) error {
@@ -20,14 +24,9 @@ func (f *Field) parse(p *Parser) error {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
 		case tIDENT:
-			// normal type?
-			if strings.Contains(typeTokens, lit) {
-				f.Type = lit
-				return parseNormalField(f, p)
-			}
-			//if tok == ONEOF {}
-			//if tok == ONEOFFIELD {}
-		case tMESSAGE:
+			f.Type = lit
+			return parseNormalField(f, p)
+		case tMESSAGE: // TODO here?
 			m := new(Message)
 			err := m.parse(p)
 			if err != nil {
@@ -37,6 +36,14 @@ func (f *Field) parse(p *Parser) error {
 		case tREPEATED:
 			f.Repeated = true
 			return f.parse(p)
+		case tMAP:
+			tok, lit := p.scanIgnoreWhitespace()
+			if tLESS != tok {
+				return fmt.Errorf("found %q, expected <", lit)
+			}
+			kvtypes := p.s.scanUntil('>')
+			f.Type = fmt.Sprintf("map<%s>", kvtypes)
+			return parseNormalField(f, p)
 		default:
 			goto done
 		}
