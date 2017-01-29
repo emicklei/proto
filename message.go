@@ -1,7 +1,5 @@
 package proto3
 
-import "fmt"
-
 // Message consists of a message name and a message body.
 type Message struct {
 	Name     string
@@ -16,56 +14,57 @@ func (m *Message) Accept(v Visitor) {
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		return p.unexpected(lit, "identifier")
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return fmt.Errorf("found %q, expected {", lit)
+		return p.unexpected(lit, "{")
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
 			m.Elements = append(m.Elements, p.newComment(lit))
-		case tRIGHTCURLY:
-			goto done
-		case tSEMICOLON:
 		case tENUM:
 			e := new(Enum)
-			err := e.parse(p)
-			if err != nil {
+			if err := e.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, e)
 		case tMESSAGE:
 			msg := new(Message)
-			err := msg.parse(p)
-			if err != nil {
+			if err := msg.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, msg)
 		case tOPTION:
 			o := new(Option)
-			err := o.parse(p)
-			if err != nil {
+			if err := o.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, o)
 		case tONEOF:
 			o := new(Oneof)
-			err := o.parse(p)
-			if err != nil {
+			if err := o.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, o)
+		case tRESERVED:
+			r := new(Reserved)
+			if err := r.parse(p); err != nil {
+				return err
+			}
+			m.Elements = append(m.Elements, r)
+		case tRIGHTCURLY:
+			goto done
+		case tSEMICOLON:
+			// continue
 		default:
-			// tFIELD
-			// tMAP
+			// tFIELD and tMAP
 			p.unscan()
 			f := new(Field)
-			err := f.parse(p)
-			if err != nil {
+			if err := f.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, f)
@@ -73,7 +72,7 @@ func (m *Message) parse(p *Parser) error {
 	}
 done:
 	if tok != tRIGHTCURLY {
-		return fmt.Errorf("found %q, expected }", lit)
+		return p.unexpected(lit, "}")
 	}
 	return nil
 }

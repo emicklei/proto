@@ -65,6 +65,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tLESS, string(ch)
 	case ',':
 		return tCOMMA, string(ch)
+	case '.':
+		return tDOT, string(ch)
 	}
 	return tILLEGAL, string(ch)
 }
@@ -162,6 +164,8 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tMAP, buf.String()
 	case "oneof":
 		return tONEOF, buf.String()
+	case "reserved":
+		return tRESERVED, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.

@@ -14,6 +14,7 @@ type Visitor interface {
 	VisitComment(e *Comment)
 	VisitOneof(o *Oneof)
 	VisitOneofField(o *OneOfField)
+	VisitReserved(r *Reserved)
 }
 
 // Visitee is implemented by all Proto elements.

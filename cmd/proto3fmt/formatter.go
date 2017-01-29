@@ -100,6 +100,10 @@ func (f *formatter) VisitOneofField(o *proto3.OneOfField) {
 	panic(errors.New("Not implemented"))
 }
 
+func (f *formatter) VisitReserved(r *proto3.Reserved) {
+	panic(errors.New("VisitReserved Not implemented"))
+}
+
 // Utils
 
 func (f *formatter) begin(stmt string) {

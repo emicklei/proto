@@ -25,6 +25,7 @@ const (
 	tCOMMENT     // /
 	tLESS        // <
 	tCOMMA       // ,
+	tDOT         // .
 
 	// Keywords
 	tSYNTAX

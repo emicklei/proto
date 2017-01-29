@@ -34,6 +34,7 @@ func (f *Field) parse(p *Parser) error {
 			if tLESS != tok {
 				return p.unexpected(lit, "<")
 			}
+			// TODO proper parsing key-value type
 			kvtypes := p.s.scanUntil('>')
 			f.Type = fmt.Sprintf("map<%s>", kvtypes)
 			return parseNormalField(f, p)

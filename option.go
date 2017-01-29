@@ -37,6 +37,15 @@ func (o *Option) parse(p *Parser) error {
 		return p.unexpected(lit, "identifier or (")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
+	if tok == tDOT {
+		// extend identifier
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != tIDENT {
+			return p.unexpected(lit, "postfix identifier")
+		}
+		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
+		tok, lit = p.scanIgnoreWhitespace()
+	}
 	if tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
