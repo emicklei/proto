@@ -1,10 +1,7 @@
 package proto3
 
-import "fmt"
-
 // Import holds a filename to another .proto definition.
 type Import struct {
-	Line     int
 	Filename string
 	Kind     string // weak, public, <empty>
 }
@@ -16,7 +13,6 @@ func (i *Import) Accept(v Visitor) {
 
 func (i *Import) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	i.Line = p.s.line
 	switch tok {
 	case tWEAK:
 		i.Kind = lit
@@ -27,7 +23,7 @@ func (i *Import) parse(p *Parser) error {
 	case tQUOTE:
 		i.Filename = p.s.scanUntil('"')
 	default:
-		return fmt.Errorf("found %q, expected weak|public|quoted identifier", lit)
+		return p.unexpected(lit, "weak|public|quoted identifier")
 	}
 	return nil
 }

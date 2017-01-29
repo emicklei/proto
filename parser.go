@@ -60,10 +60,7 @@ func (p *Parser) unscan() { p.buf.n = 1 }
 
 // newComment returns a comment with line indication.
 func (p *Parser) newComment(lit string) *Comment {
-	return &Comment{
-		Line:    p.s.line - 1, // line number that started the comment
-		Message: lit,
-	}
+	return &Comment{Message: lit}
 }
 
 // Line returns the line number on which the last token was read.

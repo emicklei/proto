@@ -39,8 +39,5 @@ func TestCommentAroundSyntax(t *testing.T) {
 		if got, want := comments[i-1].Message, " comment"+strconv.Itoa(i); got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
-		if got, want := comments[i-1].Line, i+1; got != want {
-			t.Errorf("got [%v] want [%v]", got, want)
-		}
 	}
 }

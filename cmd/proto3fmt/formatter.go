@@ -42,10 +42,13 @@ func (f *formatter) VisitEnum(e *proto3.Enum) {
 func (f *formatter) VisitEnumField(e *proto3.EnumField) {
 	f.begin("field")
 	io.WriteString(f.w, paddedTo(e.Name, 10))
+	fmt.Fprintf(f.w, " = %d", e.Integer)
 	if e.ValueOption != nil {
+		io.WriteString(f.w, " ")
 		e.ValueOption.Accept(f)
+	} else {
+		io.WriteString(f.w, ";\n")
 	}
-	fmt.Fprintf(f.w, " = %d;\n", e.Integer)
 }
 
 func (f *formatter) VisitField(f1 *proto3.Field) {
@@ -76,7 +79,29 @@ func (f *formatter) VisitMessage(m *proto3.Message) {
 }
 
 func (f *formatter) VisitOption(o *proto3.Option) {
-	panic(errors.New("Not implemented"))
+	if o.PartOfFieldOrEnum {
+		io.WriteString(f.w, "[(")
+	} else {
+		f.begin("option")
+		io.WriteString(f.w, "option ")
+	}
+	if len(o.Name) > 0 {
+		io.WriteString(f.w, o.Name)
+	}
+	if o.PartOfFieldOrEnum {
+		io.WriteString(f.w, ")")
+	}
+	io.WriteString(f.w, " = ")
+	if len(o.String) > 0 {
+		fmt.Fprintf(f.w, "%q", o.String)
+	} else {
+		fmt.Fprintf(f.w, "%s", o.Identifier)
+	}
+	if o.PartOfFieldOrEnum {
+		io.WriteString(f.w, "];\n")
+	} else {
+		io.WriteString(f.w, ";\n")
+	}
 }
 
 func (f *formatter) VisitPackage(p *proto3.Package) {

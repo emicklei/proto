@@ -4,7 +4,6 @@ import "fmt"
 
 // Service defines a set of RPC calls.
 type Service struct {
-	Line    int
 	Name    string
 	RPCalls []*RPcall
 }

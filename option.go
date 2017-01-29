@@ -5,10 +5,10 @@ import "fmt"
 // Option is a protoc compiler option
 type Option struct {
 	Name              string
-	Identifier        string
-	String            string
-	Boolean           bool
+	String            string // will be quoted
+	Identifier        string // will not be quoted
 	PartOfFieldOrEnum bool
+	IsCustom          bool // TODO needed?
 }
 
 // Accept dispatches the call to the visitor.

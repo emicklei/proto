@@ -3,8 +3,7 @@ package proto3
 import "testing"
 
 func TestEnum(t *testing.T) {
-	proto := `
-// EnumAllowingAlias is part of TestEnumWithBody	
+	proto := `	
 enum EnumAllowingAlias {
   option allow_alias = true;
   UNKNOWN = 0;
@@ -16,14 +15,25 @@ enum EnumAllowingAlias {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := len(collect(pr).Enums()), 1; got != want {
+	enums := collect(pr).Enums()
+	if got, want := len(enums), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(collect(pr).Enums()[0].Elements), 4; got != want {
+	if got, want := len(enums[0].Elements), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	e := collect(pr).Enums()[0].Elements[1].(*EnumField)
-	if got, want := e.Integer, 0; got != want {
+	ef1 := enums[0].Elements[1].(*EnumField)
+	if got, want := ef1.Integer, 0; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	ef3 := enums[0].Elements[3].(*EnumField)
+	if got, want := ef3.Integer, 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef3.ValueOption.Name, "custom_option"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef3.ValueOption.String, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

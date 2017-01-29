@@ -9,7 +9,6 @@ type Proto struct {
 
 // Comment holds a message and line number.
 type Comment struct {
-	Line    int
 	Message string
 }
 
