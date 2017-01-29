@@ -1,6 +1,10 @@
 package proto3
 
-import "io"
+import (
+	"fmt"
+	"io"
+	"runtime"
+)
 
 // Parser represents a parser.
 type Parser struct {
@@ -10,7 +14,7 @@ type Parser struct {
 		lit string // last read literal
 		n   int    // buffer size (max=1)
 	}
-	comments []*Comment
+	debug bool
 }
 
 // NewParser returns a new instance of Parser.
@@ -64,3 +68,12 @@ func (p *Parser) newComment(lit string) *Comment {
 
 // Line returns the line number on which the last token was read.
 func (p *Parser) Line() int { return p.s.line }
+
+func (p *Parser) unexpected(found, expected string) error {
+	debug := ""
+	if p.debug {
+		_, file, line, _ := runtime.Caller(1)
+		debug = fmt.Sprintf(" at %s:%d", file, line)
+	}
+	return fmt.Errorf("found %q, expected %s%s", found, expected, debug)
+}

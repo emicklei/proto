@@ -65,7 +65,7 @@ func (o *OneOfField) parse(p *Parser) error {
 	o.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return fmt.Errorf("found %q, expected =", lit)
+		return p.unexpected(lit, "=")
 	}
 	_, lit = p.scanIgnoreWhitespace()
 	i, err := strconv.Atoi(lit)

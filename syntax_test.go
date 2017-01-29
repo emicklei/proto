@@ -2,13 +2,12 @@ package proto3
 
 import (
 	"strconv"
-	"strings"
 	"testing"
 )
 
 func TestSyntax(t *testing.T) {
 	proto := `syntax = "proto3";`
-	p := NewParser(strings.NewReader(proto))
+	p := newParserOn(proto)
 	p.scanIgnoreWhitespace() // consume first token
 	s := new(Syntax)
 	err := s.parse(p)
@@ -27,7 +26,7 @@ func TestCommentAroundSyntax(t *testing.T) {
 	syntax = "proto3"; // comment3
 	// comment4
 `
-	p := NewParser(strings.NewReader(proto))
+	p := newParserOn(proto)
 	r, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)

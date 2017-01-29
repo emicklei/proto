@@ -11,7 +11,7 @@ type Field struct {
 	Type     string
 	Repeated bool
 	Sequence int
-	Messages []*Message
+	Options  []*Option
 }
 
 // Accept dispatches the call to the visitor.
@@ -26,20 +26,13 @@ func (f *Field) parse(p *Parser) error {
 		case tIDENT:
 			f.Type = lit
 			return parseNormalField(f, p)
-		case tMESSAGE: // TODO here?
-			m := new(Message)
-			err := m.parse(p)
-			if err != nil {
-				return err
-			}
-			f.Messages = append(f.Messages, m)
 		case tREPEATED:
 			f.Repeated = true
 			return f.parse(p)
 		case tMAP:
 			tok, lit := p.scanIgnoreWhitespace()
 			if tLESS != tok {
-				return fmt.Errorf("found %q, expected <", lit)
+				return p.unexpected(lit, "<")
 			}
 			kvtypes := p.s.scanUntil('>')
 			f.Type = fmt.Sprintf("map<%s>", kvtypes)
@@ -52,22 +45,46 @@ done:
 	return nil
 }
 
-// parseNormalField proceeds after reading the type of f.
+// parseNormalField expects:
+// fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseNormalField(f *Field, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		return p.unexpected(lit, "identifier")
 	}
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return fmt.Errorf("found %q, expected =", lit)
+		return p.unexpected(lit, "=")
 	}
 	_, lit = p.scanIgnoreWhitespace()
 	i, err := strconv.Atoi(lit)
 	if err != nil {
-		return fmt.Errorf("found %q, expected sequence number", lit)
+		return p.unexpected(lit, "sequence number")
 	}
 	f.Sequence = i
+	// see if there are options
+	tok, lit = p.scanIgnoreWhitespace()
+	if tLEFTSQUARE != tok {
+		p.unscan()
+		return nil
+	}
+	for {
+		o := new(Option)
+		o.PartOfFieldOrEnum = true
+		err := o.parse(p)
+		if err != nil {
+			return err
+		}
+		f.Options = append(f.Options, o)
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tRIGHTSQUARE == tok {
+			break
+		}
+		if tCOMMA != tok {
+			return p.unexpected(lit, ",")
+		}
+	}
 	return nil
 }

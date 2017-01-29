@@ -38,6 +38,20 @@ func (m *Message) parse(p *Parser) error {
 				return err
 			}
 			m.Elements = append(m.Elements, e)
+		case tMESSAGE:
+			msg := new(Message)
+			err := msg.parse(p)
+			if err != nil {
+				return err
+			}
+			m.Elements = append(m.Elements, msg)
+		case tOPTION:
+			o := new(Option)
+			err := o.parse(p)
+			if err != nil {
+				return err
+			}
+			m.Elements = append(m.Elements, o)
 		case tONEOF:
 			o := new(Oneof)
 			err := o.parse(p)

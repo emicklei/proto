@@ -1,13 +1,10 @@
 package proto3
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestParseImport(t *testing.T) {
 	proto := `import public "other.proto";`
-	p := NewParser(strings.NewReader(proto))
+	p := newParserOn(proto)
 	p.scanIgnoreWhitespace() // consume first token
 	i := new(Import)
 	err := i.parse(p)

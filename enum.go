@@ -37,7 +37,7 @@ func (f *EnumField) parse(p *Parser) error {
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return fmt.Errorf("found %q, expected =", lit)
+		return p.unexpected(lit, "=")
 	}
 	is := p.s.scanIntegerString()
 	i, err := strconv.Atoi(is)

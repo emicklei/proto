@@ -11,8 +11,6 @@ const (
 
 	// Literals
 	tIDENT
-	tTRUE
-	tFALSE
 
 	// Misc characters
 	tSEMICOLON   // ;
@@ -26,6 +24,7 @@ const (
 	tRIGHTSQUARE // ]
 	tCOMMENT     // /
 	tLESS        // <
+	tCOMMA       // ,
 
 	// Keywords
 	tSYNTAX

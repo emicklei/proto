@@ -63,6 +63,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tCOMMENT, s.scanComment()
 	case '<':
 		return tLESS, string(ch)
+	case ',':
+		return tCOMMA, string(ch)
 	}
 	return tILLEGAL, string(ch)
 }
@@ -152,10 +154,6 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tOPTION, buf.String()
 	case "enum":
 		return tENUM, buf.String()
-	case "true":
-		return tTRUE, buf.String()
-	case "false":
-		return tFALSE, buf.String()
 	case "weak":
 		return tWEAK, buf.String()
 	case "public":

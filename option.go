@@ -4,10 +4,11 @@ import "fmt"
 
 // Option is a protoc compiler option
 type Option struct {
-	Line    int
-	Name    string
-	String  string
-	Boolean bool
+	Name              string
+	Identifier        string
+	String            string
+	Boolean           bool
+	PartOfFieldOrEnum bool
 }
 
 // Accept dispatches the call to the visitor.
@@ -15,30 +16,32 @@ func (o *Option) Accept(v Visitor) {
 	v.VisitOption(o)
 }
 
+// parse reads an Option body
+// ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
 	case tIDENT:
-		o.Line = p.s.line
 		o.Name = lit
 	case tLEFTPAREN:
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
-			return fmt.Errorf("found %q, expected identifier", lit)
+			return p.unexpected(lit, "identifier")
 		}
 		o.Name = lit
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tRIGHTPAREN {
-			return fmt.Errorf("found %q, expected )", lit)
+			return p.unexpected(lit, ")")
 		}
 	default:
-		return fmt.Errorf("found %q, expected identifier or (", lit)
+		return p.unexpected(lit, "identifier or (")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return fmt.Errorf("found %q, expected =", lit)
+		return p.unexpected(lit, "=")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
+	// stringLiteral?
 	if tok == tQUOTE {
 		ident := p.s.scanUntil('"')
 		if len(ident) == 0 {
@@ -47,10 +50,9 @@ func (o *Option) parse(p *Parser) error {
 		o.String = ident
 		return nil
 	}
-	if tTRUE == tok || tFALSE == tok {
-		o.Boolean = lit == "true"
-	} else {
-		return fmt.Errorf("found %q, expected true or false", lit)
+	if tIDENT != tok {
+		return p.unexpected(lit, "constant")
 	}
+	o.Identifier = lit
 	return nil
 }

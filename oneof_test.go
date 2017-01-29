@@ -1,16 +1,13 @@
 package proto3
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestOneof(t *testing.T) {
 	proto := `oneof foo {
     string name = 4;
     SubMessage sub_message = 9 [options=none];
 }`
-	p := NewParser(strings.NewReader(proto))
+	p := newParserOn(proto)
 	p.scanIgnoreWhitespace() // consume first token
 	o := new(Oneof)
 	err := o.parse(p)

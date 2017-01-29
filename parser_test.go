@@ -11,7 +11,7 @@ func TestParseComment(t *testing.T) {
     /* 
     multi* 
     */`
-	p := NewParser(strings.NewReader(proto))
+	p := newParserOn(proto)
 	pr, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -19,4 +19,10 @@ func TestParseComment(t *testing.T) {
 	if got, want := len(collect(pr).Comments()), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+}
+
+func newParserOn(def string) *Parser {
+	p := NewParser(strings.NewReader(def))
+	p.debug = true
+	return p
 }

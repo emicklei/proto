@@ -14,7 +14,7 @@ func (s *Syntax) Accept(v Visitor) {
 
 func (s *Syntax) parse(p *Parser) error {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
-		return fmt.Errorf("found %q, expected EQUALS", lit)
+		return p.unexpected(lit, "=")
 	}
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE {
 		return fmt.Errorf("found %q, expected QUOTE", lit)
