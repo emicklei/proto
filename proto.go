@@ -24,50 +24,54 @@ func (c Comment) IsMultiline() bool {
 
 // parse parsers a complete .proto definition source.
 func (proto *Proto) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
-	switch tok {
-	case tCOMMENT:
-		proto.Elements = append(proto.Elements, p.newComment(lit))
-	case tSYNTAX:
-		s := new(Syntax)
-		if err := s.parse(p); err != nil {
-			return err
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+		switch tok {
+		case tCOMMENT:
+			proto.Elements = append(proto.Elements, p.newComment(lit))
+		case tSYNTAX:
+			s := new(Syntax)
+			if err := s.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, s)
+		case tIMPORT:
+			im := new(Import)
+			if err := im.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, im)
+		case tENUM:
+			enum := new(Enum)
+			if err := enum.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, enum)
+		case tSERVICE:
+			service := new(Service)
+			err := service.parse(p)
+			if err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, service)
+		case tPACKAGE:
+			pkg := new(Package)
+			err := pkg.parse(p)
+			if err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, pkg)
+		case tMESSAGE:
+			msg := new(Message)
+			if err := msg.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, msg)
+		case tSEMICOLON:
+		default:
+			goto done
 		}
-		proto.Elements = append(proto.Elements, s)
-	case tIMPORT:
-		im := new(Import)
-		if err := im.parse(p); err != nil {
-			return err
-		}
-		proto.Elements = append(proto.Elements, im)
-	case tENUM:
-		enum := new(Enum)
-		if err := enum.parse(p); err != nil {
-			return err
-		}
-		proto.Elements = append(proto.Elements, enum)
-	case tSERVICE:
-		service := new(Service)
-		err := service.parse(p)
-		if err != nil {
-			return err
-		}
-		proto.Elements = append(proto.Elements, service)
-	case tPACKAGE:
-		pkg := new(Package)
-		err := pkg.parse(p)
-		if err != nil {
-			return err
-		}
-		proto.Elements = append(proto.Elements, pkg)
-	case tMESSAGE:
-		msg := new(Message)
-		if err := msg.parse(p); err != nil {
-			return err
-		}
-		proto.Elements = append(proto.Elements, msg)
-	case tEOF:
-		return nil
 	}
-	return proto.parse(p)
+done:
+	return nil
 }

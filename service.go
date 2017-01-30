@@ -1,7 +1,5 @@
 package proto3
 
-import "fmt"
-
 // Service defines a set of RPC calls.
 type Service struct {
 	Name     string
@@ -13,6 +11,7 @@ func (s *Service) Accept(v Visitor) {
 	v.VisitService(s)
 }
 
+// parse continues after reading "service"
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -36,25 +35,23 @@ func (s *Service) parse(p *Parser) error {
 			}
 			s.Elements = append(s.Elements, rpc)
 		case tSEMICOLON:
+		case tRIGHTCURLY:
 			goto done
 		default:
-			return p.unexpected(lit, "comment|rpc|;")
+			return p.unexpected(lit, "comment|rpc|;}")
 		}
 	}
 done:
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != tRIGHTCURLY {
-		return p.unexpected(lit, "}")
-	}
 	return nil
 }
 
 // RPcall represents an rpc entry in a message.
 type RPcall struct {
-	Name        string
-	RequestType string
-	Streaming   bool
-	ReturnsType string
+	Name           string
+	RequestType    string
+	StreamsRequest bool
+	ReturnsType    string
+	StreamsReturns bool
 }
 
 // Accept dispatches the call to the visitor.
@@ -62,49 +59,50 @@ func (r *RPcall) Accept(v Visitor) {
 	v.VisitRPcall(r)
 }
 
+// parse continues after reading "rpc"
 func (r *RPcall) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected method", lit)
+		return p.unexpected(lit, "method")
 	}
 	r.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
-		return fmt.Errorf("found %q, expected (", lit)
+		return p.unexpected(lit, "(")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
+	if iSTREAM == lit {
+		r.StreamsRequest = true
+		tok, lit = p.scanIgnoreWhitespace()
+	}
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected request type", lit)
+		return p.unexpected(lit, "stream | request type")
 	}
 	r.RequestType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
-		return fmt.Errorf("found %q, expected )", lit)
+		return p.unexpected(lit, ")")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRETURNS {
-		return fmt.Errorf("found %q, expected returns", lit)
+		return p.unexpected(lit, "returns")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
-		return fmt.Errorf("found %q, expected (", lit)
+		return p.unexpected(lit, "(")
 	}
 	tok, lit = p.scanIgnoreWhitespace()
+	if iSTREAM == lit {
+		r.StreamsReturns = true
+		tok, lit = p.scanIgnoreWhitespace()
+	}
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected returns type", lit)
+		return p.unexpected(lit, "stream | returns type")
 	}
 	r.ReturnsType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
-		return fmt.Errorf("found %q, expected )", lit)
-	}
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != tLEFTCURLY {
-		return fmt.Errorf("found %q, expected {", lit)
-	}
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != tRIGHTCURLY {
-		return fmt.Errorf("found %q, expected }", lit)
+		return p.unexpected(lit, ")")
 	}
 	return nil
 }

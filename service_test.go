@@ -3,7 +3,6 @@ package proto3
 import "testing"
 
 func TestService(t *testing.T) {
-	t.Skip()
 	proto := `service AccountService {
 		// comment
 		rpc CreateAccount (CreateAccount) returns (ServiceFault);
