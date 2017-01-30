@@ -60,7 +60,7 @@ func (o *OneOfField) Accept(v Visitor) {
 func (o *OneOfField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		return p.unexpected(lit, "identifier")
 	}
 	o.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
@@ -70,12 +70,12 @@ func (o *OneOfField) parse(p *Parser) error {
 	_, lit = p.scanIgnoreWhitespace()
 	i, err := strconv.Atoi(lit)
 	if err != nil {
-		return fmt.Errorf("found %q, expected sequence number", lit)
+		return p.unexpected(lit, "sequence number")
 	}
 	o.Sequence = i
 	tok, lit = p.scanIgnoreWhitespace()
 	if tLEFTSQUARE == tok {
-		// TODO
+		// TODO options
 		p.s.scanUntil(']')
 	} else {
 		p.unscan()

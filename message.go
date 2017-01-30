@@ -50,6 +50,12 @@ func (m *Message) parse(p *Parser) error {
 				return err
 			}
 			m.Elements = append(m.Elements, o)
+		case tMAP:
+			f := new(Field)
+			if err := parseMapField(f, p); err != nil {
+				return err
+			}
+			m.Elements = append(m.Elements, f)
 		case tRESERVED:
 			r := new(Reserved)
 			if err := r.parse(p); err != nil {
@@ -61,7 +67,7 @@ func (m *Message) parse(p *Parser) error {
 		case tSEMICOLON:
 			// continue
 		default:
-			// tFIELD and tMAP
+			// tFIELD
 			p.unscan()
 			f := new(Field)
 			if err := f.parse(p); err != nil {

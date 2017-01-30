@@ -74,7 +74,7 @@ func (f *formatter) VisitMessage(m *proto3.Message) {
 	for _, each := range m.Elements {
 		each.Accept(f)
 	}
-	f.indentLevel++
+	f.indent(-1)
 	io.WriteString(f.w, "}\n")
 }
 
@@ -118,15 +118,31 @@ func (f *formatter) VisitSyntax(s *proto3.Syntax) {
 }
 
 func (f *formatter) VisitOneof(o *proto3.Oneof) {
-	panic(errors.New("Not implemented"))
+	f.begin("oneof")
+	fmt.Fprintf(f.w, "oneof %s {\n", o.Name)
+	f.indentLevel++
+	for _, each := range o.Elements {
+		each.Accept(f)
+	}
+	f.indent(-1)
+	io.WriteString(f.w, "}\n")
 }
 
 func (f *formatter) VisitOneofField(o *proto3.OneOfField) {
-	panic(errors.New("Not implemented"))
+	f.begin("oneoffield")
+	fmt.Fprintf(f.w, "%s %s = %d", o.Type, o.Name, o.Sequence)
+	for _, each := range o.Options {
+		f.VisitOption(each)
+	}
+	io.WriteString(f.w, ";\n")
 }
 
 func (f *formatter) VisitReserved(r *proto3.Reserved) {
 	panic(errors.New("VisitReserved Not implemented"))
+}
+
+func (f *formatter) VisitRPcall(r *proto3.RPcall) {
+	panic(errors.New("VisitRPcall Not implemented"))
 }
 
 // Utils

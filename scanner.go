@@ -104,7 +104,7 @@ func (s *scanner) scanIntegerString() string {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if !isDigit(ch) {
+		} else if !isDigit(ch) || ch == '-' {
 			s.unread(ch)
 			break
 		} else {

@@ -4,8 +4,8 @@ import "fmt"
 
 // Service defines a set of RPC calls.
 type Service struct {
-	Name    string
-	RPCalls []*RPcall
+	Name     string
+	Elements []Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -16,40 +16,50 @@ func (s *Service) Accept(v Visitor) {
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected string", lit)
+		return p.unexpected(lit, "identifier")
 	}
 	s.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return fmt.Errorf("found %q, expected {", lit)
+		return p.unexpected(lit, "{")
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == tRPC {
+		switch tok {
+		case tCOMMENT:
+			s.Elements = append(s.Elements, p.newComment(lit))
+		case tRPC:
 			rpc := new(RPcall)
 			err := rpc.parse(p)
 			if err != nil {
 				return err
 			}
-			s.RPCalls = append(s.RPCalls, rpc)
-		} else {
-			p.unscan()
-			break
+			s.Elements = append(s.Elements, rpc)
+		case tSEMICOLON:
+			goto done
+		default:
+			return p.unexpected(lit, "comment|rpc|;")
 		}
 	}
+done:
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTCURLY {
-		return fmt.Errorf("found %q, expected }", lit)
+		return p.unexpected(lit, "}")
 	}
 	return nil
 }
 
 // RPcall represents an rpc entry in a message.
 type RPcall struct {
-	Method      string
+	Name        string
 	RequestType string
 	Streaming   bool
 	ReturnsType string
+}
+
+// Accept dispatches the call to the visitor.
+func (r *RPcall) Accept(v Visitor) {
+	v.VisitRPcall(r)
 }
 
 func (r *RPcall) parse(p *Parser) error {
@@ -57,7 +67,7 @@ func (r *RPcall) parse(p *Parser) error {
 	if tok != tIDENT {
 		return fmt.Errorf("found %q, expected method", lit)
 	}
-	r.Method = lit
+	r.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
 		return fmt.Errorf("found %q, expected (", lit)

@@ -19,25 +19,18 @@ func (f *Field) Accept(v Visitor) {
 	v.VisitField(f)
 }
 
+// parse expects:
+// [ "repeated" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *Field) parse(p *Parser) error {
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
-		case tIDENT:
-			f.Type = lit
-			return parseNormalField(f, p)
 		case tREPEATED:
 			f.Repeated = true
 			return f.parse(p)
-		case tMAP:
-			tok, lit := p.scanIgnoreWhitespace()
-			if tLESS != tok {
-				return p.unexpected(lit, "<")
-			}
-			// TODO proper parsing key-value type
-			kvtypes := p.s.scanUntil('>')
-			f.Type = fmt.Sprintf("map<%s>", kvtypes)
-			return parseNormalField(f, p)
+		case tIDENT:
+			f.Type = lit
+			return parseFieldAfterType(f, p)
 		default:
 			goto done
 		}
@@ -46,9 +39,21 @@ done:
 	return nil
 }
 
-// parseNormalField expects:
+// parseMapField continues after scanning "map"
+func parseMapField(f *Field, p *Parser) error {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tLESS != tok {
+		return p.unexpected(lit, "<")
+	}
+	// TODO proper parsing key-value type
+	kvtypes := p.s.scanUntil('>')
+	f.Type = fmt.Sprintf("map<%s>", kvtypes)
+	return parseFieldAfterType(f, p)
+}
+
+// parseFieldAfterType expects:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
-func parseNormalField(f *Field, p *Parser) error {
+func parseFieldAfterType(f *Field, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		return p.unexpected(lit, "identifier")
@@ -58,7 +63,7 @@ func parseNormalField(f *Field, p *Parser) error {
 	if tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
-	_, lit = p.scanIgnoreWhitespace()
+	lit = p.s.scanIntegerString()
 	i, err := strconv.Atoi(lit)
 	if err != nil {
 		return p.unexpected(lit, "sequence number")
@@ -70,6 +75,7 @@ func parseNormalField(f *Field, p *Parser) error {
 		p.unscan()
 		return nil
 	}
+	// consume options
 	for {
 		o := new(Option)
 		o.PartOfFieldOrEnum = true

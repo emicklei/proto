@@ -30,7 +30,7 @@ func TestMessage(t *testing.T) {
 	if got, want := m.Name, "Out"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(m.Elements), 9; got != want {
+	if got, want := len(m.Elements), 8; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
