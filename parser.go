@@ -72,5 +72,5 @@ func (p *Parser) unexpected(found, expected string) error {
 		_, file, line, _ := runtime.Caller(1)
 		debug = fmt.Sprintf(" at %s:%d", file, line)
 	}
-	return fmt.Errorf("found %q, expected %s%s", found, expected, debug)
+	return fmt.Errorf("found %q on line %d, expected %s%s", found, p.s.line, expected, debug)
 }

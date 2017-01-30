@@ -1,6 +1,9 @@
 package proto3
 
-import "strings"
+import (
+	"log"
+	"strings"
+)
 
 // Proto represents a .proto definition
 type Proto struct {
@@ -29,6 +32,12 @@ func (proto *Proto) parse(p *Parser) error {
 		switch tok {
 		case tCOMMENT:
 			proto.Elements = append(proto.Elements, p.newComment(lit))
+		case tOPTION:
+			o := new(Option)
+			if err := o.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, o)
 		case tSYNTAX:
 			s := new(Syntax)
 			if err := s.parse(p); err != nil {
@@ -56,8 +65,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, service)
 		case tPACKAGE:
 			pkg := new(Package)
-			err := pkg.parse(p)
-			if err != nil {
+			if err := pkg.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, pkg)
@@ -69,6 +77,9 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, msg)
 		case tSEMICOLON:
 		default:
+			if p.debug {
+				log.Println("unhandled (1=EOF)", lit, tok)
+			}
 			goto done
 		}
 	}

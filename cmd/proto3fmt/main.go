@@ -21,9 +21,9 @@ func main() {
 	p := proto3.NewParser(i)
 	def, err := p.Parse()
 	if err != nil {
-		log.Fatalln("proto3fmt failed, on line", p.Line(), err)
+		log.Fatalln("proto3fmt failed", err)
 	}
-	f := &formatter{w: os.Stdout, indentSeparator: "    "}
+	f := &formatter{w: os.Stdout, indentSeparator: "  "}
 	for _, each := range def.Elements {
 		each.Accept(f)
 	}

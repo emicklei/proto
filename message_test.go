@@ -6,19 +6,19 @@ func TestMessage(t *testing.T) {
 	proto := `
 		message Out {
 		// identifier
-		string id   = 1;
+		string   id  = 1;
 		// size
-		int64 size = 2;
+		int64   size = 2;
 		
-		oneof foo {
-			string name = 4;
-			SubMessage sub_message = 9;
+		oneof   foo {
+			string  name = 4;
+			SubMessage  sub_message = 9;
 		}
-		message Inner {   // Level 2
-   			int64 ival = 1;
+		message  Inner {   // Level 2
+   			int64  ival = 1;
   		}
-		map<string, testdata.SubDefaults> proto2_value = 13;
-		option (my_option).a = true;
+		map<string, testdata.SubDefaults> proto2_value  =  13;
+		option  (my_option).a  =  true;
 	}`
 	p := newParserOn(proto)
 	p.scanIgnoreWhitespace() // consume first token

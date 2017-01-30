@@ -95,16 +95,16 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 
 func (s *scanner) scanIntegerString() string {
 	s.scanWhitespace()
-	// Create a buffer and read the current character into it.
+	// Create a buffer.
 	var buf bytes.Buffer
-	buf.WriteRune(s.read())
 
 	// Read every subsequent digit character into the buffer.
-	// Non-digiti characters and EOF will cause the loop to exit.
+	// Non-digit characters and EOF will cause the loop to exit.
+	// TODO handle sign correctly
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if !isDigit(ch) || ch == '-' {
+		} else if !isDigit(ch) && ch != '-' {
 			s.unread(ch)
 			break
 		} else {
