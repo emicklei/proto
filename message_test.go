@@ -4,15 +4,15 @@ import "testing"
 
 func TestMessage(t *testing.T) {
 	proto := `
-		message Out {
+		message   Out   {
 		// identifier
 		string   id  = 1;
 		// size
 		int64   size = 2;
 		
-		oneof   foo {
-			string  name = 4;
-			SubMessage  sub_message = 9;
+		oneof foo {
+			string     name        = 4;
+			SubMessage sub_message = 9;
 		}
 		message  Inner {   // Level 2
    			int64  ival = 1;

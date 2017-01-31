@@ -1,27 +1,31 @@
 package proto3
 
-import (
-	"fmt"
-	"strconv"
-)
+import "strconv"
 
-// Field is a message field.
+// Field is an abstract message field.
 type Field struct {
 	Name     string
 	Type     string
-	Repeated bool
 	Sequence int
 	Options  []*Option
 }
 
+// NormalField
+type NormalField struct {
+	*Field
+	Repeated bool
+}
+
+func newNormalField() *NormalField { return &NormalField{Field: new(Field)} }
+
 // Accept dispatches the call to the visitor.
-func (f *Field) Accept(v Visitor) {
-	v.VisitField(f)
+func (f *NormalField) Accept(v Visitor) {
+	v.VisitNormalField(f)
 }
 
 // parse expects:
 // [ "repeated" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
-func (f *Field) parse(p *Parser) error {
+func (f *NormalField) parse(p *Parser) error {
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
@@ -30,25 +34,13 @@ func (f *Field) parse(p *Parser) error {
 			return f.parse(p)
 		case tIDENT:
 			f.Type = lit
-			return parseFieldAfterType(f, p)
+			return parseFieldAfterType(f.Field, p)
 		default:
 			goto done
 		}
 	}
 done:
 	return nil
-}
-
-// parseMapField continues after scanning "map"
-func parseMapField(f *Field, p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
-	if tLESS != tok {
-		return p.unexpected(lit, "<")
-	}
-	// TODO proper parsing key-value type
-	kvtypes := p.s.scanUntil('>')
-	f.Type = fmt.Sprintf("map<%s>", kvtypes)
-	return parseFieldAfterType(f, p)
 }
 
 // parseFieldAfterType expects:
@@ -98,12 +90,11 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 
 // MapField represents a map entry in a message.
 type MapField struct {
-	Name     string
-	KeyType  string
-	Type     string
-	Sequence int
-	Options  []*Option
+	*Field
+	KeyType string
 }
+
+func newMapField() *MapField { return &MapField{Field: new(Field)} }
 
 // Accept dispatches the call to the visitor.
 func (f *MapField) Accept(v Visitor) {
@@ -115,5 +106,27 @@ func (f *MapField) Accept(v Visitor) {
 // keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
 //           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 func (f *MapField) parse(p *Parser) error {
-	return nil
+	tok, lit := p.scanIgnoreWhitespace()
+	if tLESS != tok {
+		return p.unexpected(lit, "<")
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tIDENT != tok {
+		return p.unexpected(lit, "identifier")
+	}
+	f.KeyType = lit
+	tok, lit = p.scanIgnoreWhitespace()
+	if tCOMMA != tok {
+		return p.unexpected(lit, ",")
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tIDENT != tok {
+		return p.unexpected(lit, "identifier")
+	}
+	f.Type = lit
+	tok, lit = p.scanIgnoreWhitespace()
+	if tGREATER != tok {
+		return p.unexpected(lit, ">")
+	}
+	return parseFieldAfterType(f.Field, p)
 }

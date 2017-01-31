@@ -8,7 +8,7 @@ type Visitor interface {
 	VisitPackage(p *Package)
 	VisitOption(o *Option)
 	VisitImport(i *Import)
-	VisitField(i *Field)
+	VisitNormalField(i *NormalField)
 	VisitEnumField(i *EnumField)
 	VisitEnum(e *Enum)
 	VisitComment(e *Comment)

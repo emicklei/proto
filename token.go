@@ -24,6 +24,7 @@ const (
 	tRIGHTSQUARE // ]
 	tCOMMENT     // /
 	tLESS        // <
+	tGREATER     // >
 	tCOMMA       // ,
 	tDOT         // .
 

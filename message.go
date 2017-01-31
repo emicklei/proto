@@ -51,8 +51,8 @@ func (m *Message) parse(p *Parser) error {
 			}
 			m.Elements = append(m.Elements, o)
 		case tMAP:
-			f := new(Field)
-			if err := parseMapField(f, p); err != nil {
+			f := newMapField()
+			if err := f.parse(p); err != nil {
 				return err
 			}
 			m.Elements = append(m.Elements, f)
@@ -69,7 +69,7 @@ func (m *Message) parse(p *Parser) error {
 		default:
 			// tFIELD
 			p.unscan()
-			f := new(Field)
+			f := newNormalField()
 			if err := f.parse(p); err != nil {
 				return err
 			}

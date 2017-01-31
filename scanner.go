@@ -67,6 +67,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tCOMMA, string(ch)
 	case '.':
 		return tDOT, string(ch)
+	case '>':
+		return tGREATER, string(ch)
 	}
 	return tILLEGAL, string(ch)
 }
