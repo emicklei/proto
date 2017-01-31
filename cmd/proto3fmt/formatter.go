@@ -79,7 +79,7 @@ func (f *formatter) VisitMessage(m *proto3.Message) {
 }
 
 func (f *formatter) VisitOption(o *proto3.Option) {
-	if o.PartOfFieldOrEnum {
+	if o.IsEmbedded {
 		io.WriteString(f.w, "[(")
 	} else {
 		f.begin("option")
@@ -88,7 +88,7 @@ func (f *formatter) VisitOption(o *proto3.Option) {
 	if len(o.Name) > 0 {
 		io.WriteString(f.w, o.Name)
 	}
-	if o.PartOfFieldOrEnum {
+	if o.IsEmbedded {
 		io.WriteString(f.w, ")")
 	}
 	io.WriteString(f.w, " = ")
@@ -97,7 +97,7 @@ func (f *formatter) VisitOption(o *proto3.Option) {
 	} else {
 		fmt.Fprintf(f.w, "%s", o.Identifier)
 	}
-	if o.PartOfFieldOrEnum {
+	if o.IsEmbedded {
 		io.WriteString(f.w, "];\n")
 	} else {
 		io.WriteString(f.w, ";\n")
@@ -160,7 +160,7 @@ func (f *formatter) VisitReserved(r *proto3.Reserved) {
 	io.WriteString(f.w, ";\n")
 }
 
-func (f *formatter) VisitRPcall(r *proto3.RPcall) {
+func (f *formatter) VisitRPC(r *proto3.RPC) {
 	f.begin("rpc")
 	fmt.Fprintf(f.w, "rpc %s (", r.Name)
 	if r.StreamsRequest {
@@ -173,6 +173,10 @@ func (f *formatter) VisitRPcall(r *proto3.RPcall) {
 	}
 	io.WriteString(f.w, r.ReturnsType)
 	io.WriteString(f.w, ");\n")
+}
+
+func (f *formatter) VisitMapField(m *proto3.MapField) {
+	panic("VisitMapField")
 }
 
 // Utils

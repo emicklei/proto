@@ -48,7 +48,7 @@ func (f *EnumField) parse(p *Parser) error {
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok == tLEFTSQUARE {
 		o := new(Option)
-		o.PartOfFieldOrEnum = true
+		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
 			return err

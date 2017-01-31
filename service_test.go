@@ -17,7 +17,7 @@ func TestService(t *testing.T) {
 	if got, want := len(srv.Elements), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	rpc1 := srv.Elements[1].(*RPcall)
+	rpc1 := srv.Elements[1].(*RPC)
 	if got, want := rpc1.Name, "CreateAccount"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}

@@ -78,7 +78,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	// consume options
 	for {
 		o := new(Option)
-		o.PartOfFieldOrEnum = true
+		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
 			return err
@@ -93,5 +93,27 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 			return p.unexpected(lit, ",")
 		}
 	}
+	return nil
+}
+
+// MapField represents a map entry in a message.
+type MapField struct {
+	Name     string
+	KeyType  string
+	Type     string
+	Sequence int
+	Options  []*Option
+}
+
+// Accept dispatches the call to the visitor.
+func (f *MapField) Accept(v Visitor) {
+	v.VisitMapField(f)
+}
+
+// parse expects:
+// mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
+// keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
+//           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
+func (f *MapField) parse(p *Parser) error {
 	return nil
 }

@@ -63,9 +63,6 @@ func (p *Parser) newComment(lit string) *Comment {
 	return &Comment{Message: lit}
 }
 
-// Line returns the line number on which the last token was read.
-func (p *Parser) Line() int { return p.s.line }
-
 func (p *Parser) unexpected(found, expected string) error {
 	debug := ""
 	if p.debug {

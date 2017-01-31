@@ -5,6 +5,14 @@
 
 Package in Go for parsing Google Protocol Buffers [.proto files version 3] (https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
 
+### usage
+
+    parser := proto3.NewParser(anIOReader)
+	proto, err := parser.Parse()
+	if err != nil {
+		log.Fatalln("proto3 parsing failed", err)
+	}
+
 ### install
 
     go get -u -v github.com/emicklei/proto3

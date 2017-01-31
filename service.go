@@ -28,7 +28,7 @@ func (s *Service) parse(p *Parser) error {
 		case tCOMMENT:
 			s.Elements = append(s.Elements, p.newComment(lit))
 		case tRPC:
-			rpc := new(RPcall)
+			rpc := new(RPC)
 			err := rpc.parse(p)
 			if err != nil {
 				return err
@@ -45,8 +45,8 @@ done:
 	return nil
 }
 
-// RPcall represents an rpc entry in a message.
-type RPcall struct {
+// RPC represents an rpc entry in a message.
+type RPC struct {
 	Name           string
 	RequestType    string
 	StreamsRequest bool
@@ -55,12 +55,12 @@ type RPcall struct {
 }
 
 // Accept dispatches the call to the visitor.
-func (r *RPcall) Accept(v Visitor) {
-	v.VisitRPcall(r)
+func (r *RPC) Accept(v Visitor) {
+	v.VisitRPC(r)
 }
 
 // parse continues after reading "rpc"
-func (r *RPcall) parse(p *Parser) error {
+func (r *RPC) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		return p.unexpected(lit, "method")

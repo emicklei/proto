@@ -19,7 +19,7 @@ func TestOption(t *testing.T) {
 	if got, want := o.String, "com.example.foo"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.PartOfFieldOrEnum, false; got != want {
+	if got, want := o.IsEmbedded, false; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
