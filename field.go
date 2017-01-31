@@ -1,7 +1,5 @@
 package proto3
 
-import "strconv"
-
 // Field is an abstract message field.
 type Field struct {
 	Name     string
@@ -55,8 +53,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	if tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
-	lit = p.s.scanIntegerString()
-	i, err := strconv.Atoi(lit)
+	i, err := p.s.scanInteger()
 	if err != nil {
 		return p.unexpected(lit, "sequence number")
 	}

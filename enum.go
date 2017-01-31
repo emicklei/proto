@@ -1,9 +1,6 @@
 package proto3
 
-import (
-	"fmt"
-	"strconv"
-)
+import "fmt"
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
@@ -39,10 +36,9 @@ func (f *EnumField) parse(p *Parser) error {
 	if tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
-	is := p.s.scanIntegerString()
-	i, err := strconv.Atoi(is)
+	i, err := p.s.scanInteger()
 	if err != nil {
-		return fmt.Errorf("found %q, expected integer", is)
+		return fmt.Errorf("found %q, expected integer", err)
 	}
 	f.Integer = i
 	tok, lit = p.scanIgnoreWhitespace()

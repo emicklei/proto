@@ -47,8 +47,8 @@ func TestScanSingleLineComment(t *testing.T) {
 func TestScanIntegerString(t *testing.T) {
 	r := strings.NewReader("-1234;")
 	s := newScanner(r)
-	if got, want := s.scanIntegerString(), "1234"; got != want {
+	i, _ := s.scanInteger()
+	if got, want := i, -1234; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-
 }

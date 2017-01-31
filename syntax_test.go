@@ -23,7 +23,7 @@ func TestCommentAroundSyntax(t *testing.T) {
 	proto := `
 	// comment1
 	// comment2
-	syntax = "proto3"; // comment3
+	syntax = 'proto3'; // comment3
 	// comment4
 `
 	p := newParserOn(proto)

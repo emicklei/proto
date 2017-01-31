@@ -16,6 +16,7 @@ const (
 	tSEMICOLON   // ;
 	tEQUALS      // =
 	tQUOTE       // "
+	tSINGLEQUOTE // '
 	tLEFTPAREN   // (
 	tRIGHTPAREN  // )
 	tLEFTCURLY   // {

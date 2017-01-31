@@ -29,7 +29,7 @@ func (f *formatter) VisitComment(c *proto3.Comment) {
 
 func (f *formatter) VisitEnum(e *proto3.Enum) {
 	f.begin("enum")
-	fmt.Fprintf(f.w, "enum %s {\n", e.Name)
+	fmt.Fprintf(f.w, "enum %s {", e.Name)
 	f.indentLevel++
 	for _, each := range e.Elements {
 		each.Accept(f)
@@ -50,20 +50,12 @@ func (f *formatter) VisitEnumField(e *proto3.EnumField) {
 	}
 }
 
-func (f *formatter) VisitField(f1 *proto3.Field) {
-	f.begin("field")
-	if f1.Repeated {
-		io.WriteString(f.w, "repeated ")
-	}
-	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
-}
-
 func (f *formatter) VisitImport(i *proto3.Import) {
 	f.begin("import")
 	if len(i.Kind) > 0 {
-		fmt.Fprintf(f.w, "%s ", i.Kind)
+		fmt.Fprintf(f.w, "import %s ", i.Kind)
 	}
-	fmt.Fprintf(f.w, "%q;\n", i.Filename)
+	fmt.Fprintf(f.w, "import %q;\n", i.Filename)
 }
 
 func (f *formatter) VisitMessage(m *proto3.Message) {
@@ -92,11 +84,7 @@ func (f *formatter) VisitOption(o *proto3.Option) {
 		io.WriteString(f.w, ")")
 	}
 	io.WriteString(f.w, " = ")
-	if len(o.String) > 0 {
-		fmt.Fprintf(f.w, "%q", o.String)
-	} else {
-		fmt.Fprintf(f.w, "%s", o.Identifier)
-	}
+	io.WriteString(f.w, o.Constant.String())
 	if o.IsEmbedded {
 		io.WriteString(f.w, "];\n")
 	} else {
@@ -176,15 +164,24 @@ func (f *formatter) VisitRPC(r *proto3.RPC) {
 }
 
 func (f *formatter) VisitMapField(m *proto3.MapField) {
-	panic("VisitMapField")
+	f.begin("map")
+	fmt.Fprintf(f.w, "map<%s,%s> %s = %d;\n", m.KeyType, m.Type, m.Name, m.Sequence)
+}
+
+func (f *formatter) VisitNormalField(f1 *proto3.NormalField) {
+	f.begin("field")
+	if f1.Repeated {
+		io.WriteString(f.w, "repeated ")
+	}
+	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
 }
 
 // Utils
 
 func (f *formatter) begin(stmt string) {
 	if f.lastStmt != stmt && len(f.lastStmt) > 0 { // not the first line
-		// add separator because stmt is changed, unless it was comment or a nested thingy
-		if !strings.Contains("comment message enum", f.lastStmt) {
+		// add separator because stmt is changed, unless it nested thingy
+		if !strings.Contains("comment", f.lastStmt) {
 			io.WriteString(f.w, "\n")
 		}
 	}

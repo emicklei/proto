@@ -47,6 +47,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tEQUALS, string(ch)
 	case '"':
 		return tQUOTE, string(ch)
+	case '\'':
+		return tSINGLEQUOTE, string(ch)
 	case '(':
 		return tLEFTPAREN, string(ch)
 	case ')':
@@ -95,25 +97,12 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 	return tWS, buf.String()
 }
 
-func (s *scanner) scanIntegerString() string {
-	s.scanWhitespace()
-	// Create a buffer.
-	var buf bytes.Buffer
-
-	// Read every subsequent digit character into the buffer.
-	// Non-digit characters and EOF will cause the loop to exit.
-	// TODO handle sign correctly
-	for {
-		if ch := s.read(); ch == eof {
-			break
-		} else if !isDigit(ch) && ch != '-' {
-			s.unread(ch)
-			break
-		} else {
-			_, _ = buf.WriteRune(ch)
-		}
+func (s *scanner) scanInteger() (int, error) {
+	var i int
+	if _, err := fmt.Fscanf(s.r, "%d", &i); err != nil {
+		return i, err
 	}
-	return buf.String()
+	return i, nil
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.

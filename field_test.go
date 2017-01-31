@@ -3,7 +3,7 @@ package proto3
 import "testing"
 
 func TestField(t *testing.T) {
-	proto := `repeated foo.bar lots = 1 [option1=a, option2=b, option3="happy"];`
+	proto := `repeated foo.bar lots =1 [option1=a, option2=b, option3="happy"];`
 	p := newParserOn(proto)
 	f := newNormalField()
 	err := f.parse(p)
@@ -25,16 +25,16 @@ func TestField(t *testing.T) {
 	if got, want := f.Options[0].Name, "option1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.Options[0].Identifier, "a"; got != want {
+	if got, want := f.Options[0].Constant.Source, "a"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[1].Name, "option2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.Options[1].Identifier, "b"; got != want {
+	if got, want := f.Options[1].Constant.Source, "b"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.Options[2].String, "happy"; got != want {
+	if got, want := f.Options[2].Constant.Source, "happy"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -62,7 +62,7 @@ func TestFieldSimple(t *testing.T) {
 	if got, want := f.Options[0].Name, "ctype"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.Options[0].Identifier, "STRING_PIECE"; got != want {
+	if got, want := f.Options[0].Constant.Source, "STRING_PIECE"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

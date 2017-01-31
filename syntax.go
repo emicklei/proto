@@ -1,7 +1,5 @@
 package proto3
 
-import "fmt"
-
 // Syntax should have value "proto3"
 type Syntax struct {
 	Value string
@@ -16,15 +14,15 @@ func (s *Syntax) parse(p *Parser) error {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE {
-		return fmt.Errorf("found %q, expected QUOTE", lit)
+	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE && tok != tSINGLEQUOTE {
+		return p.unexpected(lit, "\" or '")
 	}
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected string", lit)
+		return p.unexpected(lit, "proto3")
 	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE {
-		return fmt.Errorf("found %q, expected QUOTE", lit)
+	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE && tok != tSINGLEQUOTE {
+		return p.unexpected(lit, "\" or '")
 	}
 	s.Value = lit
 	return nil

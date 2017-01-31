@@ -5,8 +5,7 @@ import "fmt"
 // Option is a protoc compiler option
 type Option struct {
 	Name       string
-	String     string // will be quoted
-	Identifier string // will not be quoted
+	Constant   Literal
 	IsEmbedded bool
 	IsCustom   bool // TODO needed?
 }
@@ -49,19 +48,54 @@ func (o *Option) parse(p *Parser) error {
 	if tok != tEQUALS {
 		return p.unexpected(lit, "=")
 	}
-	tok, lit = p.scanIgnoreWhitespace()
+	l := new(Literal)
+	if err := l.parse(p); err != nil {
+		return err
+	}
+	o.Constant = *l
+	return nil
+}
+
+// Literal represents intLit,floatLit,strLit or boolLit
+type Literal struct {
+	Source   string
+	IsString bool
+}
+
+// String returns the source (if quoted then use double quote).
+func (l Literal) String() string {
+	if l.IsString {
+		return "\"" + l.Source + "\""
+	}
+	return l.Source
+}
+
+func (l *Literal) parse(p *Parser) error {
+	tok, lit := p.scanIgnoreWhitespace()
 	// stringLiteral?
 	if tok == tQUOTE {
 		ident := p.s.scanUntil('"')
 		if len(ident) == 0 {
-			return fmt.Errorf("unexpected end of quoted string") // TODO create constant for this
+			return p.unexpected(lit, "quoted string")
 		}
-		o.String = ident
+		l.Source, l.IsString = ident, true
 		return nil
 	}
-	if tIDENT != tok {
-		return p.unexpected(lit, "constant")
+	// stringLiteral?
+	if tok == tSINGLEQUOTE {
+		ident := p.s.scanUntil('\'')
+		if len(ident) == 0 {
+			return p.unexpected(lit, "single quoted string")
+		}
+		l.Source, l.IsString = ident, true
+		return nil
 	}
-	o.Identifier = lit
+	// float, bool or intLit ?
+	if lit == "-" { // TODO token?
+		_, rem := p.s.scanIdent()
+		l.Source = "-" + rem
+		return nil
+	}
+	l.Source = lit
 	return nil
 }
