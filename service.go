@@ -59,6 +59,31 @@ func (r *RPC) Accept(v Visitor) {
 	v.VisitRPC(r)
 }
 
+// columns returns printable source tokens
+func (r *RPC) columns() (cols []aligned) {
+	cols = append(cols,
+		leftAligned("rpc "),
+		leftAligned(r.Name),
+		leftAligned(" ("))
+	stream := ""
+	if r.StreamsRequest {
+		stream = "stream "
+	}
+	cols = append(cols,
+		leftAligned(stream+r.RequestType),
+		leftAligned(") "),
+		leftAligned("returns"),
+		leftAligned(" ("))
+	stream = ""
+	if r.StreamsReturns {
+		stream = "stream "
+	}
+	cols = append(cols,
+		leftAligned(stream+r.ReturnsType),
+		leftAligned(")"))
+	return cols
+}
+
 // parse continues after reading "rpc"
 func (r *RPC) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()

@@ -31,7 +31,7 @@ func (f *EnumField) Accept(v Visitor) {
 
 // columns returns printable source tokens
 func (f EnumField) columns() (cols []aligned) {
-	cols = append(cols, leftAligned(f.Name), alignedEquals, leftAligned(strconv.Itoa(f.Integer)))
+	cols = append(cols, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Integer)))
 	if f.ValueOption != nil {
 		cols = append(cols, f.ValueOption.columns()...)
 	}

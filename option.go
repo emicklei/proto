@@ -18,11 +18,11 @@ func (o *Option) Accept(v Visitor) {
 // columns returns printable source tokens
 func (o *Option) columns() (cols []aligned) {
 	if !o.IsEmbedded {
-		cols = append(cols, leftAligned("option"))
+		cols = append(cols, leftAligned("option "))
 	} else {
 		cols = append(cols, leftAligned(" ["))
 	}
-	cols = append(cols, leftAligned(o.Name), leftAligned("="), rightAligned(o.Constant.String()))
+	cols = append(cols, leftAligned(o.Name), alignedEquals, rightAligned(o.Constant.String()))
 	if o.IsEmbedded {
 		cols = append(cols, leftAligned("]"))
 	}

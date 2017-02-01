@@ -8,7 +8,7 @@ import (
 func (f *Formatter) begin(stmt string) {
 	if f.lastStmt != stmt && len(f.lastStmt) > 0 { // not the first line
 		// add separator because stmt is changed, unless it nested thingy
-		if !strings.Contains("comment", f.lastStmt) {
+		if !strings.Contains("comment enum service", f.lastStmt) {
 			io.WriteString(f.w, "\n")
 		}
 	}
@@ -28,6 +28,9 @@ type columnsPrintable interface {
 }
 
 func (f *Formatter) printListOfColumns(list []columnsPrintable) {
+	if len(list) == 0 {
+		return
+	}
 	// collect all column values
 	values := [][]aligned{}
 	widths := map[int]int{}
@@ -48,8 +51,10 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable) {
 		}
 	}
 	// now print all values
-	for _, each := range values {
-		io.WriteString(f.w, "\n")
+	for i, each := range values {
+		if i > 0 {
+			f.nl()
+		}
 		f.indent(0)
 		for c := 0; c < len(widths); c++ {
 			pw := widths[c]
@@ -62,9 +67,10 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable) {
 		}
 		io.WriteString(f.w, ";")
 	}
-	io.WriteString(f.w, "\n")
+	f.nl()
 }
 
+// paddedTo return the word padding with spaces to match the length.
 func paddedTo(word string, length int) string {
 	if len(word) >= length {
 		return word
@@ -72,10 +78,9 @@ func paddedTo(word string, length int) string {
 	return word + strings.Repeat(" ", length-len(word))
 }
 
-func (f *Formatter) newLineIf(ok bool) {
-	if ok {
-		io.WriteString(f.w, "\n")
-	}
+func (f *Formatter) nl() *Formatter {
+	io.WriteString(f.w, "\n")
+	return f
 }
 
 func (f *Formatter) printAsGroups(list []Visitee) {
@@ -83,8 +88,8 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 		return
 	}
 	group := []columnsPrintable{}
-	lastGroupName := nameOfVisitee(list[0])
-	for i := 1; i < len(list); i++ {
+	lastGroupName := ""
+	for i := 0; i < len(list); i++ {
 		groupName := nameOfVisitee(list[i])
 		printable, isColumnsPrintable := list[i].(columnsPrintable)
 		if isColumnsPrintable {

@@ -43,24 +43,17 @@ func (f *Formatter) VisitComment(c *Comment) {
 func (f *Formatter) VisitEnum(e *Enum) {
 	f.begin("enum")
 	fmt.Fprintf(f.w, "enum %s {", e.Name)
-	f.indentLevel++
-	f.printAsGroups(e.Elements)
-	f.indent(-1)
+	if len(e.Elements) > 0 {
+		f.nl()
+		f.indentLevel++
+		f.printAsGroups(e.Elements)
+		f.indent(-1)
+	}
 	io.WriteString(f.w, "}\n")
 }
 
 // VisitEnumField formats a EnumField.
-func (f *Formatter) VisitEnumField(e *EnumField) {
-	f.begin("field")
-	io.WriteString(f.w, paddedTo(e.Name, 10))
-	fmt.Fprintf(f.w, " = %d", e.Integer)
-	if e.ValueOption != nil {
-		io.WriteString(f.w, " ")
-		e.ValueOption.Accept(f)
-	} else {
-		io.WriteString(f.w, ";\n")
-	}
-}
+func (f *Formatter) VisitEnumField(e *EnumField) {}
 
 // VisitImport formats a Import.
 func (f *Formatter) VisitImport(i *Import) {
@@ -75,37 +68,17 @@ func (f *Formatter) VisitImport(i *Import) {
 func (f *Formatter) VisitMessage(m *Message) {
 	f.begin("message")
 	fmt.Fprintf(f.w, "message %s {", m.Name)
-	f.newLineIf(len(m.Elements) > 0)
-	f.indentLevel++
-	for _, each := range m.Elements {
-		each.Accept(f)
+	if len(m.Elements) > 0 {
+		f.nl()
+		f.indentLevel++
+		f.printAsGroups(m.Elements)
+		f.indent(-1)
 	}
-	f.indent(-1)
 	io.WriteString(f.w, "}\n")
 }
 
 // VisitOption formats a Option.
-func (f *Formatter) VisitOption(o *Option) {
-	if o.IsEmbedded {
-		io.WriteString(f.w, "[(")
-	} else {
-		f.begin("option")
-		io.WriteString(f.w, "option ")
-	}
-	if len(o.Name) > 0 {
-		io.WriteString(f.w, o.Name)
-	}
-	if o.IsEmbedded {
-		io.WriteString(f.w, ")")
-	}
-	io.WriteString(f.w, " = ")
-	io.WriteString(f.w, o.Constant.String())
-	if o.IsEmbedded {
-		io.WriteString(f.w, "];\n")
-	} else {
-		io.WriteString(f.w, ";\n")
-	}
-}
+func (f *Formatter) VisitOption(o *Option) {}
 
 // VisitPackage formats a Package.
 func (f *Formatter) VisitPackage(p *Package) {
@@ -117,11 +90,12 @@ func (f *Formatter) VisitPackage(p *Package) {
 func (f *Formatter) VisitService(s *Service) {
 	f.begin("service")
 	fmt.Fprintf(f.w, "service %s {", s.Name)
-	f.indentLevel++
-	for _, each := range s.Elements {
-		each.Accept(f)
+	if len(s.Elements) > 0 {
+		f.nl()
+		f.indentLevel++
+		f.printAsGroups(s.Elements)
+		f.indent(-1)
 	}
-	f.indent(-1)
 	io.WriteString(f.w, "}\n")
 }
 
@@ -134,11 +108,12 @@ func (f *Formatter) VisitSyntax(s *Syntax) {
 func (f *Formatter) VisitOneof(o *Oneof) {
 	f.begin("oneof")
 	fmt.Fprintf(f.w, "oneof %s {", o.Name)
-	f.indentLevel++
-	for _, each := range o.Elements {
-		each.Accept(f)
+	if len(o.Elements) > 0 {
+		f.nl()
+		f.indentLevel++
+		f.printAsGroups(o.Elements)
+		f.indent(-1)
 	}
-	f.indent(-1)
 	io.WriteString(f.w, "}\n")
 }
 
@@ -170,20 +145,7 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 }
 
 // VisitRPC formats a RPC.
-func (f *Formatter) VisitRPC(r *RPC) {
-	f.begin("rpc")
-	fmt.Fprintf(f.w, "rpc %s (", r.Name)
-	if r.StreamsRequest {
-		io.WriteString(f.w, "stream ")
-	}
-	io.WriteString(f.w, r.RequestType)
-	io.WriteString(f.w, ") returns (")
-	if r.StreamsReturns {
-		io.WriteString(f.w, "stream ")
-	}
-	io.WriteString(f.w, r.ReturnsType)
-	io.WriteString(f.w, ");\n")
-}
+func (f *Formatter) VisitRPC(r *RPC) {}
 
 // VisitMapField formats a MapField.
 func (f *Formatter) VisitMapField(m *MapField) {

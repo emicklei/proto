@@ -52,6 +52,11 @@ message Message
 }
 }
 
+
+service SearchService { // comment
+       rpc Search (  SearchRequest  ) returns ( SearchResponse );
+       rpc Find (  Finder  ) returns ( stream Result );}
+
 // emptiness
 enum Enum {}
 service Service {}
