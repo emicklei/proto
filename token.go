@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // token represents a lexical token.
 type token int

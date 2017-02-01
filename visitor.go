@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // Visitor is for dispatching Proto elements.
 type Visitor interface {

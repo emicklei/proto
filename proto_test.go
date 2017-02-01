@@ -1,9 +1,9 @@
-package proto3
+package proto
 
 import "testing"
 
 const example = `
-syntax = “proto3”;
+syntax = “proto”;
 import public “other.proto”;
 option java_package = "com.example.foo";
 enum EnumAllowingAlias {

@@ -13,7 +13,7 @@ import public    "testdata/test.proto";
 
 /* This pkg
         */
-package         here.proto3_proto   ;
+package         here.proto_proto   ;
 
 
 // from a bottle

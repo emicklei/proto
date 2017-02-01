@@ -34,7 +34,7 @@
 //
 // A proto file we will use for unit testing.
 
-syntax = "proto3";
+syntax = "proto";
 
 // Some generic_services option(s) added automatically.
 // See:  http://go/proto2-generic-services-default
@@ -44,7 +44,7 @@ option py_generic_services = true;     // auto-added
 option cc_enable_arenas = true;
 option csharp_namespace = "Google.Protobuf.TestProtos";
 
-import "google/protobuf/unittest_import_proto3.proto";
+import "google/protobuf/unittest_import_proto.proto";
 
 // We don't put this in a package within proto2 because we need to make sure
 // that the generated code doesn't depend on being in the proto2 namespace.
@@ -221,7 +221,7 @@ enum TestSparseEnum {
   SPARSE_C = 12589234;
   SPARSE_D = -15;
   SPARSE_E = -53452;
-  // In proto3, value 0 must be the first one specified
+  // In proto, value 0 must be the first one specified
   // SPARSE_F = 0;
   SPARSE_G = 2;
 }

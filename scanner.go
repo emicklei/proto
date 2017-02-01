@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // partial code from https://raw.githubusercontent.com/benbjohnson/sql-parser/master/scanner.go
 

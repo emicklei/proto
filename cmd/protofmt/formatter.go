@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/emicklei/proto3"
+	"github.com/emicklei/proto"
 )
 
 type formatter struct {
@@ -16,7 +16,7 @@ type formatter struct {
 	indentSeparator string
 }
 
-func (f *formatter) VisitComment(c *proto3.Comment) {
+func (f *formatter) VisitComment(c *proto.Comment) {
 	f.begin("comment")
 	if c.IsMultiline() {
 		fmt.Fprintln(f.w, "/*")
@@ -27,7 +27,7 @@ func (f *formatter) VisitComment(c *proto3.Comment) {
 	}
 }
 
-func (f *formatter) VisitEnum(e *proto3.Enum) {
+func (f *formatter) VisitEnum(e *proto.Enum) {
 	f.begin("enum")
 	fmt.Fprintf(f.w, "enum %s {", e.Name)
 	f.indentLevel++
@@ -38,7 +38,7 @@ func (f *formatter) VisitEnum(e *proto3.Enum) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitEnumField(e *proto3.EnumField) {
+func (f *formatter) VisitEnumField(e *proto.EnumField) {
 	f.begin("field")
 	io.WriteString(f.w, paddedTo(e.Name, 10))
 	fmt.Fprintf(f.w, " = %d", e.Integer)
@@ -50,7 +50,7 @@ func (f *formatter) VisitEnumField(e *proto3.EnumField) {
 	}
 }
 
-func (f *formatter) VisitImport(i *proto3.Import) {
+func (f *formatter) VisitImport(i *proto.Import) {
 	f.begin("import")
 	if len(i.Kind) > 0 {
 		fmt.Fprintf(f.w, "import %s ", i.Kind)
@@ -58,7 +58,7 @@ func (f *formatter) VisitImport(i *proto3.Import) {
 	fmt.Fprintf(f.w, "import %q;\n", i.Filename)
 }
 
-func (f *formatter) VisitMessage(m *proto3.Message) {
+func (f *formatter) VisitMessage(m *proto.Message) {
 	f.begin("message")
 	fmt.Fprintf(f.w, "message %s {", m.Name)
 	f.newLineIf(len(m.Elements) > 0)
@@ -70,7 +70,7 @@ func (f *formatter) VisitMessage(m *proto3.Message) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitOption(o *proto3.Option) {
+func (f *formatter) VisitOption(o *proto.Option) {
 	if o.IsEmbedded {
 		io.WriteString(f.w, "[(")
 	} else {
@@ -92,12 +92,12 @@ func (f *formatter) VisitOption(o *proto3.Option) {
 	}
 }
 
-func (f *formatter) VisitPackage(p *proto3.Package) {
+func (f *formatter) VisitPackage(p *proto.Package) {
 	f.begin("package")
 	fmt.Fprintf(f.w, "package %s;\n", p.Name)
 }
 
-func (f *formatter) VisitService(s *proto3.Service) {
+func (f *formatter) VisitService(s *proto.Service) {
 	f.begin("service")
 	fmt.Fprintf(f.w, "service %s {", s.Name)
 	f.indentLevel++
@@ -108,11 +108,11 @@ func (f *formatter) VisitService(s *proto3.Service) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitSyntax(s *proto3.Syntax) {
+func (f *formatter) VisitSyntax(s *proto.Syntax) {
 	fmt.Fprintf(f.w, "syntax = %q;\n\n", s.Value)
 }
 
-func (f *formatter) VisitOneof(o *proto3.Oneof) {
+func (f *formatter) VisitOneof(o *proto.Oneof) {
 	f.begin("oneof")
 	fmt.Fprintf(f.w, "oneof %s {", o.Name)
 	f.indentLevel++
@@ -123,7 +123,7 @@ func (f *formatter) VisitOneof(o *proto3.Oneof) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitOneofField(o *proto3.OneOfField) {
+func (f *formatter) VisitOneofField(o *proto.OneOfField) {
 	f.begin("oneoffield")
 	fmt.Fprintf(f.w, "%s %s = %d", o.Type, o.Name, o.Sequence)
 	for _, each := range o.Options {
@@ -132,7 +132,7 @@ func (f *formatter) VisitOneofField(o *proto3.OneOfField) {
 	io.WriteString(f.w, ";\n")
 }
 
-func (f *formatter) VisitReserved(r *proto3.Reserved) {
+func (f *formatter) VisitReserved(r *proto.Reserved) {
 	f.begin("reserved")
 	io.WriteString(f.w, "reserved")
 	if len(r.Ranges) > 0 {
@@ -148,7 +148,7 @@ func (f *formatter) VisitReserved(r *proto3.Reserved) {
 	io.WriteString(f.w, ";\n")
 }
 
-func (f *formatter) VisitRPC(r *proto3.RPC) {
+func (f *formatter) VisitRPC(r *proto.RPC) {
 	f.begin("rpc")
 	fmt.Fprintf(f.w, "rpc %s (", r.Name)
 	if r.StreamsRequest {
@@ -163,12 +163,12 @@ func (f *formatter) VisitRPC(r *proto3.RPC) {
 	io.WriteString(f.w, ");\n")
 }
 
-func (f *formatter) VisitMapField(m *proto3.MapField) {
+func (f *formatter) VisitMapField(m *proto.MapField) {
 	f.begin("map")
 	fmt.Fprintf(f.w, "map<%s,%s> %s = %d;\n", m.KeyType, m.Type, m.Name, m.Sequence)
 }
 
-func (f *formatter) VisitNormalField(f1 *proto3.NormalField) {
+func (f *formatter) VisitNormalField(f1 *proto.NormalField) {
 	f.begin("field")
 	if f1.Repeated {
 		io.WriteString(f.w, "repeated ")

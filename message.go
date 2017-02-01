@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // Message consists of a message name and a message body.
 type Message struct {

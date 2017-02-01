@@ -4,24 +4,23 @@ import (
 	"log"
 	"os"
 
-	"github.com/emicklei/proto3"
+	"github.com/emicklei/proto"
 )
 
-// go run *.go example1.proto
-// go run *.go example0.proto
+// go run *.go unformatted.proto
 func main() {
 	if len(os.Args) == 1 {
-		log.Fatal("Usage: proto3fmt my.proto")
+		log.Fatal("Usage: protofmt my.proto")
 	}
 	i, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer i.Close()
-	p := proto3.NewParser(i)
+	p := proto.NewParser(i)
 	def, err := p.Parse()
 	if err != nil {
-		log.Fatalln("proto3fmt failed", err)
+		log.Fatalln("protofmt failed", err)
 	}
 	f := &formatter{w: os.Stdout, indentSeparator: "  "}
 	for _, each := range def.Elements {

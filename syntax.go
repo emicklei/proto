@@ -1,6 +1,6 @@
-package proto3
+package proto
 
-// Syntax should have value "proto3"
+// Syntax should have value "proto"
 type Syntax struct {
 	Value string
 }
@@ -19,7 +19,7 @@ func (s *Syntax) parse(p *Parser) error {
 	}
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "proto3")
+		return p.unexpected(lit, "proto")
 	}
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE && tok != tSINGLEQUOTE {
 		return p.unexpected(lit, "\" or '")

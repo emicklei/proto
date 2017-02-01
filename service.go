@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // Service defines a set of RPC calls.
 type Service struct {

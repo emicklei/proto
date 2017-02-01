@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // Field is an abstract message field.
 type Field struct {

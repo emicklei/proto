@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 import (
 	"strconv"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestSyntax(t *testing.T) {
-	proto := `syntax = "proto3";`
+	proto := `syntax = "proto";`
 	p := newParserOn(proto)
 	p.scanIgnoreWhitespace() // consume first token
 	s := new(Syntax)
@@ -14,7 +14,7 @@ func TestSyntax(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := s.Value, "proto3"; got != want {
+	if got, want := s.Value, "proto"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -23,7 +23,7 @@ func TestCommentAroundSyntax(t *testing.T) {
 	proto := `
 	// comment1
 	// comment2
-	syntax = 'proto3'; // comment3
+	syntax = 'proto'; // comment3
 	// comment4
 `
 	p := newParserOn(proto)

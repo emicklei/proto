@@ -1,4 +1,4 @@
-package proto3
+package proto
 
 // Import holds a filename to another .proto definition.
 type Import struct {
