@@ -1,22 +1,34 @@
-package main
+package proto
 
 import (
 	"fmt"
 	"io"
 
 	"strings"
-
-	"github.com/emicklei/proto"
 )
 
-type formatter struct {
+// Formatter visits a Proto and writes formatted source.
+type Formatter struct {
 	w               io.Writer
 	indentLevel     int
 	lastStmt        string
 	indentSeparator string
 }
 
-func (f *formatter) VisitComment(c *proto.Comment) {
+// NewFormatter returns a new Formatter. Only the indentation separator is configurable.
+func NewFormatter(writer io.Writer, indentSeparator string) *Formatter {
+	return &Formatter{w: writer, indentSeparator: indentSeparator}
+}
+
+// Format visits all proto elements and writes formatted source.
+func (f *Formatter) Format(p *Proto) {
+	for _, each := range p.Elements {
+		each.Accept(f)
+	}
+}
+
+// VisitComment formats a Comment.
+func (f *Formatter) VisitComment(c *Comment) {
 	f.begin("comment")
 	if c.IsMultiline() {
 		fmt.Fprintln(f.w, "/*")
@@ -27,18 +39,18 @@ func (f *formatter) VisitComment(c *proto.Comment) {
 	}
 }
 
-func (f *formatter) VisitEnum(e *proto.Enum) {
+// VisitEnum formats a Enum.
+func (f *Formatter) VisitEnum(e *Enum) {
 	f.begin("enum")
 	fmt.Fprintf(f.w, "enum %s {", e.Name)
 	f.indentLevel++
-	for _, each := range e.Elements {
-		each.Accept(f)
-	}
+	f.printAsGroups(e.Elements)
 	f.indent(-1)
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitEnumField(e *proto.EnumField) {
+// VisitEnumField formats a EnumField.
+func (f *Formatter) VisitEnumField(e *EnumField) {
 	f.begin("field")
 	io.WriteString(f.w, paddedTo(e.Name, 10))
 	fmt.Fprintf(f.w, " = %d", e.Integer)
@@ -50,7 +62,8 @@ func (f *formatter) VisitEnumField(e *proto.EnumField) {
 	}
 }
 
-func (f *formatter) VisitImport(i *proto.Import) {
+// VisitImport formats a Import.
+func (f *Formatter) VisitImport(i *Import) {
 	f.begin("import")
 	if len(i.Kind) > 0 {
 		fmt.Fprintf(f.w, "import %s ", i.Kind)
@@ -58,7 +71,8 @@ func (f *formatter) VisitImport(i *proto.Import) {
 	fmt.Fprintf(f.w, "import %q;\n", i.Filename)
 }
 
-func (f *formatter) VisitMessage(m *proto.Message) {
+// VisitMessage formats a Message.
+func (f *Formatter) VisitMessage(m *Message) {
 	f.begin("message")
 	fmt.Fprintf(f.w, "message %s {", m.Name)
 	f.newLineIf(len(m.Elements) > 0)
@@ -70,7 +84,8 @@ func (f *formatter) VisitMessage(m *proto.Message) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitOption(o *proto.Option) {
+// VisitOption formats a Option.
+func (f *Formatter) VisitOption(o *Option) {
 	if o.IsEmbedded {
 		io.WriteString(f.w, "[(")
 	} else {
@@ -92,12 +107,14 @@ func (f *formatter) VisitOption(o *proto.Option) {
 	}
 }
 
-func (f *formatter) VisitPackage(p *proto.Package) {
+// VisitPackage formats a Package.
+func (f *Formatter) VisitPackage(p *Package) {
 	f.begin("package")
 	fmt.Fprintf(f.w, "package %s;\n", p.Name)
 }
 
-func (f *formatter) VisitService(s *proto.Service) {
+// VisitService formats a Service.
+func (f *Formatter) VisitService(s *Service) {
 	f.begin("service")
 	fmt.Fprintf(f.w, "service %s {", s.Name)
 	f.indentLevel++
@@ -108,11 +125,13 @@ func (f *formatter) VisitService(s *proto.Service) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitSyntax(s *proto.Syntax) {
+// VisitSyntax formats a Syntax.
+func (f *Formatter) VisitSyntax(s *Syntax) {
 	fmt.Fprintf(f.w, "syntax = %q;\n\n", s.Value)
 }
 
-func (f *formatter) VisitOneof(o *proto.Oneof) {
+// VisitOneof formats a Oneof.
+func (f *Formatter) VisitOneof(o *Oneof) {
 	f.begin("oneof")
 	fmt.Fprintf(f.w, "oneof %s {", o.Name)
 	f.indentLevel++
@@ -123,7 +142,8 @@ func (f *formatter) VisitOneof(o *proto.Oneof) {
 	io.WriteString(f.w, "}\n")
 }
 
-func (f *formatter) VisitOneofField(o *proto.OneOfField) {
+// VisitOneofField formats a OneofField.
+func (f *Formatter) VisitOneofField(o *OneOfField) {
 	f.begin("oneoffield")
 	fmt.Fprintf(f.w, "%s %s = %d", o.Type, o.Name, o.Sequence)
 	for _, each := range o.Options {
@@ -132,9 +152,10 @@ func (f *formatter) VisitOneofField(o *proto.OneOfField) {
 	io.WriteString(f.w, ";\n")
 }
 
-func (f *formatter) VisitReserved(r *proto.Reserved) {
+// VisitReserved formats a Reserved.
+func (f *Formatter) VisitReserved(r *Reserved) {
 	f.begin("reserved")
-	io.WriteString(f.w, "reserved")
+	io.WriteString(f.w, "reserved ")
 	if len(r.Ranges) > 0 {
 		io.WriteString(f.w, r.Ranges)
 	} else {
@@ -148,7 +169,8 @@ func (f *formatter) VisitReserved(r *proto.Reserved) {
 	io.WriteString(f.w, ";\n")
 }
 
-func (f *formatter) VisitRPC(r *proto.RPC) {
+// VisitRPC formats a RPC.
+func (f *Formatter) VisitRPC(r *RPC) {
 	f.begin("rpc")
 	fmt.Fprintf(f.w, "rpc %s (", r.Name)
 	if r.StreamsRequest {
@@ -163,12 +185,14 @@ func (f *formatter) VisitRPC(r *proto.RPC) {
 	io.WriteString(f.w, ");\n")
 }
 
-func (f *formatter) VisitMapField(m *proto.MapField) {
+// VisitMapField formats a MapField.
+func (f *Formatter) VisitMapField(m *MapField) {
 	f.begin("map")
 	fmt.Fprintf(f.w, "map<%s,%s> %s = %d;\n", m.KeyType, m.Type, m.Name, m.Sequence)
 }
 
-func (f *formatter) VisitNormalField(f1 *proto.NormalField) {
+// VisitNormalField formats a NormalField.
+func (f *Formatter) VisitNormalField(f1 *NormalField) {
 	f.begin("field")
 	if f1.Repeated {
 		io.WriteString(f.w, "repeated ")
@@ -177,37 +201,4 @@ func (f *formatter) VisitNormalField(f1 *proto.NormalField) {
 		io.WriteString(f.w, "optional ")
 	}
 	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
-}
-
-// Utils
-
-func (f *formatter) begin(stmt string) {
-	if f.lastStmt != stmt && len(f.lastStmt) > 0 { // not the first line
-		// add separator because stmt is changed, unless it nested thingy
-		if !strings.Contains("comment", f.lastStmt) {
-			io.WriteString(f.w, "\n")
-		}
-	}
-	f.indent(0)
-	f.lastStmt = stmt
-}
-
-func (f *formatter) indent(diff int) {
-	f.indentLevel += diff
-	for i := 0; i < f.indentLevel; i++ {
-		io.WriteString(f.w, f.indentSeparator)
-	}
-}
-
-func paddedTo(word string, length int) string {
-	if len(word) >= length {
-		return word
-	}
-	return word + strings.Repeat(" ", length-len(word))
-}
-
-func (f *formatter) newLineIf(ok bool) {
-	if ok {
-		io.WriteString(f.w, "\n")
-	}
 }

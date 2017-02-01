@@ -22,8 +22,5 @@ func main() {
 	if err != nil {
 		log.Fatalln("protofmt failed", err)
 	}
-	f := &formatter{w: os.Stdout, indentSeparator: "  "}
-	for _, each := range def.Elements {
-		each.Accept(f)
-	}
+	proto.NewFormatter(os.Stdout, "  ").Format(def)
 }

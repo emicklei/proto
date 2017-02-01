@@ -39,13 +39,16 @@ message Message
     BILL_BAILEY = 3;
   }
 
+    reserved 2, 15, 9 to 11;
+    reserved "foo", "bar";
+
   map<string, Nested> terrain = 4;
 
   enum EnumAllowingAlias {
   option allow_alias = true;
   UNKNOWN = 0;
   STARTED = 1;
-  RUNNING = 2 [(custom_option) = "hello world"];
+  RUN = 2 [(custom_option) = "hello world"];
 }
 }
 

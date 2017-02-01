@@ -1,6 +1,9 @@
 package proto
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
@@ -24,6 +27,15 @@ type EnumField struct {
 // Accept dispatches the call to the visitor.
 func (f *EnumField) Accept(v Visitor) {
 	v.VisitEnumField(f)
+}
+
+// columns returns printable source tokens
+func (f EnumField) columns() (cols []aligned) {
+	cols = append(cols, leftAligned(f.Name), alignedEquals, leftAligned(strconv.Itoa(f.Integer)))
+	if f.ValueOption != nil {
+		cols = append(cols, f.ValueOption.columns()...)
+	}
+	return
 }
 
 func (f *EnumField) parse(p *Parser) error {

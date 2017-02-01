@@ -23,3 +23,29 @@ type Visitor interface {
 type Visitee interface {
 	Accept(v Visitor)
 }
+
+type reflector struct {
+	name string
+}
+
+func (r *reflector) VisitMessage(m *Message)         { r.name = "Message" }
+func (r *reflector) VisitService(v *Service)         { r.name = "Service" }
+func (r *reflector) VisitSyntax(s *Syntax)           { r.name = "Syntax" }
+func (r *reflector) VisitPackage(p *Package)         { r.name = "Package" }
+func (r *reflector) VisitOption(o *Option)           { r.name = "Option" }
+func (r *reflector) VisitImport(i *Import)           { r.name = "Import" }
+func (r *reflector) VisitNormalField(i *NormalField) { r.name = "NormalField" }
+func (r *reflector) VisitEnumField(i *EnumField)     { r.name = "EnumField" }
+func (r *reflector) VisitEnum(e *Enum)               { r.name = "Enum" }
+func (r *reflector) VisitComment(e *Comment)         { r.name = "Comment" }
+func (r *reflector) VisitOneof(o *Oneof)             { r.name = "Oneof" }
+func (r *reflector) VisitOneofField(o *OneOfField)   { r.name = "OneOfField" }
+func (r *reflector) VisitReserved(rs *Reserved)      { r.name = "Reserved" }
+func (r *reflector) VisitRPC(rpc *RPC)               { r.name = "RPC" }
+func (r *reflector) VisitMapField(f *MapField)       { r.name = "MapField" }
+
+func nameOfVisitee(e Visitee) string {
+	r := new(reflector)
+	e.Accept(r)
+	return r.name
+}
