@@ -173,6 +173,9 @@ func (f *formatter) VisitNormalField(f1 *proto.NormalField) {
 	if f1.Repeated {
 		io.WriteString(f.w, "repeated ")
 	}
+	if f1.Optional {
+		io.WriteString(f.w, "optional ")
+	}
 	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
 }
 

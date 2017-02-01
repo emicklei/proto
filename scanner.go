@@ -157,6 +157,9 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tONEOF, buf.String()
 	case "reserved":
 		return tRESERVED, buf.String()
+	// proto2
+	case "optional":
+		return tOPTIONAL, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.

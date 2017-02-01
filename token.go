@@ -47,6 +47,9 @@ const (
 	tMAP
 	tRESERVED
 	tENUM
+
+	// proto2
+	tOPTIONAL
 )
 
 const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"

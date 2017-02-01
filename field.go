@@ -12,6 +12,7 @@ type Field struct {
 type NormalField struct {
 	*Field
 	Repeated bool
+	Optional bool // proto2
 }
 
 func newNormalField() *NormalField { return &NormalField{Field: new(Field)} }
@@ -22,13 +23,16 @@ func (f *NormalField) Accept(v Visitor) {
 }
 
 // parse expects:
-// [ "repeated" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
+// [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
+			return f.parse(p)
+		case tOPTIONAL: // proto2
+			f.Optional = true
 			return f.parse(p)
 		case tIDENT:
 			f.Type = lit
