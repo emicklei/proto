@@ -24,9 +24,13 @@ type Visitee interface {
 	Accept(v Visitor)
 }
 
+// reflector is a Visitor that can tell the short type name of a Visitee.
 type reflector struct {
 	name string
 }
+
+// sole instance of reflector
+var namer = new(reflector)
 
 func (r *reflector) VisitMessage(m *Message)         { r.name = "Message" }
 func (r *reflector) VisitService(v *Service)         { r.name = "Service" }
@@ -44,8 +48,8 @@ func (r *reflector) VisitReserved(rs *Reserved)      { r.name = "Reserved" }
 func (r *reflector) VisitRPC(rpc *RPC)               { r.name = "RPC" }
 func (r *reflector) VisitMapField(f *MapField)       { r.name = "MapField" }
 
+// nameOfVisitee returns the short type name of a Visitee.
 func nameOfVisitee(e Visitee) string {
-	r := new(reflector)
-	e.Accept(r)
-	return r.name
+	e.Accept(namer)
+	return namer.name
 }
