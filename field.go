@@ -10,7 +10,7 @@ type Field struct {
 	Options  []*Option
 }
 
-// NormalField
+// NormalField represents a field in a Message.
 type NormalField struct {
 	*Field
 	Repeated bool

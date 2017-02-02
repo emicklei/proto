@@ -30,7 +30,7 @@ const (
 	tDOT         // .
 
 	// Keywords
-	KeywordsStart
+	keywordsStart
 	tSYNTAX
 	tSERVICE
 	tRPC
@@ -52,9 +52,10 @@ const (
 	// proto2
 	tOPTIONAL
 	tGROUP
-	KeywordsEnd
+	keywordsEnd
 )
 
+// typeTokens exists for future validation
 const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"
 
 // context dependent reserved words
@@ -64,5 +65,5 @@ const (
 
 // isKeyword returns if tok is in the keywords range
 func isKeyword(tok token) bool {
-	return KeywordsStart < tok && tok < KeywordsEnd
+	return keywordsStart < tok && tok < keywordsEnd
 }

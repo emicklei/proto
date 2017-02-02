@@ -96,19 +96,6 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 	return tWS, buf.String()
 }
 
-// skipWhitespace consumes all contiguous whitespace.
-func (s *scanner) skipWhitespace() {
-	// Non-whitespace characters and EOF will cause the loop to exit.
-	for {
-		if ch := s.read(); ch == eof {
-			break
-		} else if !isWhitespace(ch) {
-			s.unread(ch)
-			break
-		}
-	}
-}
-
 func (s *scanner) scanInteger() (int, error) {
 	var i int
 	if _, err := fmt.Fscanf(s.r, "%d", &i); err != nil {

@@ -164,3 +164,8 @@ func (f *Formatter) VisitNormalField(f1 *NormalField) {
 	}
 	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
 }
+
+// VisitGroup formats a proto2 Group.
+func (f *Formatter) VisitGroup(g *Group) {
+	io.WriteString(f.w, "TODO group ")
+}

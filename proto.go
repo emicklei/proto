@@ -7,21 +7,6 @@ type Proto struct {
 	Elements []Visitee
 }
 
-// Comment holds a message and line number.
-type Comment struct {
-	Message string
-}
-
-// Accept dispatches the call to the visitor.
-func (c *Comment) Accept(v Visitor) {
-	v.VisitComment(c)
-}
-
-// IsMultiline returns whether its message has one or more lineends.
-func (c Comment) IsMultiline() bool {
-	return strings.Contains(c.Message, "\n")
-}
-
 // parse parsers a complete .proto definition source.
 func (proto *Proto) parse(p *Parser) error {
 	for {
@@ -81,4 +66,23 @@ func (proto *Proto) parse(p *Parser) error {
 	}
 done:
 	return nil
+}
+
+// Comment holds a message and line number.
+type Comment struct {
+	Message string
+}
+
+// Accept dispatches the call to the visitor.
+func (c *Comment) Accept(v Visitor) {
+	v.VisitComment(c)
+}
+
+// IsMultiline returns whether its message has one or more lineends.
+func (c Comment) IsMultiline() bool {
+	return strings.Contains(c.Message, "\n")
+}
+
+type elementContainer interface {
+	addElement(v Visitee)
 }

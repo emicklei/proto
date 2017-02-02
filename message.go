@@ -11,6 +11,11 @@ func (m *Message) Accept(v Visitor) {
 	v.VisitMessage(m)
 }
 
+// addElement is part of elementContainer
+func (m *Message) addElement(v Visitee) {
+	m.Elements = append(m.Elements, v)
+}
+
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -23,47 +28,63 @@ func (m *Message) parse(p *Parser) error {
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "message opening {", m)
 	}
+	return parseMessageBody(p, m)
+}
+
+func parseMessageBody(p *Parser, c elementContainer) error {
+	var (
+		tok token
+		lit string
+	)
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			m.Elements = append(m.Elements, p.newComment(lit))
+			c.addElement(p.newComment(lit))
 		case tENUM:
 			e := new(Enum)
 			if err := e.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, e)
+			c.addElement(e)
 		case tMESSAGE:
 			msg := new(Message)
 			if err := msg.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, msg)
+			c.addElement(msg)
 		case tOPTION:
 			o := new(Option)
 			if err := o.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, o)
+			c.addElement(o)
 		case tONEOF:
 			o := new(Oneof)
 			if err := o.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, o)
+			c.addElement(o)
 		case tMAP:
 			f := newMapField()
 			if err := f.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, f)
+			c.addElement(f)
 		case tRESERVED:
 			r := new(Reserved)
 			if err := r.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, r)
+			c.addElement(r)
+		// BEGIN proto2 only
+		case tGROUP:
+			g := new(Group)
+			if err := g.parse(p); err != nil {
+				return err
+			}
+			c.addElement(g)
+		// END proto2 only
 		case tRIGHTCURLY:
 			goto done
 		case tSEMICOLON:
@@ -75,12 +96,12 @@ func (m *Message) parse(p *Parser) error {
 			if err := f.parse(p); err != nil {
 				return err
 			}
-			m.Elements = append(m.Elements, f)
+			c.addElement(f)
 		}
 	}
 done:
 	if tok != tRIGHTCURLY {
-		return p.unexpected(lit, "message closing }", m)
+		return p.unexpected(lit, "message|group closing }", c)
 	}
 	return nil
 }
