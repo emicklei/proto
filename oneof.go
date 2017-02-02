@@ -60,17 +60,17 @@ func (o *OneOfField) Accept(v Visitor) {
 func (o *OneOfField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "oneof field identifier", o)
 	}
 	o.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return p.unexpected(lit, "=")
+		return p.unexpected(lit, "oneof field =", o)
 	}
 	_, lit = p.scanIgnoreWhitespace()
 	i, err := strconv.Atoi(lit)
 	if err != nil {
-		return p.unexpected(lit, "sequence number")
+		return p.unexpected(lit, "oneof sequence number", o)
 	}
 	o.Sequence = i
 	tok, lit = p.scanIgnoreWhitespace()

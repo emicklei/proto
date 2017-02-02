@@ -44,28 +44,28 @@ func (o *Option) parse(p *Parser) error {
 	case tLEFTPAREN:
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
-			return p.unexpected(lit, "identifier")
+			return p.unexpected(lit, "option identifier", o)
 		}
 		o.Name = lit
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tRIGHTPAREN {
-			return p.unexpected(lit, ")")
+			return p.unexpected(lit, "option closing )", o)
 		}
 	default:
-		return p.unexpected(lit, "identifier or (")
+		return p.unexpected(lit, "option identifier or (", o)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok == tDOT {
 		// extend identifier
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
-			return p.unexpected(lit, "postfix identifier")
+			return p.unexpected(lit, "option postfix identifier", o)
 		}
 		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
 		tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tok != tEQUALS {
-		return p.unexpected(lit, "=")
+		return p.unexpected(lit, "option constant =", o)
 	}
 	l := new(Literal)
 	if err := l.parse(p); err != nil {
@@ -95,7 +95,7 @@ func (l *Literal) parse(p *Parser) error {
 	if tok == tQUOTE {
 		ident := p.s.scanUntil('"')
 		if len(ident) == 0 {
-			return p.unexpected(lit, "quoted string")
+			return p.unexpected(lit, "literal quoted string", l)
 		}
 		l.Source, l.IsString = ident, true
 		return nil
@@ -104,7 +104,7 @@ func (l *Literal) parse(p *Parser) error {
 	if tok == tSINGLEQUOTE {
 		ident := p.s.scanUntil('\'')
 		if len(ident) == 0 {
-			return p.unexpected(lit, "single quoted string")
+			return p.unexpected(lit, "literal single quoted string", l)
 		}
 		l.Source, l.IsString = ident, true
 		return nil

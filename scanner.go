@@ -27,14 +27,13 @@ func (s *scanner) scan() (tok token, lit string) {
 
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
-	// If we see a digit then consume as a number.
 	// If we see a slash then consume all as a comment (can be multiline)
 	if isWhitespace(ch) {
 		s.unread(ch)
 		return s.scanWhitespace()
 	} else if isLetter(ch) {
 		s.unread(ch)
-		return s.scanIdent()
+		return s.scanKeyword()
 	}
 
 	// Otherwise read the individual character.
@@ -97,6 +96,19 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 	return tWS, buf.String()
 }
 
+// skipWhitespace consumes all contiguous whitespace.
+func (s *scanner) skipWhitespace() {
+	// Non-whitespace characters and EOF will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if !isWhitespace(ch) {
+			s.unread(ch)
+			break
+		}
+	}
+}
+
 func (s *scanner) scanInteger() (int, error) {
 	var i int
 	if _, err := fmt.Fscanf(s.r, "%d", &i); err != nil {
@@ -107,6 +119,27 @@ func (s *scanner) scanInteger() (int, error) {
 
 // scanIdent consumes the current rune and all contiguous ident runes.
 func (s *scanner) scanIdent() (tok token, lit string) {
+	// Create a buffer and read the current character into it.
+	var buf bytes.Buffer
+	buf.WriteRune(s.read())
+
+	// Read every subsequent ident character into the buffer.
+	// Non-ident characters and EOF will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' && ch != '.' { // underscore and dot can be part of identifier
+			s.unread(ch)
+			break
+		} else {
+			_, _ = buf.WriteRune(ch)
+		}
+	}
+	return tIDENT, buf.String()
+}
+
+// scanKeyword consumes the current rune and all contiguous ident runes.
+func (s *scanner) scanKeyword() (tok token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())

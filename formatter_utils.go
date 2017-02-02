@@ -90,22 +90,30 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 	group := []columnsPrintable{}
 	lastGroupName := ""
 	for i := 0; i < len(list); i++ {
-		groupName := nameOfVisitee(list[i])
-		printable, isColumnsPrintable := list[i].(columnsPrintable)
+		each := list[i]
+		groupName := nameOfVisitee(each)
+		printable, isColumnsPrintable := each.(columnsPrintable)
 		if isColumnsPrintable {
-			if lastGroupName == groupName {
-				// collect in group
-				group = append(group, printable)
-			} else {
+			if lastGroupName != groupName {
 				// print current group
+				if len(group) > 0 {
+					f.printListOfColumns(group)
+					lastGroupName = groupName
+					// begin new group
+					group = []columnsPrintable{}
+				}
+			}
+			group = append(group, printable)
+		} else {
+			// not printable in group
+			// print current group
+			if len(group) > 0 {
 				f.printListOfColumns(group)
 				lastGroupName = groupName
 				// begin new group
-				group = []columnsPrintable{printable}
+				group = []columnsPrintable{}
 			}
-		} else {
-			// not printable in group
-			list[i].Accept(f)
+			each.Accept(f)
 		}
 	}
 	// print last group

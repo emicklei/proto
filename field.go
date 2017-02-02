@@ -73,16 +73,16 @@ done:
 func parseFieldAfterType(f *Field, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "field identifier", f)
 	}
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return p.unexpected(lit, "=")
+		return p.unexpected(lit, "field =", f)
 	}
 	i, err := p.s.scanInteger()
 	if err != nil {
-		return p.unexpected(lit, "sequence number")
+		return p.unexpected(lit, "field sequence number", f)
 	}
 	f.Sequence = i
 	// see if there are options
@@ -106,7 +106,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 			break
 		}
 		if tCOMMA != tok {
-			return p.unexpected(lit, ",")
+			return p.unexpected(lit, "option ,", o)
 		}
 	}
 	return nil
@@ -132,25 +132,25 @@ func (f *MapField) Accept(v Visitor) {
 func (f *MapField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tLESS != tok {
-		return p.unexpected(lit, "<")
+		return p.unexpected(lit, "map keyType <", f)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tIDENT != tok {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "map identifier", f)
 	}
 	f.KeyType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tCOMMA != tok {
-		return p.unexpected(lit, ",")
+		return p.unexpected(lit, "map type separator ,", f)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tIDENT != tok {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "map valueType identifier", f)
 	}
 	f.Type = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tGREATER != tok {
-		return p.unexpected(lit, ">")
+		return p.unexpected(lit, "mak valueType >", f)
 	}
 	return parseFieldAfterType(f.Field, p)
 }

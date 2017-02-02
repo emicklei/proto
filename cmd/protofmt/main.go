@@ -23,4 +23,5 @@ func main() {
 		log.Fatalln("protofmt failed", err)
 	}
 	proto.NewFormatter(os.Stdout, "  ").Format(def)
+	//spew.Dump(def)
 }

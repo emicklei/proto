@@ -1,9 +1,6 @@
 package proto
 
-import (
-	"log"
-	"strings"
-)
+import "strings"
 
 // Proto represents a .proto definition
 type Proto struct {
@@ -76,11 +73,10 @@ func (proto *Proto) parse(p *Parser) error {
 			}
 			proto.Elements = append(proto.Elements, msg)
 		case tSEMICOLON:
-		default:
-			if p.debug {
-				log.Println("unhandled (1=EOF)", lit, tok)
-			}
+		case tEOF:
 			goto done
+		default:
+			return p.unexpected(lit, "comment|option|import|syntax|enum|service|package|message", p)
 		}
 	}
 done:

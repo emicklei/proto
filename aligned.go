@@ -12,6 +12,7 @@ var (
 	alignedShortEquals = leftAligned("=")
 	alignedSpace       = leftAligned(" ")
 	alignedComma       = leftAligned(",")
+	alignedEmpty       = leftAligned("")
 )
 
 func leftAligned(src string) aligned  { return aligned{src, true} }

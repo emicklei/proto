@@ -1,9 +1,6 @@
 package proto
 
-import (
-	"fmt"
-	"strconv"
-)
+import "strconv"
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
@@ -41,16 +38,16 @@ func (f EnumField) columns() (cols []aligned) {
 func (f *EnumField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		return p.unexpected(lit, "enum field identifier", f)
 	}
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
-		return p.unexpected(lit, "=")
+		return p.unexpected(lit, "enum field =", f)
 	}
 	i, err := p.s.scanInteger()
 	if err != nil {
-		return fmt.Errorf("found %q, expected integer", err)
+		return p.unexpected(lit, "enum field integer", f)
 	}
 	f.Integer = i
 	tok, lit = p.scanIgnoreWhitespace()
@@ -64,21 +61,21 @@ func (f *EnumField) parse(p *Parser) error {
 		f.ValueOption = o
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tRIGHTSQUARE {
-			return fmt.Errorf("found %q, expected ]", lit)
+			return p.unexpected(lit, "option closing ]", f)
 		}
 	}
 	return nil
 }
 
 func (e *Enum) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	tok, lit := p.s.scanIdent()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		return p.unexpected(lit, "enum identifier", e)
 	}
 	e.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return fmt.Errorf("found %q, expected {", lit)
+		return p.unexpected(lit, "enum opening {", e)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
@@ -107,7 +104,7 @@ func (e *Enum) parse(p *Parser) error {
 	}
 done:
 	if tok != tRIGHTCURLY {
-		return fmt.Errorf("found %q, expected }", lit)
+		return p.unexpected(lit, "enum closing }", e)
 	}
 	return nil
 }

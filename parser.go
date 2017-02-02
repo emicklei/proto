@@ -55,6 +55,12 @@ func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 	return
 }
 
+// scanIdent scans all whitespaces and scans the next non-whitespace identifier (not a keyword).
+func (p *Parser) scanIdent() (tok token, lit string) {
+	p.s.skipWhitespace()
+	return p.s.scanIdent()
+}
+
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
 
@@ -63,11 +69,11 @@ func (p *Parser) newComment(lit string) *Comment {
 	return &Comment{Message: lit}
 }
 
-func (p *Parser) unexpected(found, expected string) error {
+func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 	debug := ""
 	if p.debug {
 		_, file, line, _ := runtime.Caller(1)
-		debug = fmt.Sprintf(" at %s:%d", file, line)
+		debug = fmt.Sprintf(" at %s:%d (with %#v)", file, line, obj)
 	}
 	return fmt.Errorf("found %q on line %d, expected %s%s", found, p.s.line, expected, debug)
 }
@@ -79,16 +85,16 @@ func (p *Parser) scanStringLiteral() (string, error) {
 	if tok == tQUOTE {
 		s := p.s.scanUntil('"')
 		if len(s) == 0 {
-			return "", p.unexpected(lit, "quoted string")
+			return "", p.unexpected(lit, "quoted string", nil)
 		}
 		return s, nil
 	}
 	if tok == tSINGLEQUOTE {
 		s := p.s.scanUntil('\'')
 		if len(s) == 0 {
-			return "", p.unexpected(lit, "single quoted string")
+			return "", p.unexpected(lit, "single quoted string", nil)
 		}
 		return s, nil
 	}
-	return "", p.unexpected(lit, "single or double quoted string")
+	return "", p.unexpected(lit, "single or double quoted string", nil)
 }

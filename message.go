@@ -14,12 +14,12 @@ func (m *Message) Accept(v Visitor) {
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "message identifier", m)
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return p.unexpected(lit, "{")
+		return p.unexpected(lit, "message opening {", m)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
@@ -78,7 +78,7 @@ func (m *Message) parse(p *Parser) error {
 	}
 done:
 	if tok != tRIGHTCURLY {
-		return p.unexpected(lit, "}")
+		return p.unexpected(lit, "message closing }", m)
 	}
 	return nil
 }

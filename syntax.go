@@ -12,17 +12,11 @@ func (s *Syntax) Accept(v Visitor) {
 
 func (s *Syntax) parse(p *Parser) error {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
-		return p.unexpected(lit, "=")
+		return p.unexpected(lit, "syntax =", s)
 	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE && tok != tSINGLEQUOTE {
-		return p.unexpected(lit, "\" or '")
-	}
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok != tIDENT {
-		return p.unexpected(lit, "proto")
-	}
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tQUOTE && tok != tSINGLEQUOTE {
-		return p.unexpected(lit, "\" or '")
+	lit, err := p.scanStringLiteral()
+	if err != nil {
+		return err
 	}
 	s.Value = lit
 	return nil

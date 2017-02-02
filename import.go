@@ -22,8 +22,10 @@ func (i *Import) parse(p *Parser) error {
 		return i.parse(p)
 	case tQUOTE:
 		i.Filename = p.s.scanUntil('"')
+	case tSINGLEQUOTE:
+		i.Filename = p.s.scanUntil('\'')
 	default:
-		return p.unexpected(lit, "weak|public|quoted identifier")
+		return p.unexpected(lit, "import classifier weak|public|quoted", i)
 	}
 	return nil
 }

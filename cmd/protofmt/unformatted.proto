@@ -61,4 +61,11 @@ service SearchService { // comment
 enum Enum {}
 service Service {}
 message Message {}
-oneof Oneof {}
+
+// context aware
+enum enum {
+    enum = 0;
+}
+message message {
+    message message = 1;
+}

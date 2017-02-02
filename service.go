@@ -15,12 +15,12 @@ func (s *Service) Accept(v Visitor) {
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "identifier")
+		return p.unexpected(lit, "service identifier", s)
 	}
 	s.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return p.unexpected(lit, "{")
+		return p.unexpected(lit, "service opening {", s)
 	}
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
@@ -38,7 +38,7 @@ func (s *Service) parse(p *Parser) error {
 		case tRIGHTCURLY:
 			goto done
 		default:
-			return p.unexpected(lit, "comment|rpc|;}")
+			return p.unexpected(lit, "service comment|rpc", s)
 		}
 	}
 done:
@@ -65,21 +65,23 @@ func (r *RPC) columns() (cols []aligned) {
 		leftAligned("rpc "),
 		leftAligned(r.Name),
 		leftAligned(" ("))
-	stream := ""
 	if r.StreamsRequest {
-		stream = "stream "
+		cols = append(cols, leftAligned("stream "))
+	} else {
+		cols = append(cols, alignedEmpty)
 	}
 	cols = append(cols,
-		leftAligned(stream+r.RequestType),
+		leftAligned(r.RequestType),
 		leftAligned(") "),
 		leftAligned("returns"),
 		leftAligned(" ("))
-	stream = ""
 	if r.StreamsReturns {
-		stream = "stream "
+		cols = append(cols, leftAligned("stream "))
+	} else {
+		cols = append(cols, alignedEmpty)
 	}
 	cols = append(cols,
-		leftAligned(stream+r.ReturnsType),
+		leftAligned(r.ReturnsType),
 		leftAligned(")"))
 	return cols
 }
@@ -88,12 +90,12 @@ func (r *RPC) columns() (cols []aligned) {
 func (r *RPC) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "method")
+		return p.unexpected(lit, "rpc method", r)
 	}
 	r.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
-		return p.unexpected(lit, "(")
+		return p.unexpected(lit, "rpc type opening (", r)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if iSTREAM == lit {
@@ -101,20 +103,20 @@ func (r *RPC) parse(p *Parser) error {
 		tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tok != tIDENT {
-		return p.unexpected(lit, "stream | request type")
+		return p.unexpected(lit, "rpc stream | request type", r)
 	}
 	r.RequestType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
-		return p.unexpected(lit, ")")
+		return p.unexpected(lit, "rpc type closing )", r)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRETURNS {
-		return p.unexpected(lit, "returns")
+		return p.unexpected(lit, "rpc returns", r)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
-		return p.unexpected(lit, "(")
+		return p.unexpected(lit, "rpc type opening (", r)
 	}
 	tok, lit = p.scanIgnoreWhitespace()
 	if iSTREAM == lit {
@@ -122,12 +124,12 @@ func (r *RPC) parse(p *Parser) error {
 		tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tok != tIDENT {
-		return p.unexpected(lit, "stream | returns type")
+		return p.unexpected(lit, "rpc stream | returns type", r)
 	}
 	r.ReturnsType = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
-		return p.unexpected(lit, ")")
+		return p.unexpected(lit, "rpc type closing )", r)
 	}
 	return nil
 }
