@@ -52,3 +52,41 @@ func TestScanIntegerString(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestScanLiteral_string(t *testing.T) {
+	r := strings.NewReader(` "string" `)
+	s := newScanner(r)
+	v, is := s.scanLiteral()
+	if got, want := v, "string"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := is, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+// TODO table driven
+func TestScanLiteral_string2(t *testing.T) {
+	r := strings.NewReader(`'string'`)
+	s := newScanner(r)
+	v, is := s.scanLiteral()
+	if got, want := v, "string"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := is, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+// TODO table driven
+func TestScanLiteral_float(t *testing.T) {
+	r := strings.NewReader(`-3.14e10`)
+	s := newScanner(r)
+	v, is := s.scanLiteral()
+	if got, want := v, "-3.14e10"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := is, false; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

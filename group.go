@@ -4,6 +4,7 @@ package proto
 // https://developers.google.com/protocol-buffers/docs/reference/proto2-spec#group_field
 type Group struct {
 	Name     string
+	Optional bool
 	Sequence int
 	Elements []Visitee
 }
@@ -19,7 +20,7 @@ func (g *Group) addElement(v Visitee) {
 }
 
 // parse expects:
-// group = label "group" groupName "=" fieldNumber messageBody
+// groupName "=" fieldNumber { messageBody
 func (g *Group) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -37,6 +38,10 @@ func (g *Group) parse(p *Parser) error {
 		return p.unexpected(lit, "group sequence number", g)
 	}
 	g.Sequence = i
+	tok, lit = p.scanIgnoreWhitespace()
+	if tok != tLEFTCURLY {
+		return p.unexpected(lit, "group opening {", g)
+	}
 	parseMessageBody(p, g)
 	return nil
 }

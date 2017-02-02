@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 )
 
 // scanner represents a lexical scanner.
@@ -96,6 +97,46 @@ func (s *scanner) scanWhitespace() (tok token, lit string) {
 	return tWS, buf.String()
 }
 
+// scanLiteral returns the current rune and all contiguous non-literal and whether is a string.
+func (s *scanner) scanLiteral() (string, bool) {
+	var ch rune
+	// first skip all whitespace runes
+	for {
+		if ch = s.read(); ch == eof {
+			return "", false
+		}
+		if !isWhitespace(ch) {
+			break
+		}
+	}
+	// is there a single quoted string ahead?
+	if '\'' == ch {
+		return s.scanUntil('\''), true
+	}
+	// is there a double quoted string ahead?
+	if '"' == ch {
+		return s.scanUntil('"'), true
+	}
+	// Create a buffer and read the current character into it.
+	var buf bytes.Buffer
+	buf.WriteRune(ch)
+
+	// Read every subsequent non-literal character into the buffer.
+	// Whitespace characters , EOF and literal terminators will cause the loop to exit.
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if isWhitespace(ch) || strings.ContainsRune("[]();,", ch) { // TODO const?
+			s.unread(ch)
+			break
+		} else {
+			buf.WriteRune(ch)
+		}
+	}
+	return buf.String(), false
+}
+
+// TODO use scanLiteral?
 func (s *scanner) scanInteger() (int, error) {
 	var i int
 	if _, err := fmt.Fscanf(s.r, "%d", &i); err != nil {
@@ -156,11 +197,13 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tONEOF, buf.String()
 	case "reserved":
 		return tRESERVED, buf.String()
-	// proto2
+	// BEGIN proto2
 	case "optional":
 		return tOPTIONAL, buf.String()
+	case "group":
+		return tGROUP, buf.String()
+		// END proto2
 	}
-
 	return tIDENT, buf.String()
 }
 

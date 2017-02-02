@@ -29,7 +29,12 @@ func (f *NormalField) columns() (cols []aligned) {
 	if f.Repeated {
 		cols = append(cols, leftAligned("repeated "))
 	} else {
-		cols = append(cols, alignedSpace)
+		cols = append(cols, alignedEmpty)
+	}
+	if f.Optional {
+		cols = append(cols, leftAligned("optional "))
+	} else {
+		cols = append(cols, alignedEmpty)
 	}
 	cols = append(cols, rightAligned(f.Type), alignedSpace, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Sequence)))
 	if len(f.Options) > 0 {

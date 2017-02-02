@@ -16,6 +16,7 @@ func (m *Message) addElement(v Visitee) {
 	m.Elements = append(m.Elements, v)
 }
 
+// parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -31,6 +32,7 @@ func (m *Message) parse(p *Parser) error {
 	return parseMessageBody(p, m)
 }
 
+// parseMessageBody parses elements after {. It consumes the closing }
 func parseMessageBody(p *Parser, c elementContainer) error {
 	var (
 		tok token
@@ -77,7 +79,29 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(r)
-		// BEGIN proto2 only
+		// BEGIN proto2
+		case tOPTIONAL, tREPEATED:
+			// look ahead
+			prevTok := tok
+			tok, lit = p.scanIgnoreWhitespace()
+			if tGROUP == tok {
+				g := new(Group)
+				g.Optional = prevTok == tOPTIONAL
+				if err := g.parse(p); err != nil {
+					return err
+				}
+				c.addElement(g)
+			} else {
+				// not a group, will be tFIELD
+				p.unscan()
+				f := newNormalField()
+				f.Optional = prevTok == tOPTIONAL
+				f.Repeated = prevTok == tREPEATED
+				if err := f.parse(p); err != nil {
+					return err
+				}
+				c.addElement(f)
+			}
 		case tGROUP:
 			g := new(Group)
 			if err := g.parse(p); err != nil {
@@ -85,7 +109,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 			c.addElement(g)
 		// END proto2 only
-		case tRIGHTCURLY:
+		case tRIGHTCURLY, tEOF:
 			goto done
 		case tSEMICOLON:
 			// continue

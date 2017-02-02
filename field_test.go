@@ -88,3 +88,13 @@ func TestMapField(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestOptionalWithOption(t *testing.T) {
+	proto := `optional int32 default_int32    = 61 [default =  41    ];`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

@@ -42,24 +42,29 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 // ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
-	switch tok {
-	case tIDENT:
-		o.Name = lit
-	case tLEFTPAREN:
+	if tLEFTPAREN == tok {
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
-			return p.unexpected(lit, "option identifier", o)
+			if !isKeyword(tok) {
+				return p.unexpected(lit, "option full identifier", o)
+			}
 		}
 		o.Name = lit
-		tok, lit = p.scanIgnoreWhitespace()
+		tok, _ = p.scanIgnoreWhitespace()
 		if tok != tRIGHTPAREN {
-			return p.unexpected(lit, "option closing )", o)
+			return p.unexpected(lit, "full identifier closing )", o)
 		}
-	default:
-		return p.unexpected(lit, "option identifier or (", o)
+	} else {
+		// non full ident
+		if tIDENT != tok {
+			if !isKeyword(tok) {
+				return p.unexpected(lit, "option identifier", o)
+			}
+		}
+		o.Name = lit
 	}
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok == tDOT {
+	if tDOT == tok {
 		// extend identifier
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
@@ -68,7 +73,7 @@ func (o *Option) parse(p *Parser) error {
 		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
 		tok, lit = p.scanIgnoreWhitespace()
 	}
-	if tok != tEQUALS {
+	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
 	}
 	l := new(Literal)
@@ -93,32 +98,8 @@ func (l Literal) String() string {
 	return l.Source
 }
 
+// parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
-	// stringLiteral?
-	if tok == tQUOTE {
-		ident := p.s.scanUntil('"')
-		if len(ident) == 0 {
-			return p.unexpected(lit, "literal quoted string", l)
-		}
-		l.Source, l.IsString = ident, true
-		return nil
-	}
-	// stringLiteral?
-	if tok == tSINGLEQUOTE {
-		ident := p.s.scanUntil('\'')
-		if len(ident) == 0 {
-			return p.unexpected(lit, "literal single quoted string", l)
-		}
-		l.Source, l.IsString = ident, true
-		return nil
-	}
-	// float, bool or intLit ?
-	if lit == "-" { // TODO token?
-		_, rem := p.s.scanIdent()
-		l.Source = "-" + rem
-		return nil
-	}
-	l.Source = lit
+	l.Source, l.IsString = p.s.scanLiteral()
 	return nil
 }

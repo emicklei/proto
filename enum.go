@@ -52,9 +52,6 @@ func (e *Enum) parse(p *Parser) error {
 		}
 	}
 done:
-	if tok != tRIGHTCURLY {
-		return p.unexpected(lit, "enum closing }", e)
-	}
 	return nil
 }
 
