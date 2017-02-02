@@ -22,7 +22,7 @@ func (o *Option) columns() (cols []aligned) {
 	} else {
 		cols = append(cols, leftAligned(" ["))
 	}
-	cols = append(cols, o.keyValuePair()...)
+	cols = append(cols, o.keyValuePair(o.IsEmbedded)...)
 	if o.IsEmbedded {
 		cols = append(cols, leftAligned("]"))
 	}
@@ -30,8 +30,12 @@ func (o *Option) columns() (cols []aligned) {
 }
 
 // keyValuePair returns key = value or "value"
-func (o *Option) keyValuePair() (cols []aligned) {
-	return append(cols, leftAligned(o.Name), alignedShortEquals, rightAligned(o.Constant.String()))
+func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
+	equals := alignedEquals
+	if embedded {
+		equals = alignedShortEquals
+	}
+	return append(cols, leftAligned(o.Name), equals, rightAligned(o.Constant.String()))
 }
 
 // parse reads an Option body

@@ -26,14 +26,3 @@ func newParserOn(def string) *Parser {
 	p.debug = true
 	return p
 }
-
-func TestScanIdent(t *testing.T) {
-	p := NewParser(strings.NewReader(" message "))
-	tok, lit := p.scanIdent()
-	if got, want := tok, tIDENT; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-	if got, want := lit, "message"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-}

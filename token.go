@@ -30,6 +30,7 @@ const (
 	tDOT         // .
 
 	// Keywords
+	KeywordsStart
 	tSYNTAX
 	tSERVICE
 	tRPC
@@ -50,6 +51,8 @@ const (
 
 	// proto2
 	tOPTIONAL
+	tGROUP
+	KeywordsEnd
 )
 
 const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"
@@ -58,3 +61,8 @@ const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32
 const (
 	iSTREAM = "stream"
 )
+
+// isKeyword returns if tok is in the keywords range
+func isKeyword(tok token) bool {
+	return KeywordsStart < tok && tok < KeywordsEnd
+}

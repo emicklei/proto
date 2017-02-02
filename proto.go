@@ -76,7 +76,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tEOF:
 			goto done
 		default:
-			return p.unexpected(lit, "comment|option|import|syntax|enum|service|package|message", p)
+			return p.unexpected(lit, ".proto element {comment|option|import|syntax|enum|service|package|message}", p)
 		}
 	}
 done:

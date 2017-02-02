@@ -55,12 +55,6 @@ func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 	return
 }
 
-// scanIdent scans all whitespaces and scans the next non-whitespace identifier (not a keyword).
-func (p *Parser) scanIdent() (tok token, lit string) {
-	p.s.skipWhitespace()
-	return p.s.scanIdent()
-}
-
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
 

@@ -31,14 +31,14 @@ func (f *NormalField) columns() (cols []aligned) {
 	} else {
 		cols = append(cols, alignedSpace)
 	}
-	cols = append(cols, leftAligned(f.Name), rightAligned(f.Type), alignedEquals, rightAligned(strconv.Itoa(f.Sequence)))
+	cols = append(cols, rightAligned(f.Type), alignedSpace, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Sequence)))
 	if len(f.Options) > 0 {
 		cols = append(cols, leftAligned(" ["))
 		for i, each := range f.Options {
 			if i > 0 {
 				cols = append(cols, alignedComma)
 			}
-			cols = append(cols, each.keyValuePair()...)
+			cols = append(cols, each.keyValuePair(true)...)
 		}
 		cols = append(cols, leftAligned("]"))
 	}
@@ -73,7 +73,9 @@ done:
 func parseFieldAfterType(f *Field, p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "field identifier", f)
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "field identifier", f)
+		}
 	}
 	f.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()

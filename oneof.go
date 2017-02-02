@@ -60,7 +60,9 @@ func (o *OneOfField) Accept(v Visitor) {
 func (o *OneOfField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "oneof field identifier", o)
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "oneof field identifier", o)
+		}
 	}
 	o.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()

@@ -14,7 +14,9 @@ func (m *Message) Accept(v Visitor) {
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "message identifier", m)
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "message identifier", m)
+		}
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()

@@ -15,7 +15,9 @@ func (s *Service) Accept(v Visitor) {
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return p.unexpected(lit, "service identifier", s)
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "service identifier", s)
+		}
 	}
 	s.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
