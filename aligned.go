@@ -7,7 +7,12 @@ type aligned struct {
 	left   bool
 }
 
-var alignedEquals = leftAligned(" = ")
+var (
+	alignedEquals      = leftAligned(" = ")
+	alignedShortEquals = leftAligned("=")
+	alignedSpace       = leftAligned(" ")
+	alignedComma       = leftAligned(",")
+)
 
 func leftAligned(src string) aligned  { return aligned{src, true} }
 func rightAligned(src string) aligned { return aligned{src, false} }

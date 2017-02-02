@@ -50,7 +50,7 @@ message Message
   STARTED = 1;
   RUN = 2 [(custom_option) = "hello world"];
 }
-}
+} // end message
 
 
 service SearchService { // comment

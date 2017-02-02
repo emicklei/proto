@@ -1,5 +1,7 @@
 package proto
 
+import "strconv"
+
 // Field is an abstract message field.
 type Field struct {
 	Name     string
@@ -20,6 +22,27 @@ func newNormalField() *NormalField { return &NormalField{Field: new(Field)} }
 // Accept dispatches the call to the visitor.
 func (f *NormalField) Accept(v Visitor) {
 	v.VisitNormalField(f)
+}
+
+// columns returns printable source tokens
+func (f *NormalField) columns() (cols []aligned) {
+	if f.Repeated {
+		cols = append(cols, leftAligned("repeated "))
+	} else {
+		cols = append(cols, alignedSpace)
+	}
+	cols = append(cols, leftAligned(f.Name), rightAligned(f.Type), alignedEquals, rightAligned(strconv.Itoa(f.Sequence)))
+	if len(f.Options) > 0 {
+		cols = append(cols, leftAligned(" ["))
+		for i, each := range f.Options {
+			if i > 0 {
+				cols = append(cols, alignedComma)
+			}
+			cols = append(cols, each.keyValuePair()...)
+		}
+		cols = append(cols, leftAligned("]"))
+	}
+	return
 }
 
 // parse expects:
