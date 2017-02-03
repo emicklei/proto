@@ -38,7 +38,7 @@ func (e *Enum) parse(p *Parser) error {
 				return err
 			}
 			e.Elements = append(e.Elements, v)
-		case tRIGHTCURLY:
+		case tRIGHTCURLY, tEOF:
 			goto done
 		case tSEMICOLON:
 		default:
@@ -52,6 +52,9 @@ func (e *Enum) parse(p *Parser) error {
 		}
 	}
 done:
+	if tok != tRIGHTCURLY {
+		return p.unexpected(lit, "enum closing }", e)
+	}
 	return nil
 }
 
