@@ -20,7 +20,7 @@ func (g *Group) addElement(v Visitee) {
 }
 
 // parse expects:
-// groupName "=" fieldNumber { messageBody
+// groupName "=" fieldNumber { messageBody }
 func (g *Group) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {

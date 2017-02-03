@@ -18,5 +18,15 @@ func TestGroup(t *testing.T) {
 	if got, want := len(m.Elements), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	t.Logf("%#v", m)
+	g := m.Elements[0].(*Group)
+	if got, want := len(g.Elements), 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	f := g.Elements[0].(*NormalField)
+	if got, want := f.Name, "a"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Optional, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
