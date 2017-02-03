@@ -1,16 +1,10 @@
 package proto
 
-import (
-	"io"
-	"strings"
-)
+import "io"
 
 func (f *Formatter) begin(stmt string) {
-	if f.lastStmt != stmt && len(f.lastStmt) > 0 { // not the first line
-		// add separator because stmt is changed, unless it nested thingy
-		if !strings.Contains("comment  ", f.lastStmt) {
-			io.WriteString(f.w, "\n")
-		}
+	if "comment" == stmt && f.lastStmt != stmt {
+		io.WriteString(f.w, "\n")
 	}
 	f.indent(0)
 	f.lastStmt = stmt
@@ -27,10 +21,11 @@ type columnsPrintable interface {
 	columns() (cols []aligned)
 }
 
-func (f *Formatter) printListOfColumns(list []columnsPrintable) {
+func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string) {
 	if len(list) == 0 {
 		return
 	}
+	f.lastStmt = groupName
 	// collect all column values
 	values := [][]aligned{}
 	widths := map[int]int{}
@@ -90,7 +85,7 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 				lastGroupName = groupName
 				// print current group
 				if len(group) > 0 {
-					f.printListOfColumns(group)
+					f.printListOfColumns(group, groupName)
 					// begin new group
 					group = []columnsPrintable{}
 				}
@@ -101,7 +96,7 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 			lastGroupName = groupName
 			// print current group
 			if len(group) > 0 {
-				f.printListOfColumns(group)
+				f.printListOfColumns(group, groupName)
 				// begin new group
 				group = []columnsPrintable{}
 			}
@@ -109,5 +104,5 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 		}
 	}
 	// print last group
-	f.printListOfColumns(group)
+	f.printListOfColumns(group, lastGroupName)
 }
