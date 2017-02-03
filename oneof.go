@@ -1,9 +1,6 @@
 package proto
 
-import (
-	"fmt"
-	"strconv"
-)
+import "strconv"
 
 // Oneof is a field alternate.
 type Oneof struct {
@@ -11,22 +8,24 @@ type Oneof struct {
 	Elements []Visitee
 }
 
+// parse expects:
+// oneofName "{" { oneofField | emptyStatement } "}"
 func (o *Oneof) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
-		return fmt.Errorf("found %q, expected identifier", lit)
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "oneof identifier", o)
+		}
 	}
 	o.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return fmt.Errorf("found %q, expected {", lit)
+		return p.unexpected(lit, "oneof opening {", o)
 	}
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
-		if tRIGHTCURLY == tok {
-			break
-		}
-		if tIDENT == tok {
+		tok, lit = p.scanIgnoreWhitespace()
+		switch tok {
+		case tIDENT:
 			f := new(OneOfField)
 			f.Type = lit
 			err := f.parse(p)
@@ -34,15 +33,21 @@ func (o *Oneof) parse(p *Parser) error {
 				return err
 			}
 			o.Elements = append(o.Elements, f)
-		}
-		// proto2 only
-		if tGROUP == tok {
+		case tGROUP:
 			g := new(Group)
 			if err := g.parse(p); err != nil {
 				return err
 			}
 			o.Elements = append(o.Elements, g)
+		case tSEMICOLON:
+			// continue
+		default:
+			goto done
 		}
+	}
+done:
+	if tok != tRIGHTCURLY {
+		return p.unexpected(lit, "oneof closing }", o)
 	}
 	return nil
 }
@@ -65,6 +70,27 @@ func (o *OneOfField) Accept(v Visitor) {
 	v.VisitOneofField(o)
 }
 
+// columns returns printable source tokens
+func (o *OneOfField) columns() (cols []aligned) {
+	cols = append(cols,
+		rightAligned(o.Type),
+		alignedSpace,
+		leftAligned(o.Name),
+		alignedEquals,
+		rightAligned(strconv.Itoa(o.Sequence)))
+	if len(o.Options) > 0 {
+		cols = append(cols, leftAligned(" ["))
+		for i, each := range o.Options {
+			if i > 0 {
+				cols = append(cols, alignedComma)
+			}
+			cols = append(cols, each.keyValuePair(true)...)
+		}
+		cols = append(cols, leftAligned("]"))
+	}
+	return
+}
+
 func (o *OneOfField) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -77,10 +103,9 @@ func (o *OneOfField) parse(p *Parser) error {
 	if tok != tEQUALS {
 		return p.unexpected(lit, "oneof field =", o)
 	}
-	_, lit = p.scanIgnoreWhitespace()
-	i, err := strconv.Atoi(lit)
+	i, err := p.s.scanInteger()
 	if err != nil {
-		return p.unexpected(lit, "oneof sequence number", o)
+		return p.unexpected(lit, "oneof field sequence number", o)
 	}
 	o.Sequence = i
 	tok, _ = p.scanIgnoreWhitespace()
