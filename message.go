@@ -3,6 +3,7 @@ package proto
 // Message consists of a message name and a message body.
 type Message struct {
 	Name     string
+	IsExtend bool
 	Elements []Visitee
 }
 
@@ -16,18 +17,25 @@ func (m *Message) addElement(v Visitee) {
 	m.Elements = append(m.Elements, v)
 }
 
+func (m *Message) groupName() string {
+	if m.IsExtend {
+		return "extend"
+	}
+	return "message"
+}
+
 // parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
-			return p.unexpected(lit, "message identifier", m)
+			return p.unexpected(lit, m.groupName()+" identifier", m)
 		}
 	}
 	m.Name = lit
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
-		return p.unexpected(lit, "message opening {", m)
+		return p.unexpected(lit, m.groupName()+" opening {", m)
 	}
 	return parseMessageBody(p, m)
 }
@@ -80,7 +88,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 			c.addElement(r)
 		// BEGIN proto2
-		case tOPTIONAL, tREPEATED:
+		case tOPTIONAL, tREPEATED, tREQUIRED:
 			// look ahead
 			prevTok := tok
 			tok, lit = p.scanIgnoreWhitespace()
@@ -97,6 +105,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				f := newNormalField()
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
+				f.Required = prevTok == tREQUIRED
 				if err := f.parse(p); err != nil {
 					return err
 				}
@@ -108,6 +117,19 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(g)
+		case tEXTENSIONS:
+			e := new(Extensions)
+			if err := e.parse(p); err != nil {
+				return err
+			}
+			c.addElement(e)
+		case tEXTEND:
+			e := new(Message)
+			e.IsExtend = true
+			if err := e.parse(p); err != nil {
+				return err
+			}
+			c.addElement(e)
 		// END proto2 only
 		case tRIGHTCURLY, tEOF:
 			goto done
@@ -125,7 +147,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 	}
 done:
 	if tok != tRIGHTCURLY {
-		return p.unexpected(lit, "message|group closing }", c)
+		return p.unexpected(lit, "extend|message|group closing }", c)
 	}
 	return nil
 }

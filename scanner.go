@@ -202,6 +202,12 @@ func (s *scanner) scanIdent() (tok token, lit string) {
 		return tOPTIONAL, buf.String()
 	case "group":
 		return tGROUP, buf.String()
+	case "extensions":
+		return tEXTENSIONS, buf.String()
+	case "extend":
+		return tEXTEND, buf.String()
+	case "required":
+		return tREQUIRED, buf.String()
 		// END proto2
 	}
 	return tIDENT, buf.String()

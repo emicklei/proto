@@ -27,7 +27,7 @@ func TestPrintListOfColumns(t *testing.T) {
 	list := []columnsPrintable{e0, e1}
 	b := new(bytes.Buffer)
 	f := NewFormatter(b, " ")
-	f.printListOfColumns(list)
+	f.printListOfColumns(list, "enum")
 	formatted := `A   =  1 [a =1234];
 ABC = 12 [ab=1234];
 `

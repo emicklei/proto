@@ -6,7 +6,7 @@
 
 Package in Go for parsing and formatting Google Protocol Buffers [.proto files version 2 + 3] (https://developers.google.com/protocol-buffers/docs/reference/proto-spec)
 
-### usage
+### usage as package
 
     parser := proto.NewParser(anIOReader)
 	proto, err := parser.Parse()
@@ -15,6 +15,12 @@ Package in Go for parsing and formatting Google Protocol Buffers [.proto files v
 	}
 	formatter := proto.NewFormatter(anIOWriter," ")
 	formatter.Format(proto)
+
+### usage of protofmt command
+
+	> protofmt -help
+		Usage of protofmt [flags] [path ...]
+  		-w	write result to (source) file instead of stdout
 
 ### install
 

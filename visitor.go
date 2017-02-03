@@ -17,7 +17,9 @@ type Visitor interface {
 	VisitReserved(r *Reserved)
 	VisitRPC(r *RPC)
 	VisitMapField(f *MapField)
+	// proto2
 	VisitGroup(g *Group)
+	VisitExtensions(e *Extensions)
 }
 
 // Visitee is implemented by all Proto elements.
@@ -49,6 +51,7 @@ func (r *reflector) VisitReserved(rs *Reserved)      { r.name = "Reserved" }
 func (r *reflector) VisitRPC(rpc *RPC)               { r.name = "RPC" }
 func (r *reflector) VisitMapField(f *MapField)       { r.name = "MapField" }
 func (r *reflector) VisitGroup(g *Group)             { r.name = "Group" }
+func (r *reflector) VisitExtensions(e *Extensions)   { r.name = "Extensions" }
 
 // nameOfVisitee returns the short type name of a Visitee.
 func nameOfVisitee(e Visitee) string {

@@ -169,3 +169,8 @@ func (f *Formatter) VisitNormalField(f1 *NormalField) {
 func (f *Formatter) VisitGroup(g *Group) {
 	io.WriteString(f.w, "TODO group ")
 }
+
+// VisitExtensions formats a proto2 Extensions.
+func (f *Formatter) VisitExtensions(e *Extensions) {
+	fmt.Fprintf(f.w, "extensions %s;\n", e.Ranges)
+}

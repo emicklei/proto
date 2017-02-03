@@ -49,9 +49,13 @@ const (
 	tRESERVED
 	tENUM
 
-	// proto2
+	// BEGIN proto2
 	tOPTIONAL
 	tGROUP
+	tEXTENSIONS
+	tEXTEND
+	tREQUIRED
+	// END proto2
 	keywordsEnd
 )
 

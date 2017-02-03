@@ -57,6 +57,15 @@ func (proto *Proto) parse(p *Parser) error {
 				return err
 			}
 			proto.Elements = append(proto.Elements, msg)
+		// BEGIN proto2
+		case tEXTEND:
+			msg := new(Message)
+			msg.IsExtend = true
+			if err := msg.parse(p); err != nil {
+				return err
+			}
+			proto.Elements = append(proto.Elements, msg)
+		// END proto2
 		case tSEMICOLON:
 		case tEOF:
 			goto done

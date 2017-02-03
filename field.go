@@ -15,6 +15,7 @@ type NormalField struct {
 	*Field
 	Repeated bool
 	Optional bool // proto2
+	Required bool // proto2
 }
 
 func newNormalField() *NormalField { return &NormalField{Field: new(Field)} }
