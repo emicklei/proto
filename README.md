@@ -26,4 +26,4 @@ Package in Go for parsing and formatting Google Protocol Buffers [.proto files v
 
     go get -u -v github.com/emicklei/proto
 
-© 2017, ernestmicklei.com.  MIT License. Contributions welcome.
+© 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License. Contributions welcome.
