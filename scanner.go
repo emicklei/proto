@@ -252,13 +252,15 @@ func (s *scanner) scanUntil(terminator rune) string {
 	var buf bytes.Buffer
 	// Read every subsequent character into the buffer.
 	// New line character and EOF will cause the loop to exit.
+	lastCh := ' '
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if ch == terminator {
+		} else if ch == terminator && lastCh != '\\' {
 			break
 		} else {
 			buf.WriteRune(ch)
+			lastCh = ch
 		}
 	}
 	return buf.String()

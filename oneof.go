@@ -35,6 +35,14 @@ func (o *Oneof) parse(p *Parser) error {
 			}
 			o.Elements = append(o.Elements, f)
 		}
+		// proto2 only
+		if tGROUP == tok {
+			g := new(Group)
+			if err := g.parse(p); err != nil {
+				return err
+			}
+			o.Elements = append(o.Elements, g)
+		}
 	}
 	return nil
 }
