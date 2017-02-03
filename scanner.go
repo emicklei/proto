@@ -32,7 +32,7 @@ func (s *scanner) scan() (tok token, lit string) {
 	if isWhitespace(ch) {
 		s.unread(ch)
 		return s.scanWhitespace()
-	} else if isLetter(ch) {
+	} else if isLetter(ch) || ch == '_' {
 		s.unread(ch)
 		return s.scanIdent()
 	}
