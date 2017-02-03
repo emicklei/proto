@@ -1,27 +1,45 @@
 package main
 
 import (
-	"log"
+	"io"
 	"os"
+
+	"flag"
+
+	"bytes"
+	"io/ioutil"
 
 	"github.com/emicklei/proto"
 )
 
+var (
+	overwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
+)
+
 // go run *.go unformatted.proto
 func main() {
-	if len(os.Args) == 1 {
-		log.Fatal("Usage: protofmt my.proto")
+	flag.Parse()
+	if len(flag.Args()) == 0 {
+		flag.Usage()
+		os.Exit(0)
 	}
-	i, err := os.Open(os.Args[1])
+	for _, each := range flag.Args() {
+		if err := format(each, os.Stdout); err != nil {
+			println(each, err.Error())
+		}
+	}
+}
+
+func format(input string, output io.Writer) error {
+	content, err := ioutil.ReadFile(input)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer i.Close()
-	p := proto.NewParser(i)
+	p := proto.NewParser(bytes.NewReader(content))
 	def, err := p.Parse()
 	if err != nil {
-		log.Fatalln("protofmt failed", err)
+		return err
 	}
-	proto.NewFormatter(os.Stdout, "  ").Format(def)
-	//spew.Dump(def)
+	proto.NewFormatter(output, "\t").Format(def)
+	return nil
 }

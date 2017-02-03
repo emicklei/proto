@@ -12,7 +12,7 @@ type Reserved struct {
 	FieldNames []string
 }
 
-// Range is to specifiy number intervals
+// Range is to specify number intervals
 type Range struct {
 	From, To int
 }

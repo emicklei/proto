@@ -1,0 +1,3 @@
+# protofmt
+
+    protofmt -help

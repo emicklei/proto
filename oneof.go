@@ -75,7 +75,7 @@ func (o *OneOfField) parse(p *Parser) error {
 		return p.unexpected(lit, "oneof sequence number", o)
 	}
 	o.Sequence = i
-	tok, lit = p.scanIgnoreWhitespace()
+	tok, _ = p.scanIgnoreWhitespace()
 	if tLEFTSQUARE == tok {
 		// TODO options
 		p.s.scanUntil(']')
