@@ -87,6 +87,18 @@ func TestMapField(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if got, want := f.KeyType, "string"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Type, "Project"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Name, "projects"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Sequence, 3; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
 
 func TestOptionalWithOption(t *testing.T) {
@@ -96,5 +108,15 @@ func TestOptionalWithOption(t *testing.T) {
 	err := f.parse(p)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if got, want := f.Sequence, 61; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	o := f.Options[0]
+	if got, want := o.Name, "default"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Constant.Source, "41"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
