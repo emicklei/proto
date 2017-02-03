@@ -50,6 +50,7 @@ func (f *Formatter) VisitEnum(e *Enum) {
 		f.indent(-1)
 	}
 	io.WriteString(f.w, "}\n")
+	f.end("enum")
 }
 
 // VisitEnumField formats a EnumField.
@@ -75,6 +76,7 @@ func (f *Formatter) VisitMessage(m *Message) {
 		f.indent(-1)
 	}
 	io.WriteString(f.w, "}\n")
+	f.end("message")
 }
 
 // VisitOption formats a Option.
@@ -97,6 +99,7 @@ func (f *Formatter) VisitService(s *Service) {
 		f.indent(-1)
 	}
 	io.WriteString(f.w, "}\n")
+	f.end("service")
 }
 
 // VisitSyntax formats a Syntax.
@@ -115,17 +118,11 @@ func (f *Formatter) VisitOneof(o *Oneof) {
 		f.indent(-1)
 	}
 	io.WriteString(f.w, "}\n")
+	f.end("oneof")
 }
 
 // VisitOneofField formats a OneofField.
-func (f *Formatter) VisitOneofField(o *OneOfField) {
-	f.begin("oneoffield")
-	fmt.Fprintf(f.w, "%s %s = %d", o.Type, o.Name, o.Sequence)
-	for _, each := range o.Options {
-		f.VisitOption(each)
-	}
-	io.WriteString(f.w, ";\n")
-}
+func (f *Formatter) VisitOneofField(o *OneOfField) {}
 
 // VisitReserved formats a Reserved.
 func (f *Formatter) VisitReserved(r *Reserved) {
@@ -154,23 +151,27 @@ func (f *Formatter) VisitMapField(m *MapField) {
 }
 
 // VisitNormalField formats a NormalField.
-func (f *Formatter) VisitNormalField(f1 *NormalField) {
-	f.begin("field")
-	if f1.Repeated {
-		io.WriteString(f.w, "repeated ")
-	}
-	if f1.Optional {
-		io.WriteString(f.w, "optional ")
-	}
-	fmt.Fprintf(f.w, "%s %s = %d;\n", f1.Type, f1.Name, f1.Sequence)
-}
+func (f *Formatter) VisitNormalField(f1 *NormalField) {}
 
 // VisitGroup formats a proto2 Group.
 func (f *Formatter) VisitGroup(g *Group) {
-	io.WriteString(f.w, "TODO group ")
+	f.begin("group")
+	if g.Optional {
+		io.WriteString(f.w, "optional ")
+	}
+	fmt.Fprintf(f.w, "group %s = %d {", g.Name, g.Sequence)
+	if len(g.Elements) > 0 {
+		f.nl()
+		f.indentLevel++
+		f.printAsGroups(g.Elements)
+		f.indent(-1)
+	}
+	io.WriteString(f.w, "}\n")
+	f.end("group")
 }
 
 // VisitExtensions formats a proto2 Extensions.
 func (f *Formatter) VisitExtensions(e *Extensions) {
+	f.indent(0)
 	fmt.Fprintf(f.w, "extensions %s;\n", e.Ranges)
 }

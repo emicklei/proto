@@ -1,12 +1,20 @@
 package proto
 
 import "io"
+import "strings"
 
 func (f *Formatter) begin(stmt string) {
 	if "comment" == stmt && f.lastStmt != stmt {
 		io.WriteString(f.w, "\n")
 	}
+	if "comment" != f.lastStmt && strings.Contains("message service enum ", stmt) {
+		io.WriteString(f.w, "\n")
+	}
 	f.indent(0)
+	f.lastStmt = stmt
+}
+
+func (f *Formatter) end(stmt string) {
 	f.lastStmt = stmt
 }
 
