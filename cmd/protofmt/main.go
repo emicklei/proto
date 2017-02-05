@@ -24,19 +24,40 @@ func main() {
 		os.Exit(0)
 	}
 	for _, each := range flag.Args() {
-		if err := format(each, os.Stdout); err != nil {
+		if err := readFormatWrite(each); err != nil {
 			println(each, err.Error())
 		}
 	}
 }
 
-func format(input string, output io.Writer) error {
-	content, err := ioutil.ReadFile(input)
+func readFormatWrite(filename string) error {
+	// open for read
+	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
-	p := proto.NewParser(bytes.NewReader(content))
-	def, err := p.Parse()
+	// buffer before write
+	buf := new(bytes.Buffer)
+	if err := format(file, buf); err != nil {
+		return err
+	}
+	if *overwrite {
+		// write back to input
+		if err := ioutil.WriteFile(filename, buf.Bytes(), os.ModePerm); err != nil {
+			return err
+		}
+	} else {
+		// write to stdout
+		if _, err := io.Copy(os.Stdout, bytes.NewReader(buf.Bytes())); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func format(input io.Reader, output io.Writer) error {
+	parser := proto.NewParser(input)
+	def, err := parser.Parse()
 	if err != nil {
 		return err
 	}
