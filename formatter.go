@@ -22,9 +22,7 @@ func NewFormatter(writer io.Writer, indentSeparator string) *Formatter {
 
 // Format visits all proto elements and writes formatted source.
 func (f *Formatter) Format(p *Proto) {
-	for _, each := range p.Elements {
-		each.Accept(f)
-	}
+	f.printAsGroups(p.Elements)
 }
 
 // VisitComment formats a Comment.

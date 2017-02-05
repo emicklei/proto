@@ -3,8 +3,8 @@
 syntax = "proto3";
 
 // using Any
-import "google/protobuf/any.proto";
-import  public "testdata/test.proto";
+import        "google/protobuf/any.proto";
+import public "testdata/test.proto";
 
 /*
 This pkg
@@ -15,7 +15,7 @@ package here.proto_proto;
 message Message {
 	string name = 1;
 
-	// this is thing
+	// this is a thing
 	         google.protobuf.Any anything = 2 [packed=true,danger=false];
 	repeated             Message children = 3;
 

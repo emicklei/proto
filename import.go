@@ -1,5 +1,7 @@
 package proto
 
+import "fmt"
+
 // Import holds a filename to another .proto definition.
 type Import struct {
 	Filename string
@@ -9,6 +11,18 @@ type Import struct {
 // Accept dispatches the call to the visitor.
 func (i *Import) Accept(v Visitor) {
 	v.VisitImport(i)
+}
+
+// columns returns printable source tokens
+func (i *Import) columns() (cols []aligned) {
+	cols = append(cols, leftAligned("import "))
+	if len(i.Kind) > 0 {
+		cols = append(cols, leftAligned(i.Kind))
+	} else {
+		cols = append(cols, alignedSpace)
+	}
+	cols = append(cols, alignedSpace, notAligned(fmt.Sprintf("%q", i.Filename)))
+	return
 }
 
 func (i *Import) parse(p *Parser) error {

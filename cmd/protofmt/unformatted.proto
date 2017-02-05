@@ -21,7 +21,7 @@ message Message
 {
     
     string   name =1;
-// this is thing
+// this is a thing
     google.protobuf.Any anything = 2 [packed=true, danger=false];
 
     repeated 
