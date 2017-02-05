@@ -1,0 +1,66 @@
+
+// example0
+syntax = "proto3";
+
+// using Any
+import "google/protobuf/any.proto";
+import  public "testdata/test.proto";
+
+/*
+This pkg
+*/
+package here.proto_proto;
+
+// from a bottle
+message Message {
+	string name = 1;
+
+	// this is thing
+	         google.protobuf.Any anything = 2 [packed=true,danger=false];
+	repeated             Message children = 3;
+
+	enum Humour {
+
+		// something we dont know
+		UNKNOWN   = 0;
+		PUNS      = 1;
+		SLAPSTICK = 2;
+
+		// who is this? 
+		BILL_BAILEY = 3;
+	}
+	reserved 2, 15, 9 to 11;
+	reserved "foo","bar";
+	map<string,Nested> terrain = 4;
+
+	enum EnumAllowingAlias {
+		option allow_alias = true;
+		UNKNOWN = 0;
+		STARTED = 1;
+		RUN     = 2 [custom_option="hello world"];
+	}
+}
+
+// end message
+service SearchService {
+
+	// comment
+	rpc Search (SearchRequest) returns (       SearchResponse);
+	rpc Find   (Finder       ) returns (stream Result        );
+}
+
+// emptiness
+enum Enum {}
+
+service Service {}
+
+message Message {}
+
+// context aware
+enum enum {
+	enum = 0;
+}
+
+message message {
+	sometype message = 1;
+}

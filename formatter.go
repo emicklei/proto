@@ -59,10 +59,11 @@ func (f *Formatter) VisitEnumField(e *EnumField) {}
 // VisitImport formats a Import.
 func (f *Formatter) VisitImport(i *Import) {
 	f.begin("import")
+	kind := ""
 	if len(i.Kind) > 0 {
-		fmt.Fprintf(f.w, "import %s ", i.Kind)
+		kind = fmt.Sprintf(" %s ", i.Kind)
 	}
-	fmt.Fprintf(f.w, "import %q;\n", i.Filename)
+	fmt.Fprintf(f.w, "import %s%q;\n", kind, i.Filename)
 }
 
 // VisitMessage formats a Message.
