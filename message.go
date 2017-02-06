@@ -17,6 +17,11 @@ func (m *Message) addElement(v Visitee) {
 	m.Elements = append(m.Elements, v)
 }
 
+// elements is part of elementContainer
+func (m *Message) elements() []Visitee {
+	return m.Elements
+}
+
 func (m *Message) groupName() string {
 	if m.IsExtend {
 		return "extend"
@@ -134,6 +139,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tRIGHTCURLY, tEOF:
 			goto done
 		case tSEMICOLON:
+			maybeScanInlineComment(p, c)
 			// continue
 		default:
 			// tFIELD

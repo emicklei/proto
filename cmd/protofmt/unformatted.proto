@@ -42,7 +42,7 @@ message Message
     reserved 2, 15, 9 to 11;
     reserved "foo", "bar";
 
-  map<string, Nested> terrain = 4;
+  map<string, Nested> terrain = 4; // terrain
 
   enum EnumAllowingAlias {
   option allow_alias = true;
@@ -54,8 +54,9 @@ message Message
 
 
 service SearchService { // comment
-       rpc Search (  SearchRequest  ) returns ( SearchResponse );
-       rpc Find (  Finder  ) returns ( stream Result );}
+       rpc Search (  SearchRequest  ) returns ( SearchResponse );  // Search
+       rpc Find (  Finder  ) returns ( stream Result ); // Find
+    }      
 
 // emptiness
 enum Enum {}
@@ -64,8 +65,8 @@ message Message {}
 
 // context aware
 enum enum {
-    enum = 0;
+    enum = 0; // enum
 }
 message message {
-    sometype message = 1;
+    sometype message = 1; // message
 }

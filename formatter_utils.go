@@ -68,7 +68,6 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 				io.WriteString(f.w, src)
 			}
 		}
-		io.WriteString(f.w, ";")
 	}
 	f.nl()
 }

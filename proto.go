@@ -92,6 +92,30 @@ func (c Comment) IsMultiline() bool {
 	return strings.Contains(c.Message, "\n")
 }
 
+type commentInliner interface {
+	inlineComment(c *Comment)
+}
+
 type elementContainer interface {
 	addElement(v Visitee)
+	elements() []Visitee
+}
+
+// maybeScanInlineComment tries to scan comment on the current line ; if present then set it for the last element added.
+func maybeScanInlineComment(p *Parser, c elementContainer) {
+	currentLine := p.s.line
+	// see if there is an inline Comment
+	tok, lit := p.scanIgnoreWhitespace()
+	esize := len(c.elements())
+	// seen comment and on same line and elements have been added
+	if tCOMMENT == tok && p.s.line == currentLine+1 && esize > 0 {
+		// if the last added element can have an inline comment then set it
+		last := c.elements()[esize-1]
+		if inliner, ok := last.(commentInliner); ok {
+			// TODO skip multiline?
+			inliner.inlineComment(p.newComment(lit))
+		}
+	} else {
+		p.unscan()
+	}
 }

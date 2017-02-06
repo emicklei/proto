@@ -8,6 +8,12 @@ type Field struct {
 	Type     string
 	Sequence int
 	Options  []*Option
+	Comment  *Comment
+}
+
+// inlineComment is part of commentInliner.
+func (f *Field) inlineComment(c *Comment) {
+	f.Comment = c
 }
 
 // NormalField represents a field in a Message.
@@ -47,6 +53,10 @@ func (f *NormalField) columns() (cols []aligned) {
 			cols = append(cols, each.keyValuePair(true)...)
 		}
 		cols = append(cols, leftAligned("]"))
+	}
+	cols = append(cols, alignedSemicolon)
+	if f.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(f.Comment.Message))
 	}
 	return
 }

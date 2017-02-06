@@ -19,6 +19,11 @@ func (g *Group) addElement(v Visitee) {
 	g.Elements = append(g.Elements, v)
 }
 
+// elements is part of elementContainer
+func (g *Group) elements() []Visitee {
+	return g.Elements
+}
+
 // parse expects:
 // groupName "=" fieldNumber { messageBody }
 func (g *Group) parse(p *Parser) error {

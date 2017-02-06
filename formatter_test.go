@@ -48,7 +48,23 @@ func TestFormatComment(t *testing.T) {
 	b := new(bytes.Buffer)
 	f := NewFormatter(b, " ")
 	f.Format(def)
-	if got, want := b.String(), proto; got != want {
+	if got, want := strings.TrimSpace(b.String()), strings.TrimSpace(proto); got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+}
+
+func TestFormatInlineComment(t *testing.T) {
+	proto := `
+message ConnectRequest {
+ string clientID       = 1; // Client name/identifier.
+ string heartbeatInbox = 2; // Inbox for server initiated heartbeats.
+}	
+ `
+	def, _ := NewParser(strings.NewReader(proto)).Parse()
+	b := new(bytes.Buffer)
+	f := NewFormatter(b, " ")
+	f.Format(def)
+	if got, want := strings.TrimSpace(b.String()), strings.TrimSpace(proto); got != want {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }

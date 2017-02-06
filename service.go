@@ -11,6 +11,16 @@ func (s *Service) Accept(v Visitor) {
 	v.VisitService(s)
 }
 
+// addElement is part of elementContainer
+func (s *Service) addElement(v Visitee) {
+	s.Elements = append(s.Elements, v)
+}
+
+// elements is part of elementContainer
+func (s *Service) elements() []Visitee {
+	return s.Elements
+}
+
 // parse continues after reading "service"
 func (s *Service) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
@@ -37,6 +47,7 @@ func (s *Service) parse(p *Parser) error {
 			}
 			s.Elements = append(s.Elements, rpc)
 		case tSEMICOLON:
+			maybeScanInlineComment(p, s)
 		case tRIGHTCURLY:
 			goto done
 		default:
@@ -54,11 +65,17 @@ type RPC struct {
 	StreamsRequest bool
 	ReturnsType    string
 	StreamsReturns bool
+	Comment        *Comment
 }
 
 // Accept dispatches the call to the visitor.
 func (r *RPC) Accept(v Visitor) {
 	v.VisitRPC(r)
+}
+
+// inlineComment is part of commentInliner.
+func (r *RPC) inlineComment(c *Comment) {
+	r.Comment = c
 }
 
 // columns returns printable source tokens
@@ -85,6 +102,10 @@ func (r *RPC) columns() (cols []aligned) {
 	cols = append(cols,
 		leftAligned(r.ReturnsType),
 		leftAligned(")"))
+	cols = append(cols, alignedSemicolon)
+	if r.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(r.Comment.Message))
+	}
 	return cols
 }
 

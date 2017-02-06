@@ -14,6 +14,16 @@ func (e *Enum) Accept(v Visitor) {
 	v.VisitEnum(e)
 }
 
+// addElement is part of elementContainer
+func (e *Enum) addElement(v Visitee) {
+	e.Elements = append(e.Elements, v)
+}
+
+// elements is part of elementContainer
+func (e *Enum) elements() []Visitee {
+	return e.Elements
+}
+
 func (e *Enum) parse(p *Parser) error {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
@@ -41,6 +51,7 @@ func (e *Enum) parse(p *Parser) error {
 		case tRIGHTCURLY, tEOF:
 			goto done
 		case tSEMICOLON:
+			maybeScanInlineComment(p, e)
 		default:
 			p.unscan()
 			f := new(EnumField)
@@ -63,6 +74,7 @@ type EnumField struct {
 	Name        string
 	Integer     int
 	ValueOption *Option
+	Comment     *Comment
 }
 
 // Accept dispatches the call to the visitor.
@@ -70,11 +82,20 @@ func (f *EnumField) Accept(v Visitor) {
 	v.VisitEnumField(f)
 }
 
+// inlineComment is part of commentInliner.
+func (f *EnumField) inlineComment(c *Comment) {
+	f.Comment = c
+}
+
 // columns returns printable source tokens
 func (f EnumField) columns() (cols []aligned) {
 	cols = append(cols, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Integer)))
 	if f.ValueOption != nil {
 		cols = append(cols, f.ValueOption.columns()...)
+	}
+	cols = append(cols, alignedSemicolon)
+	if f.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(f.Comment.Message))
 	}
 	return
 }
@@ -109,6 +130,9 @@ func (f *EnumField) parse(p *Parser) error {
 		if tok != tRIGHTSQUARE {
 			return p.unexpected(lit, "option closing ]", f)
 		}
+	}
+	if tSEMICOLON == tok {
+		p.unscan()
 	}
 	return nil
 }

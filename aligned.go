@@ -10,10 +10,11 @@ type aligned struct {
 
 var (
 	alignedEquals      = leftAligned(" = ")
-	alignedShortEquals = leftAligned("=")
+	alignedShortEquals = notAligned("=")
 	alignedSpace       = leftAligned(" ")
 	alignedComma       = leftAligned(", ")
-	alignedEmpty       = leftAligned("")
+	alignedEmpty       = notAligned("")
+	alignedSemicolon   = notAligned(";")
 )
 
 func leftAligned(src string) aligned  { return aligned{src, true, true} }

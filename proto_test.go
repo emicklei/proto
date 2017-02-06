@@ -8,20 +8,24 @@ import (
 )
 
 func TestParseFormattedProto2UnitTest(t *testing.T) {
-	parseFormattedParsed(t, "unittest_proto2.proto")
+	parseFormattedParsed(t, filepath.Join("cmd", "protofmt", "unittest_proto2.proto"))
 }
 
 func TestParseFormattedProto3UnitTest(t *testing.T) {
-	parseFormattedParsed(t, "unittest_proto3.proto")
+	parseFormattedParsed(t, filepath.Join("cmd", "protofmt", "unittest_proto3.proto"))
 }
 
 func TestParseFormattedProto3ArenaUnitTest(t *testing.T) {
-	parseFormattedParsed(t, "unittest_proto3_arena.proto")
+	parseFormattedParsed(t, filepath.Join("cmd", "protofmt", "unittest_proto3_arena.proto"))
+}
+
+func TestParseFormattedUnformatted(t *testing.T) {
+	parseFormattedParsed(t, filepath.Join("cmd", "protofmt", "unformatted.proto"))
 }
 
 func parseFormattedParsed(t *testing.T, filename string) {
 	// open it
-	f, err := os.Open(filepath.Join("cmd", "protofmt", filename))
+	f, err := os.Open(filename)
 	if err != nil {
 		t.Fatal(err)
 	}
