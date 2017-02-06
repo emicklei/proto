@@ -3,7 +3,6 @@ package proto
 import (
 	"fmt"
 	"io"
-
 	"strings"
 )
 
@@ -30,8 +29,20 @@ func (f *Formatter) VisitComment(c *Comment) {
 	f.begin("comment")
 	if c.IsMultiline() {
 		fmt.Fprintln(f.w, "/*")
-		fmt.Fprint(f.w, strings.TrimSpace(c.Message))
-		fmt.Fprintf(f.w, "\n*/\n")
+		lines := strings.Split(c.Message, "\n")
+		for i, each := range lines {
+			// leading no tab or space
+			leftAligned := strings.TrimLeft(each, "\t ")
+			// only skip first and last empty lines
+			skip := (i == 0 && len(leftAligned) == 0) ||
+				(i == len(lines)-1 && len(leftAligned) == 0)
+			if !skip {
+				f.indent(0)
+				fmt.Fprintf(f.w, " %s\n", leftAligned)
+			}
+		}
+		f.indent(0)
+		fmt.Fprintf(f.w, " */\n")
 	} else {
 		fmt.Fprintf(f.w, "//%s\n", c.Message)
 	}

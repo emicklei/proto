@@ -2,6 +2,7 @@ package proto
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -33,5 +34,21 @@ ABC = 12 [ab = 1234];
 `
 	if got, want := b.String(), formatted; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestFormatComment(t *testing.T) {
+	proto := `
+/*
+ * Hello
+ * World
+ */
+  `
+	def, _ := NewParser(strings.NewReader(proto)).Parse()
+	b := new(bytes.Buffer)
+	f := NewFormatter(b, " ")
+	f.Format(def)
+	if got, want := b.String(), proto; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
