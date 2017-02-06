@@ -12,7 +12,7 @@ var (
 	alignedEquals      = leftAligned(" = ")
 	alignedShortEquals = leftAligned("=")
 	alignedSpace       = leftAligned(" ")
-	alignedComma       = leftAligned(",")
+	alignedComma       = leftAligned(", ")
 	alignedEmpty       = leftAligned("")
 )
 

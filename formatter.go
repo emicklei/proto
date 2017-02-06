@@ -55,14 +55,7 @@ func (f *Formatter) VisitEnum(e *Enum) {
 func (f *Formatter) VisitEnumField(e *EnumField) {}
 
 // VisitImport formats a Import.
-func (f *Formatter) VisitImport(i *Import) {
-	f.begin("import")
-	kind := ""
-	if len(i.Kind) > 0 {
-		kind = fmt.Sprintf(" %s ", i.Kind)
-	}
-	fmt.Fprintf(f.w, "import %s%q;\n", kind, i.Filename)
-}
+func (f *Formatter) VisitImport(i *Import) {}
 
 // VisitMessage formats a Message.
 func (f *Formatter) VisitMessage(m *Message) {
@@ -84,7 +77,7 @@ func (f *Formatter) VisitOption(o *Option) {}
 // VisitPackage formats a Package.
 func (f *Formatter) VisitPackage(p *Package) {
 	f.begin("package")
-	fmt.Fprintf(f.w, "package %s;\n", p.Name)
+	fmt.Fprintf(f.w, "package %s;\n\n", p.Name)
 }
 
 // VisitService formats a Service.

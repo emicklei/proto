@@ -19,9 +19,9 @@ func (i *Import) columns() (cols []aligned) {
 	if len(i.Kind) > 0 {
 		cols = append(cols, leftAligned(i.Kind))
 	} else {
-		cols = append(cols, alignedSpace)
+		cols = append(cols, alignedEmpty)
 	}
-	cols = append(cols, alignedSpace, notAligned(fmt.Sprintf("%q", i.Filename)))
+	cols = append(cols, alignedEmpty, notAligned(fmt.Sprintf("%q", i.Filename)))
 	return
 }
 

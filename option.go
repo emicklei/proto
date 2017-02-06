@@ -1,6 +1,7 @@
 package proto
 
 import "fmt"
+import "strings"
 
 // Option is a protoc compiler option
 type Option struct {
@@ -31,10 +32,14 @@ func (o *Option) columns() (cols []aligned) {
 // keyValuePair returns key = value or "value"
 func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 	equals := alignedEquals
-	if embedded {
-		equals = alignedShortEquals
+	name := o.Name
+	if strings.Contains(name, ".") {
+		name = fmt.Sprintf("(%s)", name)
 	}
-	return append(cols, leftAligned(o.Name), equals, rightAligned(o.Constant.String()))
+	if embedded {
+		return append(cols, notAligned(name), equals, rightAligned(o.Constant.String()))
+	}
+	return append(cols, rightAligned(name), equals, rightAligned(o.Constant.String()))
 }
 
 // parse reads an Option body
