@@ -14,9 +14,9 @@ func (s *Syntax) parse(p *Parser) error {
 	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
 		return p.unexpected(lit, "syntax =", s)
 	}
-	lit, err := p.scanStringLiteral()
-	if err != nil {
-		return err
+	lit, ok := p.s.scanLiteral()
+	if !ok {
+		return p.unexpected(lit, "syntax string constant", s)
 	}
 	s.Value = lit
 	return nil

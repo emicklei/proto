@@ -30,7 +30,7 @@ func TestOption(t *testing.T) {
 			t.Fatal(err)
 		}
 		if got, want := len(pr.Elements), 1; got != want {
-			t.Errorf("[%d] got [%v] want [%v]", i, got, want)
+			t.Fatalf("[%d] got [%v] want [%v]", i, got, want)
 		}
 		o := pr.Elements[0].(*Option)
 		if got, want := o.Name, each.name; got != want {

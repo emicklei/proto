@@ -136,7 +136,7 @@ func (s *scanner) scanLiteral() (string, bool) {
 	return buf.String(), false
 }
 
-// TODO use scanLiteral?
+// scanInteger reads an integer representation.
 func (s *scanner) scanInteger() (int, error) {
 	var i int
 	if _, err := fmt.Fscanf(s.r, "%d", &i); err != nil {

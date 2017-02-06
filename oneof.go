@@ -26,10 +26,9 @@ func (o *Oneof) parse(p *Parser) error {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tIDENT:
-			f := new(OneOfField)
+			f := newOneOfField()
 			f.Type = lit
-			err := f.parse(p)
-			if err != nil {
+			if err := parseFieldAfterType(f.Field, p); err != nil {
 				return err
 			}
 			o.Elements = append(o.Elements, f)
@@ -59,11 +58,10 @@ func (o *Oneof) Accept(v Visitor) {
 
 // OneOfField is part of Oneof.
 type OneOfField struct {
-	Name     string
-	Type     string
-	Sequence int
-	Options  []*Option
+	*Field
 }
+
+func newOneOfField() *OneOfField { return &OneOfField{Field: new(Field)} }
 
 // Accept dispatches the call to the visitor.
 func (o *OneOfField) Accept(v Visitor) {
@@ -89,31 +87,4 @@ func (o *OneOfField) columns() (cols []aligned) {
 		cols = append(cols, leftAligned("]"))
 	}
 	return
-}
-
-func (o *OneOfField) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok != tIDENT {
-		if !isKeyword(tok) {
-			return p.unexpected(lit, "oneof field identifier", o)
-		}
-	}
-	o.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok != tEQUALS {
-		return p.unexpected(lit, "oneof field =", o)
-	}
-	i, err := p.s.scanInteger()
-	if err != nil {
-		return p.unexpected(lit, "oneof field sequence number", o)
-	}
-	o.Sequence = i
-	tok, _ = p.scanIgnoreWhitespace()
-	if tLEFTSQUARE == tok {
-		// TODO options
-		p.s.scanUntil(']')
-	} else {
-		p.unscan()
-	}
-	return nil
 }

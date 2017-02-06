@@ -71,24 +71,3 @@ func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 	}
 	return fmt.Errorf("found %q on line %d, expected %s%s", found, p.s.line, expected, debug)
 }
-
-// read a single or double-quoted single-line string
-// TODO used?
-func (p *Parser) scanStringLiteral() (string, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok == tQUOTE {
-		s := p.s.scanUntil('"')
-		if len(s) == 0 {
-			return "", p.unexpected(lit, "quoted string", nil)
-		}
-		return s, nil
-	}
-	if tok == tSINGLEQUOTE {
-		s := p.s.scanUntil('\'')
-		if len(s) == 0 {
-			return "", p.unexpected(lit, "single quoted string", nil)
-		}
-		return s, nil
-	}
-	return "", p.unexpected(lit, "single or double quoted string", nil)
-}

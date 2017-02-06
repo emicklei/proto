@@ -18,7 +18,7 @@ func TestOneof(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(o.Elements), 2; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	second := o.Elements[1].(*OneOfField)
 	if got, want := second.Name, "sub_message"; got != want {

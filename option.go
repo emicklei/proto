@@ -7,7 +7,6 @@ type Option struct {
 	Name       string
 	Constant   Literal
 	IsEmbedded bool
-	IsCustom   bool // TODO needed?
 }
 
 // Accept dispatches the call to the visitor.
