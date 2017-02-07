@@ -1,25 +1,18 @@
 // example0
 syntax = "proto3";
 
-
-
-
     // using Any
 import "google/protobuf/any.proto";
 
-import public    "testdata/test.proto";
-
-
+import public    "testdata/test.proto"; // not weak
 
 /* This pkg
         */
-package         here.proto_proto   ;
-
+package         here.proto_proto   ; // pkg
 
 // from a bottle
 message Message 
-{
-    
+{    
     string   name =1;
 // this is a thing
     google.protobuf.Any anything = 2 [packed=true, danger=false]; // anything
@@ -28,7 +21,6 @@ message Message
     Message 
     children 
     = 3;
-
 
       enum Humour {
           // something we dont know
@@ -39,10 +31,10 @@ message Message
     BILL_BAILEY = 3;
   }
 
-    reserved 2, 15, 9 to 11; 
-    reserved "foo", "bar";  // foo bar
+reserved 2, 15, 9 to 11; 
+reserved "foo", "bar";  // foo bar
 
-    extensions 100 to 199; // no 200
+extensions 100 to 199; // no 200
 
   map<string, Nested> terrain = 4; // terrain
 
@@ -53,7 +45,6 @@ message Message
   RUN = 2 [(custom_option) = "hello world"];
 }
 } // end message
-
 
 service SearchService { // comment
        rpc Search (  SearchRequest  ) returns ( SearchResponse );  // Search

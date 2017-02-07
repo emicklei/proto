@@ -7,21 +7,6 @@ type Message struct {
 	Elements []Visitee
 }
 
-// Accept dispatches the call to the visitor.
-func (m *Message) Accept(v Visitor) {
-	v.VisitMessage(m)
-}
-
-// addElement is part of elementContainer
-func (m *Message) addElement(v Visitee) {
-	m.Elements = append(m.Elements, v)
-}
-
-// elements is part of elementContainer
-func (m *Message) elements() []Visitee {
-	return m.Elements
-}
-
 func (m *Message) groupName() string {
 	if m.IsExtend {
 		return "extend"
@@ -156,4 +141,19 @@ done:
 		return p.unexpected(lit, "extend|message|group closing }", c)
 	}
 	return nil
+}
+
+// Accept dispatches the call to the visitor.
+func (m *Message) Accept(v Visitor) {
+	v.VisitMessage(m)
+}
+
+// addElement is part of elementContainer
+func (m *Message) addElement(v Visitee) {
+	m.Elements = append(m.Elements, v)
+}
+
+// elements is part of elementContainer
+func (m *Message) elements() []Visitee {
+	return m.Elements
 }

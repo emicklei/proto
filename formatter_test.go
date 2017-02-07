@@ -68,3 +68,10 @@ message ConnectRequest {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
+
+func logformatted(t *testing.T, v Visitee) {
+	b := new(bytes.Buffer)
+	f := NewFormatter(b, " ")
+	v.Accept(f)
+	t.Log(b.String())
+}

@@ -3,6 +3,7 @@ package proto
 import "io"
 import "strings"
 
+// begin write indentation after a newline depending on whether the last element was a comment.
 func (f *Formatter) begin(stmt string) {
 	if "comment" == stmt && f.lastStmt != stmt {
 		io.WriteString(f.w, "\n")
@@ -18,6 +19,7 @@ func (f *Formatter) end(stmt string) {
 	f.lastStmt = stmt
 }
 
+// indent changes the indent level and writes indentation.
 func (f *Formatter) indent(diff int) {
 	f.indentLevel += diff
 	for i := 0; i < f.indentLevel; i++ {
@@ -25,6 +27,7 @@ func (f *Formatter) indent(diff int) {
 	}
 }
 
+// columnsPrintable is for elements that can be printed in aligned columns.
 type columnsPrintable interface {
 	columns() (cols []aligned)
 }
@@ -64,27 +67,26 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 			// only print if there is a value
 			if c < len(each) {
 				// using space padding to match the max width
-				src := each[c].formatted(pw)
-				io.WriteString(f.w, src)
+				io.WriteString(f.w, each[c].formatted(pw))
 			}
 		}
 	}
 	f.nl()
 }
 
-func (f *Formatter) nl() *Formatter {
+// nl writes a newline.
+func (f *Formatter) nl() {
 	io.WriteString(f.w, "\n")
-	return f
 }
 
+// printAsGroups prints the list in groups of the same element type.
 func (f *Formatter) printAsGroups(list []Visitee) {
 	if len(list) == 0 {
 		return
 	}
 	group := []columnsPrintable{}
 	lastGroupName := ""
-	for i := 0; i < len(list); i++ {
-		each := list[i]
+	for _, each := range list {
 		groupName := nameOfVisitee(each)
 		printable, isColumnsPrintable := each.(columnsPrintable)
 		if isColumnsPrintable {

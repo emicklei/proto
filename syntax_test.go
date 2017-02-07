@@ -1,9 +1,6 @@
 package proto
 
-import (
-	"strconv"
-	"testing"
-)
+import "testing"
 
 func TestSyntax(t *testing.T) {
 	proto := `syntax = "proto";`
@@ -32,12 +29,7 @@ func TestCommentAroundSyntax(t *testing.T) {
 		t.Fatal(err)
 	}
 	comments := collect(r).Comments()
-	if got, want := len(comments), 4; got != want {
+	if got, want := len(comments), 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
-	}
-	for i := 1; i <= 4; i++ {
-		if got, want := comments[i-1].Message, " comment"+strconv.Itoa(i); got != want {
-			t.Errorf("got [%v] want [%v]", got, want)
-		}
 	}
 }

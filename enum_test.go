@@ -36,4 +36,5 @@ enum EnumAllowingAlias {
 	if got, want := ef3.ValueOption.Constant.Source, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	logformatted(t, pr.Elements[0])
 }

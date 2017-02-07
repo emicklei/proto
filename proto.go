@@ -7,6 +7,16 @@ type Proto struct {
 	Elements []Visitee
 }
 
+// addElement is part of elementContainer
+func (proto *Proto) addElement(v Visitee) {
+	proto.Elements = append(proto.Elements, v)
+}
+
+// elements is part of elementContainer
+func (proto *Proto) elements() []Visitee {
+	return proto.Elements
+}
+
 // parse parsers a complete .proto definition source.
 func (proto *Proto) parse(p *Parser) error {
 	for {
@@ -67,6 +77,8 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, msg)
 		// END proto2
 		case tSEMICOLON:
+			maybeScanInlineComment(p, proto)
+			// continue
 		case tEOF:
 			goto done
 		default:

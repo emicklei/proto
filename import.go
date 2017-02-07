@@ -9,6 +9,25 @@ type Import struct {
 	Comment  *Comment
 }
 
+func (i *Import) parse(p *Parser) error {
+	tok, lit := p.scanIgnoreWhitespace()
+	switch tok {
+	case tWEAK:
+		i.Kind = lit
+		return i.parse(p)
+	case tPUBLIC:
+		i.Kind = lit
+		return i.parse(p)
+	case tQUOTE:
+		i.Filename = p.s.scanUntil('"')
+	case tSINGLEQUOTE:
+		i.Filename = p.s.scanUntil('\'')
+	default:
+		return p.unexpected(lit, "import classifier weak|public|quoted", i)
+	}
+	return nil
+}
+
 // Accept dispatches the call to the visitor.
 func (i *Import) Accept(v Visitor) {
 	v.VisitImport(i)
@@ -32,23 +51,4 @@ func (i *Import) columns() (cols []aligned) {
 		cols = append(cols, notAligned(" //"), notAligned(i.Comment.Message))
 	}
 	return
-}
-
-func (i *Import) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
-	switch tok {
-	case tWEAK:
-		i.Kind = lit
-		return i.parse(p)
-	case tPUBLIC:
-		i.Kind = lit
-		return i.parse(p)
-	case tQUOTE:
-		i.Filename = p.s.scanUntil('"')
-	case tSINGLEQUOTE:
-		i.Filename = p.s.scanUntil('\'')
-	default:
-		return p.unexpected(lit, "import classifier weak|public|quoted", i)
-	}
-	return nil
 }

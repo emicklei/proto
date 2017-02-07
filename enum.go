@@ -132,7 +132,7 @@ func (f *EnumField) parse(p *Parser) error {
 		}
 	}
 	if tSEMICOLON == tok {
-		p.unscan()
+		p.unscan() // put back this token for scanning inline comment
 	}
 	return nil
 }

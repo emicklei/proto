@@ -86,10 +86,7 @@ func (f *Formatter) VisitMessage(m *Message) {
 func (f *Formatter) VisitOption(o *Option) {}
 
 // VisitPackage formats a Package.
-func (f *Formatter) VisitPackage(p *Package) {
-	f.begin("package")
-	fmt.Fprintf(f.w, "package %s;\n\n", p.Name)
-}
+func (f *Formatter) VisitPackage(p *Package) {}
 
 // VisitService formats a Service.
 func (f *Formatter) VisitService(s *Service) {
