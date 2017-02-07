@@ -22,7 +22,7 @@ message Message
     
     string   name =1;
 // this is a thing
-    google.protobuf.Any anything = 2 [packed=true, danger=false];
+    google.protobuf.Any anything = 2 [packed=true, danger=false]; // anything
 
     repeated 
     Message 
@@ -39,14 +39,16 @@ message Message
     BILL_BAILEY = 3;
   }
 
-    reserved 2, 15, 9 to 11;
-    reserved "foo", "bar";
+    reserved 2, 15, 9 to 11; 
+    reserved "foo", "bar";  // foo bar
+
+    extensions 100 to 199; // no 200
 
   map<string, Nested> terrain = 4; // terrain
 
   enum EnumAllowingAlias {
-  option allow_alias = true;
-  UNKNOWN = 0;
+  option allow_alias = true; // allow_alias
+  UNKNOWN = 0; // UNKNOWN
   STARTED = 1;
   RUN = 2 [(custom_option) = "hello world"];
 }

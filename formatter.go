@@ -141,17 +141,14 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 			fmt.Fprintf(f.w, "%q", each)
 		}
 	}
-	io.WriteString(f.w, ";\n")
+	f.endWithComment(r.Comment)
 }
 
 // VisitRPC formats a RPC.
 func (f *Formatter) VisitRPC(r *RPC) {}
 
 // VisitMapField formats a MapField.
-func (f *Formatter) VisitMapField(m *MapField) {
-	f.begin("map")
-	fmt.Fprintf(f.w, "map<%s,%s> %s = %d;\n", m.KeyType, m.Type, m.Name, m.Sequence)
-}
+func (f *Formatter) VisitMapField(m *MapField) {}
 
 // VisitNormalField formats a NormalField.
 func (f *Formatter) VisitNormalField(f1 *NormalField) {}
@@ -174,7 +171,4 @@ func (f *Formatter) VisitGroup(g *Group) {
 }
 
 // VisitExtensions formats a proto2 Extensions.
-func (f *Formatter) VisitExtensions(e *Extensions) {
-	f.indent(0)
-	fmt.Fprintf(f.w, "extensions %s;\n", e.Ranges)
-}
+func (f *Formatter) VisitExtensions(e *Extensions) {}

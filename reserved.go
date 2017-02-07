@@ -10,6 +10,12 @@ import (
 type Reserved struct {
 	Ranges     string
 	FieldNames []string
+	Comment    *Comment
+}
+
+// inlineComment is part of commentInliner.
+func (r *Reserved) inlineComment(c *Comment) {
+	r.Comment = c
 }
 
 // Range is to specify number intervals
@@ -41,5 +47,6 @@ func (r *Reserved) parse(p *Parser) error {
 	} else {
 		r.Ranges = content
 	}
+	p.s.unread(';') // put it back for reading inline comments TODO
 	return nil
 }

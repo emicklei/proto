@@ -113,3 +113,13 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 	// print last group
 	f.printListOfColumns(group, lastGroupName)
 }
+
+// endWithComment writes a statement end (;) followed by inline comment if present.
+func (f *Formatter) endWithComment(commentOrNil *Comment) {
+	io.WriteString(f.w, ";")
+	if commentOrNil != nil {
+		io.WriteString(f.w, " //")
+		io.WriteString(f.w, commentOrNil.Message)
+	}
+	io.WriteString(f.w, "\n")
+}

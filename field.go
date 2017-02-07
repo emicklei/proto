@@ -143,6 +143,34 @@ func (f *MapField) Accept(v Visitor) {
 	v.VisitMapField(f)
 }
 
+// columns returns printable source tokens
+func (f *MapField) columns() (cols []aligned) {
+	cols = append(cols,
+		notAligned("map <"),
+		rightAligned(f.KeyType),
+		notAligned(","),
+		leftAligned(f.Type),
+		notAligned("> "),
+		rightAligned(f.Name),
+		alignedEquals,
+		rightAligned(strconv.Itoa(f.Sequence)))
+	if len(f.Options) > 0 {
+		cols = append(cols, leftAligned(" ["))
+		for i, each := range f.Options {
+			if i > 0 {
+				cols = append(cols, alignedComma)
+			}
+			cols = append(cols, each.keyValuePair(true)...)
+		}
+		cols = append(cols, leftAligned("]"))
+	}
+	cols = append(cols, alignedSemicolon)
+	if f.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(f.Comment.Message))
+	}
+	return
+}
+
 // parse expects:
 // mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 // keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |

@@ -27,14 +27,14 @@ func parseFormattedParsed(t *testing.T, filename string) {
 	// open it
 	f, err := os.Open(filename)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(filename, err)
 	}
 	defer f.Close()
 	// parse it
 	p := NewParser(f)
 	def, err := p.Parse()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(filename, err)
 	}
 	// count it
 	c := new(counter)
@@ -49,14 +49,14 @@ func parseFormattedParsed(t *testing.T, filename string) {
 	fp := NewParser(bytes.NewReader(out.Bytes()))
 	_, err = fp.Parse()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(filename, err)
 	}
 	// count it again
 	c.count = 0
 	c.Count(def.Elements)
 	afterCount := c.count
 	if got, want := afterCount, beforeCount; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Errorf("[%s] got [%v] want [%v]", filename, got, want)
 	}
 	t.Log("# proto elements", afterCount)
 }

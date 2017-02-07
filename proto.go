@@ -92,10 +92,12 @@ func (c Comment) IsMultiline() bool {
 	return strings.Contains(c.Message, "\n")
 }
 
+// commentInliner is for types that can have an inline comment.
 type commentInliner interface {
 	inlineComment(c *Comment)
 }
 
+// elementContainer unifies types that have elements.
 type elementContainer interface {
 	addElement(v Visitee)
 	elements() []Visitee
