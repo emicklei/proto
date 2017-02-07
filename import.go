@@ -6,11 +6,17 @@ import "fmt"
 type Import struct {
 	Filename string
 	Kind     string // weak, public, <empty>
+	Comment  *Comment
 }
 
 // Accept dispatches the call to the visitor.
 func (i *Import) Accept(v Visitor) {
 	v.VisitImport(i)
+}
+
+// inlineComment is part of commentInliner.
+func (i *Import) inlineComment(c *Comment) {
+	i.Comment = c
 }
 
 // columns returns printable source tokens
@@ -21,7 +27,10 @@ func (i *Import) columns() (cols []aligned) {
 	} else {
 		cols = append(cols, alignedEmpty)
 	}
-	cols = append(cols, alignedEmpty, notAligned(fmt.Sprintf("%q", i.Filename)))
+	cols = append(cols, alignedSpace, notAligned(fmt.Sprintf("%q", i.Filename)), alignedSemicolon)
+	if i.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(i.Comment.Message))
+	}
 	return
 }
 

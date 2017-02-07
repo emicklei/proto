@@ -8,6 +8,12 @@ type Option struct {
 	Name       string
 	Constant   Literal
 	IsEmbedded bool
+	Comment    *Comment
+}
+
+// inlineComment is part of commentInliner.
+func (o *Option) inlineComment(c *Comment) {
+	o.Comment = c
 }
 
 // Accept dispatches the call to the visitor.
@@ -25,6 +31,12 @@ func (o *Option) columns() (cols []aligned) {
 	cols = append(cols, o.keyValuePair(o.IsEmbedded)...)
 	if o.IsEmbedded {
 		cols = append(cols, leftAligned("]"))
+	}
+	if !o.IsEmbedded {
+		cols = append(cols, alignedSemicolon)
+		if o.Comment != nil {
+			cols = append(cols, notAligned(" //"), notAligned(o.Comment.Message))
+		}
 	}
 	return
 }
