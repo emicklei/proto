@@ -8,6 +8,16 @@ type Oneof struct {
 	Elements []Visitee
 }
 
+// addElement is part of elementContainer
+func (o *Oneof) addElement(v Visitee) {
+	o.Elements = append(o.Elements, v)
+}
+
+// elements is part of elementContainer
+func (o *Oneof) elements() []Visitee {
+	return o.Elements
+}
+
 // parse expects:
 // oneofName "{" { oneofField | emptyStatement } "}"
 func (o *Oneof) parse(p *Parser) error {
@@ -39,6 +49,7 @@ func (o *Oneof) parse(p *Parser) error {
 			}
 			o.Elements = append(o.Elements, g)
 		case tSEMICOLON:
+			maybeScanInlineComment(p, o)
 			// continue
 		default:
 			goto done
@@ -85,6 +96,10 @@ func (o *OneOfField) columns() (cols []aligned) {
 			cols = append(cols, each.keyValuePair(true)...)
 		}
 		cols = append(cols, leftAligned("]"))
+	}
+	cols = append(cols, alignedSemicolon)
+	if o.Comment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(o.Comment.Message))
 	}
 	return
 }

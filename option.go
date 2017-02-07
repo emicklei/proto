@@ -45,7 +45,7 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 	equals := alignedEquals
 	name := o.Name
 	if embedded {
-		return append(cols, notAligned(name), equals, rightAligned(o.Constant.String()))
+		return append(cols, leftAligned(name), equals, leftAligned(o.Constant.String())) // numbers right, strings left? TODO
 	}
 	return append(cols, rightAligned(name), equals, rightAligned(o.Constant.String()))
 }
