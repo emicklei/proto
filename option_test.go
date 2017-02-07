@@ -9,8 +9,8 @@ func TestOption(t *testing.T) {
 		strLit    string
 		nonStrLit string
 	}{{
-		`option (full.java_package) = "com.example.foo";`,
-		"full.java_package",
+		`option (full).java_package = "com.example.foo";`,
+		"(full).java_package",
 		"com.example.foo",
 		"",
 	}, {

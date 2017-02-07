@@ -30,7 +30,7 @@ enum EnumAllowingAlias {
 	if got, want := ef3.Integer, 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef3.ValueOption.Name, "custom_option"; got != want {
+	if got, want := ef3.ValueOption.Name, "(custom_option)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := ef3.ValueOption.Constant.Source, "hello world"; got != want {
