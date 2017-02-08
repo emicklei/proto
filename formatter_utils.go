@@ -1,14 +1,20 @@
 package proto
 
 import "io"
-import "strings"
 
 // begin write indentation after a newline depending on whether the last element was a comment.
 func (f *Formatter) begin(stmt string) {
-	if "comment" == stmt && f.lastStmt != stmt {
-		io.WriteString(f.w, "\n")
+	if "comment" == stmt && f.lastStmt == "comment" {
+		f.indent(0)
+		return
 	}
-	if "comment" != f.lastStmt && strings.Contains("message service enum ", stmt) {
+	if "comment" == stmt && f.lastStmt != "comment" {
+		io.WriteString(f.w, "\n")
+		f.indent(0)
+		f.lastStmt = stmt
+		return
+	}
+	if "comment" != f.lastStmt && f.lastStmt != stmt && f.indentLevel == 0 {
 		io.WriteString(f.w, "\n")
 	}
 	f.indent(0)
@@ -36,7 +42,7 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 	if len(list) == 0 {
 		return
 	}
-	f.lastStmt = groupName
+	f.begin(groupName)
 	// collect all column values
 	values := [][]aligned{}
 	widths := map[int]int{}
@@ -60,8 +66,8 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 	for i, each := range values {
 		if i > 0 {
 			f.nl()
+			f.indent(0)
 		}
-		f.indent(0)
 		for c := 0; c < len(widths); c++ {
 			pw := widths[c]
 			// only print if there is a value

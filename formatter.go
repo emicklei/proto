@@ -104,7 +104,8 @@ func (f *Formatter) VisitService(s *Service) {
 
 // VisitSyntax formats a Syntax.
 func (f *Formatter) VisitSyntax(s *Syntax) {
-	fmt.Fprintf(f.w, "syntax = %q;\n\n", s.Value)
+	f.begin("syntax")
+	fmt.Fprintf(f.w, "syntax = %q;\n", s.Value)
 }
 
 // VisitOneof formats a Oneof.
