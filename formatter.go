@@ -130,7 +130,12 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 	f.begin("reserved")
 	io.WriteString(f.w, "reserved ")
 	if len(r.Ranges) > 0 {
-		io.WriteString(f.w, r.Ranges)
+		for i, each := range r.Ranges {
+			if i > 0 {
+				io.WriteString(f.w, ",")
+			}
+			fmt.Fprintf(f.w, "%s", each.String())
+		}
 	} else {
 		for i, each := range r.FieldNames {
 			if i > 0 {
