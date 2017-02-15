@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -155,14 +155,14 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 	if len(r.Ranges) > 0 {
 		for i, each := range r.Ranges {
 			if i > 0 {
-				io.WriteString(f.w, ",")
+				io.WriteString(f.w, ", ")
 			}
 			fmt.Fprintf(f.w, "%s", each.String())
 		}
 	} else {
 		for i, each := range r.FieldNames {
 			if i > 0 {
-				io.WriteString(f.w, ",")
+				io.WriteString(f.w, ", ")
 			}
 			fmt.Fprintf(f.w, "%q", each)
 		}
@@ -197,4 +197,14 @@ func (f *Formatter) VisitGroup(g *Group) {
 }
 
 // VisitExtensions formats a proto2 Extensions.
-func (f *Formatter) VisitExtensions(e *Extensions) {}
+func (f *Formatter) VisitExtensions(e *Extensions) {
+	f.begin("extensions")
+	io.WriteString(f.w, "extensions ")
+	for i, each := range e.Ranges {
+		if i > 0 {
+			io.WriteString(f.w, ", ")
+		}
+		fmt.Fprintf(f.w, "%s", each.String())
+	}
+	f.endWithComment(e.Comment)
+}

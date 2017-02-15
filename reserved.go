@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,11 +22,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package proto
-
-import (
-	"fmt"
-	"strconv"
-)
 
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
@@ -40,26 +35,12 @@ func (r *Reserved) inlineComment(c *Comment) {
 	r.Comment = c
 }
 
-// Range is to specify number intervals
-type Range struct {
-	From, To int
-}
-
-// String return a single number if from = to. Returns <from> to <to> otherwise.
-func (r Range) String() string {
-	if r.From == r.To {
-		return strconv.Itoa(r.From)
-	}
-	return fmt.Sprintf("%d to %d", r.From, r.To)
-}
-
 // Accept dispatches the call to the visitor.
 func (r *Reserved) Accept(v Visitor) {
 	v.VisitReserved(r)
 }
 
 func (r *Reserved) parse(p *Parser) error {
-	seenRangeTo := false
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		if len(lit) == 0 {
@@ -68,27 +49,13 @@ func (r *Reserved) parse(p *Parser) error {
 		// first char that determined tok
 		ch := []rune(lit)[0]
 		if isDigit(ch) {
-			// use unread here because scanInteger does not look at buf
+			// use unread here because it could be start of ranges
 			p.s.unread(ch)
-			i, err := p.s.scanInteger()
+			list, err := parseRanges(p, r)
 			if err != nil {
-				return p.unexpected(lit, "reserved integer", r)
+				return err
 			}
-			if seenRangeTo {
-				// replace last two ranges with one
-				if len(r.Ranges) < 1 {
-					p.unexpected(lit, "reserved integer", r)
-				}
-				from := r.Ranges[len(r.Ranges)-1]
-				r.Ranges = append(r.Ranges[0:len(r.Ranges)-1], Range{From: from.From, To: i})
-				seenRangeTo = false
-			} else {
-				r.Ranges = append(r.Ranges, Range{From: i, To: i})
-			}
-			continue
-		}
-		if tIDENT == tok && "to" == lit {
-			seenRangeTo = true
+			r.Ranges = list
 			continue
 		}
 		if tQUOTE == tok || tSINGLEQUOTE == tok {

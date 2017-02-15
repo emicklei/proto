@@ -25,31 +25,44 @@ package proto
 
 import "testing"
 
-func TestExtensions(t *testing.T) {
-	proto := `message M { 
-		extensions 4, 20 to max; // max
-	}`
-	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume extensions
-	m := new(Message)
-	err := m.parse(p)
+func TestParseRanges(t *testing.T) {
+	r := new(Reserved)
+	p := newParserOn(`reserved 2, 15, 9 to 11;`)
+	_, _ = p.scanIgnoreWhitespace()
+	ranges, err := parseRanges(p, r)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(m.Elements) == 0 {
-		t.Fatal("extensions expected")
+	if got, want := ranges[2].String(), "9 to 11"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	f := m.Elements[0].(*Extensions)
-	if got, want := len(f.Ranges), 2; got != want {
-		t.Fatalf("got [%d] want [%d]", got, want)
+}
+
+func TestParseRangesMax(t *testing.T) {
+	r := new(Extensions)
+	p := newParserOn(`extensions 3 to max;`)
+	_, _ = p.scanIgnoreWhitespace()
+	ranges, err := parseRanges(p, r)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if got, want := f.Ranges[1].String(), "20 to max"; got != want {
-		t.Errorf("got [%s] want [%s]", got, want)
+	if got, want := ranges[0].String(), "3 to max"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if f.Comment == nil {
-		t.Fatal("comment expected")
+}
+
+func TestParseRangesMultiToMax(t *testing.T) {
+	r := new(Extensions)
+	p := newParserOn(`extensions 1,2 to 5,6 to 9,10 to max;`)
+	_, _ = p.scanIgnoreWhitespace()
+	ranges, err := parseRanges(p, r)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if got, want := f.Comment.Message, " max"; got != want {
-		t.Errorf("got [%s] want [%s]", got, want)
+	if got, want := len(ranges), 4; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ranges[3].String(), "10 to max"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

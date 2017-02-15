@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -140,6 +140,9 @@ func (s *scanner) scanLiteral() (string, bool) {
 	if '"' == ch {
 		return s.scanUntil('"'), true
 	}
+	if isLiteralTerminator(ch) {
+		return string(ch), false
+	}
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(ch)
@@ -149,7 +152,7 @@ func (s *scanner) scanLiteral() (string, bool) {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if isWhitespace(ch) || strings.ContainsRune("[]();,", ch) { // TODO const?
+		} else if isWhitespace(ch) || isLiteralTerminator(ch) {
 			s.unread(ch)
 			break
 		} else {
@@ -266,6 +269,9 @@ func isLetter(ch rune) bool { return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && c
 
 // isDigit returns true if the rune is a digit.
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
+
+// isLiteralTerminator returns true if the rune cannot be part of a literal.
+func isLiteralTerminator(ch rune) bool { return strings.ContainsRune("[]();,", ch) }
 
 // eof represents a marker rune for the end of the reader.
 var eof = rune(0)
