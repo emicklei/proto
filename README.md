@@ -33,7 +33,7 @@ The Formatter type can be initialized with a different indentSeparator string.
 Parsing and formatting support two styles of comments.
 Inline comments are written with 2 leading forward slashed ( // ).
 If an inline comment is present after a statement then it is written with a leading space.
-Multi-line comments are written with a header ( /*[newline] ) and a footer ( [space]*/[newline] ) on separate lines.
+Multi-line comments are written with a header ( /\*[newline] ) and a footer ( [space]\*/[newline] ) on separate lines.
 
 	/*
 	Multi line
@@ -62,10 +62,10 @@ Comments are preceeded with an empty line unless it is defined after a statement
 #### structural elements in top level definitions
 Fields in messages and enums, rpc-s in services are all formatted in a columnar style with aligments.
 
-  repeated sfixed32 packed_sfixed32 =  98 [packed = true];
-  repeated sfixed64 packed_sfixed64 =  99 [packed = true];
-  repeated    float packed_float    = 100 [packed = true];
-  repeated   double packed_double   = 101 [packed = true];
+	repeated sfixed32 packed_sfixed32 =  98 [packed = true];
+	repeated sfixed64 packed_sfixed64 =  99 [packed = true];
+	repeated    float packed_float    = 100 [packed = true];
+	repeated   double packed_double   = 101 [packed = true];
 
 This example shows that field types are right aligned.
 Field names are left aligned.
