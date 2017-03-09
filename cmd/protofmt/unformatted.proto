@@ -48,7 +48,12 @@ extensions 100 to 199; // no 200
 
 service SearchService { // comment
        rpc Search (  SearchRequest  ) returns ( SearchResponse );  // Search
-       rpc Find (  Finder  ) returns ( stream Result ); // Find
+       rpc Find (  Finder  ) returns ( stream Result ) { // Find
+            option (google.api.http) = {
+                post: "/v1/example/echo"
+                body: "*"
+            };
+       }
     }      
 
 // emptiness

@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -89,6 +89,7 @@ type RPC struct {
 	ReturnsType    string
 	StreamsReturns bool
 	Comment        *Comment
+	Options        []*Option
 }
 
 // Accept dispatches the call to the visitor.
@@ -176,6 +177,32 @@ func (r *RPC) parse(p *Parser) error {
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
 		return p.unexpected(lit, "rpc type closing )", r)
+	}
+	tok, lit = p.scanIgnoreWhitespace()
+	if tSEMICOLON == tok {
+		p.s.unread(';') // allow for inline comment parsing
+		return nil
+	}
+	if tLEFTCURLY == tok {
+		// parse options
+		for {
+			tok, lit = p.scanIgnoreWhitespace()
+			if tRIGHTCURLY == tok {
+				break
+			}
+			if tCOMMENT == tok {
+				// TODO put comment in the next option
+				continue
+			}
+			if tOPTION != tok {
+				return p.unexpected(lit, "rpc option", r)
+			}
+			o := new(Option)
+			if err := o.parse(p); err != nil {
+				return err
+			}
+			r.Options = append(r.Options, o)
+		}
 	}
 	return nil
 }
