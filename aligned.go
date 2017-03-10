@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -44,12 +44,14 @@ func leftAligned(src string) aligned  { return aligned{src, true, true} }
 func rightAligned(src string) aligned { return aligned{src, false, true} }
 func notAligned(src string) aligned   { return aligned{src, false, false} }
 
-func (a aligned) preferredWidth() int { return len(a.source) }
+func (a aligned) preferredWidth() int {
+	if !a.hasAlignment() {
+		return 0 // means do not force padding because of this source
+	}
+	return len(a.source)
+}
 
 func (a aligned) formatted(width int) string {
-	if len(a.source) > width {
-		return a.source[:width]
-	}
 	if !a.padding {
 		return a.source
 	}
@@ -58,3 +60,5 @@ func (a aligned) formatted(width int) string {
 	}
 	return strings.Repeat(" ", width-len(a.source)) + a.source
 }
+
+func (a aligned) hasAlignment() bool { return a.left || a.padding }
