@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,6 +25,7 @@ package proto
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -93,9 +94,52 @@ message ConnectRequest {
 	}
 }
 
-func logformatted(t *testing.T, v Visitee) {
+func logformatted(t *testing.T, v Visitee) string {
 	b := new(bytes.Buffer)
-	f := NewFormatter(b, " ")
+	f := NewFormatter(b, "  ") // 2 spaces
 	v.Accept(f)
-	t.Log(b.String())
+	return b.String()
+}
+
+func TestExtendMessage(t *testing.T) {
+	proto := `extend google.protobuf.MessageOptions {  optional string my_option = 51234; }`
+	p := newParserOn(proto)
+	p.scanIgnoreWhitespace() // consume first token
+	m := new(Message)
+	m.IsExtend = true
+	err := m.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := logformatted(t, m), `
+extend google.protobuf.MessageOptions {
+  optional string my_option = 51234;
+}
+`; got != want {
+		fmt.Println(diff(t, got, want))
+		t.Fail()
+	}
+}
+
+func diff(t *testing.T, left, right string) string {
+	b := new(bytes.Buffer)
+	w := func(char rune) {
+		if '\n' == char {
+			b.WriteString("(n)")
+		} else if '\t' == char {
+			b.WriteString("(t)")
+		} else if ' ' == char {
+			b.WriteString("( )")
+		} else {
+			b.WriteRune(char)
+		}
+	}
+	for _, char := range left {
+		w(char)
+	}
+	b.WriteString("\n")
+	for _, char := range right {
+		w(char)
+	}
+	return b.String()
 }

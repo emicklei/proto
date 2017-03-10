@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,10 +27,11 @@ import "fmt"
 
 // Option is a protoc compiler option
 type Option struct {
-	Name       string
-	Constant   Literal
-	IsEmbedded bool
-	Comment    *Comment
+	Name                string
+	Constant            Literal
+	IsEmbedded          bool
+	Comment             *Comment
+	AggregatedConstants map[string]*Literal
 }
 
 // inlineComment is part of commentInliner.
@@ -111,6 +112,12 @@ func (o *Option) parse(p *Parser) error {
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
 	}
+	p.s.skipWhitespace()
+	if p.s.peek('{') {
+		p.s.read()
+		return o.parseAggregate(p)
+	}
+	// non aggregate
 	l := new(Literal)
 	if err := l.parse(p); err != nil {
 		return err
@@ -136,5 +143,34 @@ func (l Literal) String() string {
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	l.Source, l.IsString = p.s.scanLiteral()
+	return nil
+}
+
+// parseAggregate reads options written using aggregate syntax
+func (o *Option) parseAggregate(p *Parser) error {
+	o.AggregatedConstants = map[string]*Literal{}
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+		if tRIGHTCURLY == tok {
+			break
+		}
+		if tIDENT != tok {
+			return p.unexpected(lit, "option aggregate key", o)
+		}
+		key := lit
+		tok, lit = p.scanIgnoreWhitespace()
+		if tCOLON != tok {
+			return p.unexpected(lit, "option aggregate key colon :", o)
+		}
+		l := new(Literal)
+		if err := l.parse(p); err != nil {
+			return err
+		}
+		o.AggregatedConstants[key] = l
+	}
+	tok, lit := p.scanIgnoreWhitespace()
+	if tSEMICOLON != tok {
+		return p.unexpected(lit, "option aggregate end ;", o)
+	}
 	return nil
 }

@@ -66,6 +66,8 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tEOF, ""
 	case ';':
 		return tSEMICOLON, string(ch)
+	case ':':
+		return tCOLON, string(ch)
 	case '=':
 		return tEQUALS, string(ch)
 	case '"':
@@ -96,6 +98,18 @@ func (s *scanner) scan() (tok token, lit string) {
 		return tGREATER, string(ch)
 	}
 	return tILLEGAL, string(ch)
+}
+
+// skipWhitespace consumes all whitespace until eof or a non-whitespace rune.
+func (s *scanner) skipWhitespace() {
+	for {
+		if ch := s.read(); ch == eof {
+			break
+		} else if !isWhitespace(ch) {
+			s.unread(ch)
+			break
+		}
+	}
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.

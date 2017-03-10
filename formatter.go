@@ -94,7 +94,12 @@ func (f *Formatter) VisitImport(i *Import) {}
 // VisitMessage formats a Message.
 func (f *Formatter) VisitMessage(m *Message) {
 	f.begin("message")
-	fmt.Fprintf(f.w, "message %s {", m.Name)
+	if m.IsExtend {
+		fmt.Fprintf(f.w, "extend ")
+	} else {
+		fmt.Fprintf(f.w, "message ")
+	}
+	fmt.Fprintf(f.w, "%s {", m.Name)
 	if len(m.Elements) > 0 {
 		f.nl()
 		f.indentLevel++
