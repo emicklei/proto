@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -63,13 +63,11 @@ func (i *Import) inlineComment(c *Comment) {
 
 // columns returns printable source tokens
 func (i *Import) columns() (cols []aligned) {
-	cols = append(cols, leftAligned("import "))
+	cols = append(cols, leftAligned("import"), alignedSpace)
 	if len(i.Kind) > 0 {
-		cols = append(cols, leftAligned(i.Kind))
-	} else {
-		cols = append(cols, alignedEmpty)
+		cols = append(cols, leftAligned(i.Kind), alignedSpace)
 	}
-	cols = append(cols, alignedSpace, notAligned(fmt.Sprintf("%q", i.Filename)), alignedSemicolon)
+	cols = append(cols, notAligned(fmt.Sprintf("%q", i.Filename)), alignedSemicolon)
 	if i.Comment != nil {
 		cols = append(cols, notAligned(" //"), notAligned(i.Comment.Message))
 	}
