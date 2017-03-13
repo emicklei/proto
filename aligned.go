@@ -24,6 +24,7 @@
 package proto
 
 import "strings"
+import "bytes"
 
 type aligned struct {
 	source  string
@@ -51,9 +52,17 @@ func (a aligned) preferredWidth() int {
 	return len(a.source)
 }
 
-func (a aligned) formatted(width int) string {
+func (a aligned) formatted(indentSeparator string, indentLevel, width int) string {
 	if !a.padding {
-		return a.source
+		// if the source has newlines then make sure the correct indent level is applied
+		buf := new(bytes.Buffer)
+		for _, each := range a.source {
+			buf.WriteRune(each)
+			if '\n' == each {
+				buf.WriteString(strings.Repeat(indentSeparator, indentLevel))
+			}
+		}
+		return buf.String()
 	}
 	if a.left {
 		return a.source + strings.Repeat(" ", width-len(a.source))

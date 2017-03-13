@@ -23,6 +23,11 @@
 
 package proto
 
+import (
+	"bytes"
+	"io"
+)
+
 // Service defines a set of RPC calls.
 type Service struct {
 	Name     string
@@ -126,7 +131,21 @@ func (r *RPC) columns() (cols []aligned) {
 	cols = append(cols,
 		leftAligned(r.ReturnsType),
 		leftAligned(")"))
-	cols = append(cols, alignedSemicolon)
+	if len(r.Options) > 0 {
+		buf := new(bytes.Buffer)
+		io.WriteString(buf, " {\n")
+		f := NewFormatter(buf, "  ") // TODO get separator, now 2 spaces
+		f.indent(1)
+		for _, each := range r.Options {
+			each.Accept(f)
+			io.WriteString(buf, "\n")
+		}
+		f.indent(-1)
+		io.WriteString(buf, "}")
+		cols = append(cols, notAligned(buf.String()))
+	} else {
+		cols = append(cols, alignedSemicolon)
+	}
 	if r.Comment != nil {
 		cols = append(cols, notAligned(" //"), notAligned(r.Comment.Message))
 	}

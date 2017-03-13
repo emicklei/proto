@@ -94,7 +94,7 @@ message ConnectRequest {
 	}
 }
 
-func logformatted(t *testing.T, v Visitee) string {
+func formatted(t *testing.T, v Visitee) string {
 	b := new(bytes.Buffer)
 	f := NewFormatter(b, "  ") // 2 spaces
 	v.Accept(f)
@@ -111,12 +111,43 @@ func TestExtendMessage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := logformatted(t, m), `
+	if got, want := formatted(t, m), `
 extend google.protobuf.MessageOptions {
   optional string my_option = 51234;
 }
 `; got != want {
 		fmt.Println(diff(t, got, want))
+		t.Fail()
+	}
+}
+
+func TestAggregatedOptionSyntax(t *testing.T) {
+	proto := `rpc Find (  Finder  ) returns ( stream Result ) {
+            option (google.api.http) = {
+                post: "/v1/finders/1"
+                body: "*"
+            };
+       }`
+	p := newParserOn(proto)
+	r := new(RPC)
+	p.scanIgnoreWhitespace() // consumer rpc
+	err := r.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := formatted(t, r), `
+rpc Find (Finder) returns (stream Result) {
+  option (google.api.http) = {
+    post: "/v1/finders/1"
+    body: "*"
+  };
+}
+`; got != want {
+		fmt.Println(diff(t, got, want))
+		fmt.Println("---")
+		fmt.Println(got)
+		fmt.Println("---")
+		fmt.Println(want)
 		t.Fail()
 	}
 }
@@ -136,6 +167,9 @@ func diff(t *testing.T, left, right string) string {
 	}
 	for _, char := range left {
 		w(char)
+	}
+	if len(left) == 0 {
+		b.WriteString("(empty)")
 	}
 	b.WriteString("\n")
 	for _, char := range right {

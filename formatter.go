@@ -111,7 +111,25 @@ func (f *Formatter) VisitMessage(m *Message) {
 }
 
 // VisitOption formats a Option.
-func (f *Formatter) VisitOption(o *Option) {}
+func (f *Formatter) VisitOption(o *Option) {
+	fmt.Fprintf(f.w, "option %s = ", o.Name)
+	if o.AggregatedConstants != nil {
+		fmt.Fprintf(f.w, "{\n")
+		f.indentLevel++
+		for k, v := range o.AggregatedConstants {
+			f.indent(0)
+			fmt.Fprintf(f.w, "%s: %s\n", k, v.String())
+		}
+		f.indent(-1)
+		fmt.Fprintf(f.w, "}")
+	} else {
+		fmt.Fprintf(f.w, o.Constant.String())
+	}
+	fmt.Fprintf(f.w, ";")
+	if o.Comment != nil {
+		o.Comment.Accept(f)
+	}
+}
 
 // VisitPackage formats a Package.
 func (f *Formatter) VisitPackage(p *Package) {}
@@ -176,7 +194,9 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 }
 
 // VisitRPC formats a RPC.
-func (f *Formatter) VisitRPC(r *RPC) {}
+func (f *Formatter) VisitRPC(r *RPC) {
+	f.printAsGroups([]Visitee{r})
+}
 
 // VisitMapField formats a MapField.
 func (f *Formatter) VisitMapField(m *MapField) {}
