@@ -53,8 +53,8 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	proto := `service AccountService {
 		rpc CreateAccount (CreateAccount) returns (ServiceFault){
 			option (test_ident) = {
-				test: "test"
-				test2:"test2"
+				test: "test" // test
+				test2:"test2" // test2
 			};			
 		}
 	}`
@@ -77,10 +77,16 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	if got, want := len(opt.AggregatedConstants), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := opt.AggregatedConstants["test"].Source, "test"; got != want {
+	if got, want := opt.AggregatedConstants[0].Source, "test"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := opt.AggregatedConstants["test2"].Source, "test2"; got != want {
+	if got, want := opt.AggregatedConstants[0].Comment, " test"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.AggregatedConstants[1].Source, "test2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.AggregatedConstants[1].Comment, " test2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

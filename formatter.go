@@ -116,9 +116,9 @@ func (f *Formatter) VisitOption(o *Option) {
 	if o.AggregatedConstants != nil {
 		fmt.Fprintf(f.w, "{\n")
 		f.indentLevel++
-		for k, v := range o.AggregatedConstants {
+		for _, each := range o.AggregatedConstants {
 			f.indent(0)
-			fmt.Fprintf(f.w, "%s: %s\n", k, v.String())
+			fmt.Fprintf(f.w, "%s: %s\n", each.Name, each.Literal.String())
 		}
 		f.indent(-1)
 		fmt.Fprintf(f.w, "}")

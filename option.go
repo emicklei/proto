@@ -24,6 +24,7 @@
 package proto
 
 import "fmt"
+import "bytes"
 
 // Option is a protoc compiler option
 type Option struct {
@@ -31,7 +32,7 @@ type Option struct {
 	Constant            Literal
 	IsEmbedded          bool
 	Comment             *Comment
-	AggregatedConstants map[string]*Literal
+	AggregatedConstants []*NamedLiteral
 }
 
 // inlineComment is part of commentInliner.
@@ -130,25 +131,46 @@ func (o *Option) parse(p *Parser) error {
 type Literal struct {
 	Source   string
 	IsString bool
+	Comment  string
 }
 
 // String returns the source (if quoted then use double quote).
 func (l Literal) String() string {
+	var buf bytes.Buffer
 	if l.IsString {
-		return "\"" + l.Source + "\""
+		buf.WriteRune('"')
 	}
-	return l.Source
+	buf.WriteString(l.Source)
+	if l.IsString {
+		buf.WriteRune('"')
+	}
+	if len(l.Comment) > 0 {
+		buf.WriteString(" //")
+		buf.WriteString(l.Comment)
+	}
+	return buf.String()
 }
 
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	l.Source, l.IsString = p.s.scanLiteral()
+	p.s.skipWhitespace()
+	if p.s.peek('/') {
+		p.s.read() // consume first slash
+		l.Comment = p.s.scanComment()
+	}
 	return nil
+}
+
+// NamedLiteral associates a name with a Literal
+type NamedLiteral struct {
+	*Literal
+	Name string
 }
 
 // parseAggregate reads options written using aggregate syntax
 func (o *Option) parseAggregate(p *Parser) error {
-	o.AggregatedConstants = map[string]*Literal{}
+	o.AggregatedConstants = []*NamedLiteral{}
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 		if tRIGHTCURLY == tok {
@@ -166,7 +188,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 		if err := l.parse(p); err != nil {
 			return err
 		}
-		o.AggregatedConstants[key] = l
+		o.AggregatedConstants = append(o.AggregatedConstants, &NamedLiteral{Name: key, Literal: l})
 	}
 	tok, lit := p.scanIgnoreWhitespace()
 	if tSEMICOLON != tok {
