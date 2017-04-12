@@ -36,8 +36,8 @@ If an inline comment is present after a statement then it is written with a lead
 Multi-line comments are written with a header ( /\*[newline] ) and a footer ( [space]\*/[newline] ) on separate lines.
 
 	/*
-	Multi line
-	comment
+	 Multi line
+	 comment
 	 */
 	message X {
 
@@ -54,7 +54,6 @@ Comments are preceeded with an empty line unless it is defined after a statement
 
 	// nice message to send
 	message Greeting {
-
 		// what is said
 		string content = 1; // first
 	}
@@ -90,7 +89,6 @@ Request and Response types of rpc elements are left aligned.
 Closing brackets are right aligned.
 
 	service SearchService {
-
   	  // comment
 	  rpc Search (SearchRequest) returns (       SearchResponse); // Search
 	  rpc Find   (Finder       ) returns (stream Result        ); // Find
