@@ -30,6 +30,7 @@ import (
 
 // Service defines a set of RPC calls.
 type Service struct {
+	Comment  *Comment
 	Name     string
 	Elements []Visitee
 }
@@ -37,6 +38,11 @@ type Service struct {
 // Accept dispatches the call to the visitor.
 func (s *Service) Accept(v Visitor) {
 	v.VisitService(s)
+}
+
+// Doc is part of Documented
+func (s *Service) Doc() *Comment {
+	return s.Comment
 }
 
 // addElement is part of elementContainer
@@ -47,6 +53,13 @@ func (s *Service) addElement(v Visitee) {
 // elements is part of elementContainer
 func (s *Service) elements() []Visitee {
 	return s.Elements
+}
+
+// takeLastComment is part of elementContainer
+// removes and returns the last elements of the list if it is a Comment.
+func (s *Service) takeLastComment() (last *Comment) {
+	last, s.Elements = takeLastComment(s.Elements)
+	return
 }
 
 // parse continues after reading "service"
@@ -66,9 +79,12 @@ func (s *Service) parse(p *Parser) error {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			s.Elements = append(s.Elements, p.newComment(lit))
+			if com := mergeOrReturnComment(s.Elements, lit, p.s.line); com != nil { // not merged?
+				s.Elements = append(s.Elements, com)
+			}
 		case tRPC:
 			rpc := new(RPC)
+			rpc.Comment, s.Elements = takeLastComment(s.Elements)
 			err := rpc.parse(p)
 			if err != nil {
 				return err
@@ -88,13 +104,14 @@ done:
 
 // RPC represents an rpc entry in a message.
 type RPC struct {
+	Comment        *Comment
 	Name           string
 	RequestType    string
 	StreamsRequest bool
 	ReturnsType    string
 	StreamsReturns bool
-	Comment        *Comment
 	Options        []*Option
+	InlineComment  *Comment
 }
 
 // Accept dispatches the call to the visitor.
@@ -102,9 +119,14 @@ func (r *RPC) Accept(v Visitor) {
 	v.VisitRPC(r)
 }
 
+// Doc is part of Documented
+func (r *RPC) Doc() *Comment {
+	return r.Comment
+}
+
 // inlineComment is part of commentInliner.
 func (r *RPC) inlineComment(c *Comment) {
-	r.Comment = c
+	r.InlineComment = c
 }
 
 // columns returns printable source tokens
@@ -135,7 +157,7 @@ func (r *RPC) columns() (cols []aligned) {
 		buf := new(bytes.Buffer)
 		io.WriteString(buf, " {\n")
 		f := NewFormatter(buf, "  ") // TODO get separator, now 2 spaces
-		f.indent(1)
+		f.level(1)
 		for _, each := range r.Options {
 			each.Accept(f)
 			io.WriteString(buf, "\n")
@@ -146,8 +168,8 @@ func (r *RPC) columns() (cols []aligned) {
 	} else {
 		cols = append(cols, alignedSemicolon)
 	}
-	if r.Comment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(r.Comment.Message))
+	if r.InlineComment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(r.InlineComment.Message()))
 	}
 	return cols
 }

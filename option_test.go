@@ -51,6 +51,11 @@ func TestOptionCases(t *testing.T) {
 		"(foo_options)",
 		"",
 		"",
+	}, {
+		`option optimize_for = SPEED;`,
+		"optimize_for",
+		"",
+		"SPEED",
 	}} {
 		p := newParserOn(each.proto)
 		pr, err := p.Parse()
@@ -92,5 +97,32 @@ func TestLiteralString(t *testing.T) {
 	}
 	if got, want := l.Source, "string"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestOptionComments(t *testing.T) {
+	proto := `
+// comment
+option Help = "me"; // inline`
+	p := newParserOn(proto)
+	pr, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := pr.Elements[0].(*Option)
+	if got, want := o.IsEmbedded, false; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Comment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Comment.Lines[0], " comment"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.InlineComment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.InlineComment.Lines[0], " inline"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }

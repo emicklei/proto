@@ -25,36 +25,57 @@ package proto
 
 import "testing"
 
-func TestGroup(t *testing.T) {
-	oto := `message M {
-		// group
-        optional group OptionalGroup = 16 {
-			// field
-            optional int32 a = 17;
-        }
-    }`
-	p := newParserOn(oto)
-	p.scanIgnoreWhitespace() // consume first token
-	m := new(Message)
-	err := m.parse(p)
+func TestCreateComment(t *testing.T) {
+	c0 := newComment("")
+	if got, want := len(c0.Lines), 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	c1 := newComment(`hello
+world`)
+	if got, want := len(c1.Lines), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := c1.Lines[0], "hello"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := c1.Lines[1], "world"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := c1.Cstyle, true; got != want {
+		t.Errorf("got [%v] want [%v]", c1, want)
+	}
+}
+
+func TestTakeLastComment(t *testing.T) {
+	c0 := newComment("hi")
+	c1 := newComment("there")
+	_, l := takeLastComment([]Visitee{c0, c1})
+	if got, want := len(l), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := l[0], c0; got != want {
+		t.Errorf("got [%v] want [%v]", c1, want)
+	}
+}
+
+func TestParseCommentWithEmptyLines(t *testing.T) {
+	proto := `
+// comment 1
+// comment 2
+//
+// comment 3
+// comment 4`
+	p := newParserOn(proto)
+	def, err := p.Parse()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if got, want := len(m.Elements), 1; got != want {
+	//spew.Dump(def)
+	if got, want := len(def.Elements), 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	g := m.Elements[0].(*Group)
-	if got, want := len(g.Elements), 1; got != want {
+
+	if got, want := len(def.Elements[0].(*Comment).Lines), 5; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
-	}
-	if got, want := g.Comment != nil, true; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-	f := g.Elements[0].(*NormalField)
-	if got, want := f.Name, "a"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-	if got, want := f.Optional, true; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

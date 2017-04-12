@@ -58,11 +58,16 @@ func TestScanMultilineComment(t *testing.T) {
 
 func TestScanSingleLineComment(t *testing.T) {
 	r := strings.NewReader(`
-	// dreadful //
+	// include this //
+	// but not this
 `)
 	s := newScanner(r)
 	s.scanUntil('/') // consume COMMENT token
-	if got, want := s.scanComment(), ` dreadful //`; got != want {
+	if got, want := s.scanComment(), ` include this //`; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	s.scanUntil('/') // consume COMMENT token
+	if got, want := s.scanComment(), ` but not this`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

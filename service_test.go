@@ -36,14 +36,17 @@ func TestService(t *testing.T) {
 		t.Fatal(err)
 	}
 	srv := collect(pr).Services()[0]
-	if got, want := len(srv.Elements), 3; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+	if got, want := len(srv.Elements), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	rpc1 := srv.Elements[1].(*RPC)
+	rpc1 := srv.Elements[0].(*RPC)
 	if got, want := rpc1.Name, "CreateAccount"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	rpc2 := srv.Elements[2].(*RPC)
+	if got, want := rpc1.Doc().Message(), " comment"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	rpc2 := srv.Elements[1].(*RPC)
 	if got, want := rpc2.Name, "GetAccounts"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -51,10 +54,11 @@ func TestService(t *testing.T) {
 
 func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	proto := `service AccountService {
+		// CreateAccount
 		rpc CreateAccount (CreateAccount) returns (ServiceFault){
 			option (test_ident) = {
-				test: "test" // test
-				test2:"test2" // test2
+				test: "test" 
+				test2:"test2"
 			};			
 		}
 	}`
@@ -64,7 +68,7 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	}
 	srv := collect(pr).Services()[0]
 	if got, want := len(srv.Elements), 1; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc1 := srv.Elements[0].(*RPC)
 	if got, want := len(rpc1.Options), 1; got != want {
@@ -80,13 +84,8 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	if got, want := opt.AggregatedConstants[0].Source, "test"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := opt.AggregatedConstants[0].Comment, " test"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
 	if got, want := opt.AggregatedConstants[1].Source, "test2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := opt.AggregatedConstants[1].Comment, " test2"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
+	t.Log(formatted(srv))
 }

@@ -27,6 +27,7 @@ import "testing"
 
 func TestExtensions(t *testing.T) {
 	proto := `message M { 
+		// extensions
 		extensions 4, 20 to max; // max
 	}`
 	p := newParserOn(proto)
@@ -36,8 +37,8 @@ func TestExtensions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(m.Elements) == 0 {
-		t.Fatal("extensions expected")
+	if len(m.Elements) != 1 {
+		t.Fatal("1 extension expected, got", len(m.Elements))
 	}
 	f := m.Elements[0].(*Extensions)
 	if got, want := len(f.Ranges), 2; got != want {
@@ -49,7 +50,7 @@ func TestExtensions(t *testing.T) {
 	if f.Comment == nil {
 		t.Fatal("comment expected")
 	}
-	if got, want := f.Comment.Message, " max"; got != want {
+	if got, want := f.InlineComment.Message(), " max"; got != want {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }

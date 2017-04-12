@@ -81,11 +81,6 @@ func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
 // unscan pushes the previously read token back onto the buffer.
 func (p *Parser) unscan() { p.buf.n = 1 }
 
-// newComment returns a comment with line indication.
-func (p *Parser) newComment(lit string) *Comment {
-	return &Comment{Message: lit}
-}
-
 func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 	debug := ""
 	if p.debug {

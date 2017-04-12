@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,6 +27,7 @@ import "strconv"
 
 // Oneof is a field alternate.
 type Oneof struct {
+	Comment  *Comment
 	Name     string
 	Elements []Visitee
 }
@@ -39,6 +40,13 @@ func (o *Oneof) addElement(v Visitee) {
 // elements is part of elementContainer
 func (o *Oneof) elements() []Visitee {
 	return o.Elements
+}
+
+// takeLastComment is part of elementContainer
+// removes and returns the last element of the list if it is a Comment.
+func (o *Oneof) takeLastComment() (last *Comment) {
+	last, o.Elements = takeLastComment(o.Elements)
+	return last
 }
 
 // parse expects:
@@ -121,8 +129,8 @@ func (o *OneOfField) columns() (cols []aligned) {
 		cols = append(cols, leftAligned("]"))
 	}
 	cols = append(cols, alignedSemicolon)
-	if o.Comment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(o.Comment.Message))
+	if o.InlineComment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(o.InlineComment.Message()))
 	}
 	return
 }

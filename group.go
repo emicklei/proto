@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -26,6 +26,7 @@ package proto
 // Group represents a (proto2 only) group.
 // https://developers.google.com/protocol-buffers/docs/reference/proto2-spec#group_field
 type Group struct {
+	Comment  *Comment
 	Name     string
 	Optional bool
 	Sequence int
@@ -45,6 +46,18 @@ func (g *Group) addElement(v Visitee) {
 // elements is part of elementContainer
 func (g *Group) elements() []Visitee {
 	return g.Elements
+}
+
+// Doc is part of Documented
+func (g *Group) Doc() *Comment {
+	return g.Comment
+}
+
+// takeLastComment is part of elementContainer
+// removes and returns the last element of the list if it is a Comment.
+func (g *Group) takeLastComment() (last *Comment) {
+	last, g.Elements = takeLastComment(g.Elements)
+	return
 }
 
 // parse expects:

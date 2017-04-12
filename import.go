@@ -27,9 +27,10 @@ import "fmt"
 
 // Import holds a filename to another .proto definition.
 type Import struct {
-	Filename string
-	Kind     string // weak, public, <empty>
-	Comment  *Comment
+	Comment       *Comment
+	Filename      string
+	Kind          string // weak, public, <empty>
+	InlineComment *Comment
 }
 
 func (i *Import) parse(p *Parser) error {
@@ -58,7 +59,12 @@ func (i *Import) Accept(v Visitor) {
 
 // inlineComment is part of commentInliner.
 func (i *Import) inlineComment(c *Comment) {
-	i.Comment = c
+	i.InlineComment = c
+}
+
+// Doc is part of Documented
+func (i *Import) Doc() *Comment {
+	return i.Comment
 }
 
 // columns returns printable source tokens
@@ -68,8 +74,8 @@ func (i *Import) columns() (cols []aligned) {
 		cols = append(cols, leftAligned(i.Kind), alignedSpace)
 	}
 	cols = append(cols, notAligned(fmt.Sprintf("%q", i.Filename)), alignedSemicolon)
-	if i.Comment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(i.Comment.Message))
+	if i.InlineComment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(i.InlineComment.Message()))
 	}
 	return
 }

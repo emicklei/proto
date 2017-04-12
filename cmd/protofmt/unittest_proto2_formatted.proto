@@ -1,4 +1,3 @@
-
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -28,6 +27,7 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
@@ -37,29 +37,26 @@ syntax = "proto2";
 
 // Some generic_services option(s) added automatically.
 // See:  http://go/proto2-generic-services-default
-option   cc_generic_services = true; // auto-added
+option cc_generic_services = true; // auto-added
 option java_generic_services = true; // auto-added
-option   py_generic_services = true; // auto-added
-option      cc_enable_arenas = true;
-
-import  "google/protobuf/unittest_import.proto";
+option py_generic_services = true; // auto-added
+option cc_enable_arenas = true;
+import "google/protobuf/unittest_import.proto";
 
 // We don't put this in a package within proto2 because we need to make sure
 // that the generated code doesn't depend on being in the proto2 namespace.
 // In test_util.h we do "using namespace unittest = protobuf_unittest".
 package protobuf_unittest;
-
 // Protos optimized for SPEED use a strict superset of the generated code
 // of equivalent ones optimized for CODE_SIZE, so we should optimize all our
 // tests for speed unless explicitly testing code size optimization.
-option         optimize_for =           SPEED;
+option optimize_for = SPEED;
 option java_outer_classname = "UnittestProto";
 
 // This proto includes every type of field in both singular and repeated
 // forms.
 message TestAllTypes {
   message NestedMessage {
-
     // The field name "b" fails to compile in proto1 because it conflicts with
     // a local variable named "b" in one of the generated methods.  Doh.
     // This file needs to compile in proto1 to test backwards-compatibility.
@@ -71,7 +68,6 @@ message TestAllTypes {
     BAZ =  3;
     NEG = -1; // Intentionally negative.
   }
-
   // Singular
   optional    int32 optional_int32    =  1;
   optional    int64 optional_int64    =  2;
@@ -88,6 +84,7 @@ message TestAllTypes {
   optional     bool optional_bool     = 13;
   optional   string optional_string   = 14;
   optional    bytes optional_bytes    = 15;
+
   optional group OptionalGroup = 16 {
     optional int32 a = 17;
   }
@@ -99,11 +96,9 @@ message TestAllTypes {
   optional    protobuf_unittest_import.ImportEnum optional_import_enum     = 23; 
   optional                                 string optional_string_piece    = 24 [ctype = STRING_PIECE];
   optional                                 string optional_cord            = 25 [ctype = CORD        ];
-
   // Defined in unittest_import_public.proto
   optional protobuf_unittest_import.PublicImportMessage optional_public_import_message = 26; 
   optional                                NestedMessage optional_lazy_message          = 27 [lazy = true];
-
   // Repeated
   repeated    int32 repeated_int32    = 31;
   repeated    int64 repeated_int64    = 32;
@@ -132,7 +127,6 @@ message TestAllTypes {
   repeated                                 string repeated_string_piece    = 54 [ctype = STRING_PIECE];
   repeated                                 string repeated_cord            = 55 [ctype = CORD        ];
   repeated                          NestedMessage repeated_lazy_message    = 57 [lazy  = true        ];
-
   // Singular with defaults
   optional                               int32 default_int32        = 61 [default = 41          ] ;      
   optional                               int64 default_int64        = 62 [default = 42          ] ;      
@@ -155,7 +149,6 @@ message TestAllTypes {
   optional                              string default_string_piece = 84 [ctype   = STRING_PIECE, default = "abc"];
   optional                              string default_cord         = 85 [ctype   = CORD        , default = "123"];
 
-  // For oneof test
   oneof oneof_field {
            uint32 oneof_uint32         = 111;
     NestedMessage oneof_nested_message = 112;
@@ -163,7 +156,6 @@ message TestAllTypes {
             bytes oneof_bytes          = 114;
   }
 }
-
 // This proto includes a recusively nested message.
 message NestedTestAllTypes {
            optional NestedTestAllTypes child          = 1;
@@ -173,20 +165,17 @@ message NestedTestAllTypes {
 message TestDeprecatedFields {
   optional int32 deprecated_int32 = 1 [deprecated = true];
 }
-
 // Define these after TestAllTypes to make sure the compiler can handle
 // that.
 message ForeignMessage {
   optional int32 c = 1;
   optional int32 d = 2;
 }
-
 enum ForeignEnum {
   FOREIGN_FOO = 4;
   FOREIGN_BAR = 5;
   FOREIGN_BAZ = 6;
 }
-
 message TestReservedFields {
   reserved 2, 15, 9 to 11;
   reserved "bar", "baz";
@@ -195,7 +184,6 @@ message TestAllExtensions {
   extensions 1 to max;
 }
 extend TestAllExtensions {
-
   // Singular
   optional    int32 optional_int32_extension    =  1;
   optional    int64 optional_int64_extension    =  2;
@@ -212,6 +200,7 @@ extend TestAllExtensions {
   optional     bool optional_bool_extension     = 13;
   optional   string optional_string_extension   = 14;
   optional    bytes optional_bytes_extension    = 15;
+
   optional group OptionalGroup_extension = 16 {
     optional int32 a = 17;
   }
@@ -225,7 +214,6 @@ extend TestAllExtensions {
   optional                                       string optional_cord_extension                  = 25 [ctype = CORD        ];
   optional protobuf_unittest_import.PublicImportMessage optional_public_import_message_extension = 26; 
   optional                   TestAllTypes.NestedMessage optional_lazy_message_extension          = 27 [lazy  = true        ];
-
   // Repeated
   repeated    int32 repeated_int32_extension    = 31;
   repeated    int64 repeated_int64_extension    = 32;
@@ -254,7 +242,6 @@ extend TestAllExtensions {
   repeated                                 string repeated_string_piece_extension    = 54 [ctype = STRING_PIECE];
   repeated                                 string repeated_cord_extension            = 55 [ctype = CORD        ];
   repeated             TestAllTypes.NestedMessage repeated_lazy_message_extension    = 57 [lazy  = true        ];
-
   // Singular with defaults
   optional                               int32 default_int32_extension        = 61 [default = 41          ] ;      
   optional                               int64 default_int64_extension        = 62 [default = 42          ] ;      
@@ -276,7 +263,6 @@ extend TestAllExtensions {
   optional protobuf_unittest_import.ImportEnum default_import_enum_extension  = 83 [default = IMPORT_BAR  ] ;      
   optional                              string default_string_piece_extension = 84 [ctype   = STRING_PIECE, default = "abc"];
   optional                              string default_cord_extension         = 85 [ctype   = CORD        , default = "123"];
-
   // For oneof test
   optional                     uint32 oneof_uint32_extension         = 111;
   optional TestAllTypes.NestedMessage oneof_nested_message_extension = 112;
@@ -285,17 +271,14 @@ extend TestAllExtensions {
 }
 message TestNestedExtension {
   extend TestAllExtensions {
-
     // Check for bug where string extensions declared in tested scope did not
     // compile.
     optional string test = 1002 [default = "test"];
-
     // Used to test if generated extension name is correct when there are
     // underscores.
     optional string nested_string_extension = 1003;
   }
 }
-
 // We have separate messages for testing required fields because it's
 // annoying to have to fill in required fields in TestProto in order to
 // do anything with it.  Note that we don't need to test every type of
@@ -309,7 +292,6 @@ message TestRequired {
              optional TestRequired single = 1000;
     repeated          TestRequired multi  = 1001;
   }
-
   // Pad the field count to 32 so that we can test that IsInitialized()
   // properly checks multiple elements of has_bits_.
   optional int32 dummy4  =  4;
@@ -348,15 +330,12 @@ message TestRequiredForeign {
   repeated          TestRequired repeated_message = 2;
            optional        int32 dummy            = 3;
 }
-
 // Test that we can use NestedMessage from outside TestAllTypes.
 message TestForeignNested {
   optional TestAllTypes.NestedMessage foreign_nested = 1;
 }
-
 // TestEmptyMessage is used to test unknown field support.
 message TestEmptyMessage {}
-
 // Like above, but declare all field numbers as potential extensions.  No
 // actual extensions should ever be defined for this type.
 message TestEmptyMessageWithExtensions {
@@ -367,10 +346,8 @@ message TestMultipleExtensionRanges {
   extensions 4143 to 4243;
   extensions 65536 to max;
 }
-
 // Test that really large tag numbers don't break anything.
 message TestReallyLargeTagNumber {
-
   // The largest possible tag number is 2^28 - 1, since the wire format uses
   // three bits to communicate wire type.
   optional int32 a  =         1;
@@ -380,7 +357,6 @@ message TestRecursiveMessage {
   optional TestRecursiveMessage a = 1;
   optional                int32 i = 2;
 }
-
 // Test that mutual recursion works.
 message TestMutualRecursionA {
   optional TestMutualRecursionB bb = 1;
@@ -389,28 +365,26 @@ message TestMutualRecursionB {
   optional TestMutualRecursionA a              = 1;
   optional                int32 optional_int32 = 2;
 }
-
 // Test that groups have disjoint field numbers from their siblings and
 // parents.  This is NOT possible in proto1; only google.protobuf.  When attempting
 // to compile with proto1, this will emit an error; so we only include it
 // in protobuf_unittest_proto.
 message TestDupFieldNumber {
-
   // NO_PROTO1
   optional int32 a = 1; // NO_PROTO1
+
   optional group Foo = 2 {
     optional int32 a = 1;
   }
-
   // NO_PROTO1
-  optional group Bar = 3 {
+optional group Bar = 3 {
     optional int32 a = 1;
   }
-
-  // NO_PROTO1
-}
-
 // NO_PROTO1
+
+}
+// NO_PROTO1
+
 // Additional messages for testing lazy fields.
 message TestEagerMessage {
   optional TestAllTypes sub_message = 1 [lazy = false];
@@ -418,7 +392,6 @@ message TestEagerMessage {
 message TestLazyMessage {
   optional TestAllTypes sub_message = 1 [lazy = true];
 }
-
 // Needed for a Python test.
 message TestNestedMessageHasBits {
   message NestedMessage {
@@ -427,7 +400,6 @@ message TestNestedMessageHasBits {
   }
   optional NestedMessage optional_nested_message = 1;
 }
-
 // Test an enum that has multiple values with the same number.
 enum TestEnumWithDupValue {
   option allow_alias = true;
@@ -437,7 +409,6 @@ enum TestEnumWithDupValue {
   FOO2 = 1;
   BAR2 = 2;
 }
-
 // Test an enum with large, unordered values.
 enum TestSparseEnum {
   SPARSE_A =      123;
@@ -448,7 +419,6 @@ enum TestSparseEnum {
   SPARSE_F =        0;
   SPARSE_G =        2;
 }
-
 // Test message with CamelCase field names.  This violates Protocol Buffer
 // standard style.
 message TestCamelCaseFieldNames {
@@ -465,18 +435,18 @@ message TestCamelCaseFieldNames {
   repeated                  string RepeatedStringPieceField = 11 [ctype = STRING_PIECE];
   repeated                  string RepeatedCordField        = 12 [ctype = CORD        ];
 }
-
 // We list fields out of order, to ensure that we're using field number and not
 // field index to determine serialization order.
 message TestFieldOrderings {
   optional string my_string = 11;
+
   extensions 2 to 10;
   optional int64 my_int = 1;
   extensions 12 to 100;
   optional float my_float = 101;
+
   message NestedMessage {
     optional int64 oo = 2;
-
     // The field name "b" fails to compile in proto1 because it conflicts with
     // a local variable named "b" in one of the generated methods.  Doh.
     // This file needs to compile in proto1 to test backwards-compatibility.
@@ -496,23 +466,19 @@ message TestExtremeDefaultValues {
   optional  int64 small_int64        =  5 [default = -0x7FFFFFFFFFFFFFFF             ];
   optional  int32 really_small_int32 = 21 [default = -0x80000000                     ];
   optional  int64 really_small_int64 = 22 [default = -0x8000000000000000             ];
-
   // The default value here is UTF-8 for "\u1234".  (We could also just type
   // the UTF-8 text directly into this text file rather than escape it, but
   // lots of people use editors that would be confused by this.)
   optional string utf8_string = 6 [default = "\341\210\264"];
-
   // Tests for single-precision floating-point values.
   optional float zero_float         =  7 [default = 0   ];
   optional float one_float          =  8 [default = 1   ];
   optional float small_float        =  9 [default = 1.5 ];
   optional float negative_one_float = 10 [default = -1  ];
   optional float negative_float     = 11 [default = -1.5];
-
   // Using exponents
   optional float large_float          = 12 [default = 2E8   ];
   optional float small_negative_float = 13 [default = -8e-28];
-
   // Text for nonfinite floating-point values.
   optional double inf_double     = 14 [default = inf ];
   optional double neg_inf_double = 15 [default = -inf];
@@ -520,14 +486,12 @@ message TestExtremeDefaultValues {
   optional  float inf_float      = 17 [default = inf ];
   optional  float neg_inf_float  = 18 [default = -inf];
   optional  float nan_float      = 19 [default = nan ];
-
   // Tests for C++ trigraphs.
   // Trigraphs should be escaped in C++ generated files, but they should not be
   // escaped for other languages.
   // Note that in .proto file, "\?" is a valid way to escape ? in string
   // literals.
   optional string cpp_trigraph = 20 [default = "? \? ?? \?? \??? ??/ ?\?-"];
-
   // String defaults containing the character '\000'
   optional string string_with_zero       = 23 [default = "hel\000lo" ] ;      
   optional  bytes bytes_with_zero        = 24 [default = "wor\000ld" ] ;      
@@ -538,7 +502,6 @@ message TestExtremeDefaultValues {
 message SparseEnumMessage {
   optional TestSparseEnum sparse_enum = 1;
 }
-
 // Test String and Bytes: string is for valid UTF-8 strings
 message OneString {
   optional string data = 1;
@@ -552,7 +515,6 @@ message OneBytes {
 message MoreBytes {
   repeated bytes data = 1;
 }
-
 // Test int32, uint32, int64, uint64, and bool are all compatible
 message Int32Message {
   optional int32 data = 1;
@@ -569,13 +531,13 @@ message Uint64Message {
 message BoolMessage {
   optional bool data = 1;
 }
-
 // Test oneofs.
 message TestOneof {
   oneof foo {
            int32 foo_int     = 1;
           string foo_string  = 2;
     TestAllTypes foo_message = 3;
+
     group FooGroup = 4 {
       optional  int32 a = 5;
       optional string b = 6;
@@ -586,6 +548,7 @@ message TestOneofBackwardsCompatible {
   optional        int32 foo_int     = 1;
   optional       string foo_string  = 2;
   optional TestAllTypes foo_message = 3;
+
   optional group FooGroup = 4 {
     optional  int32 a = 5;
     optional string b = 6;
@@ -600,6 +563,7 @@ message TestOneof2 {
             bytes foo_bytes        = 5; 
        NestedEnum foo_enum         = 6; 
     NestedMessage foo_message      = 7; 
+
     group FooGroup = 8 {
       optional  int32 a =  9;
       optional string b = 10;
@@ -616,6 +580,7 @@ message TestOneof2 {
   }
   optional  int32 baz_int    = 18; 
   optional string baz_string = 19 [default = "BAZ"];
+
   message NestedMessage {
              optional int64 qux_int   = 1;
     repeated          int32 corge_int = 2;
@@ -636,7 +601,6 @@ message TestRequiredOneof {
     double required_double = 1;
   }
 }
-
 // Test messages for packed fields
 message TestPackedTypes {
   repeated       int32 packed_int32    =  90 [packed = true];
@@ -654,7 +618,6 @@ message TestPackedTypes {
   repeated        bool packed_bool     = 102 [packed = true];
   repeated ForeignEnum packed_enum     = 103 [packed = true];
 }
-
 // A message with the same fields as TestPackedTypes, but without packing. Used
 // to test packed <-> unpacked wire compatibility.
 message TestUnpackedTypes {
@@ -711,7 +674,6 @@ extend TestUnpackedExtensions {
   repeated        bool unpacked_bool_extension     = 102 [packed = false];
   repeated ForeignEnum unpacked_enum_extension     = 103 [packed = false];
 }
-
 // Used by ExtensionSetTest/DynamicExtensions.  The test actually builds
 // a set of extensions to TestAllExtensions dynamically, based on the fields
 // of this message type.
@@ -733,37 +695,32 @@ message TestDynamicExtensions {
   repeated                      sint32 packed_extension          = 2006 [packed = true];
 }
 message TestRepeatedScalarDifferentTagSizes {
-
   // Parsing repeated fixed size values used to fail. This message needs to be
   // used in order to get a tag of the right size; all of the repeated fields
   // in TestAllTypes didn't trigger the check.
   repeated fixed32 repeated_fixed32 = 12;
-
   // Check for a varint type, just for good measure.
   repeated int32 repeated_int32 = 13;
-
   // These have two-byte tags.
   repeated fixed64 repeated_fixed64 = 2046;
   repeated   int64 repeated_int64   = 2047;
-
   // Three byte tags.
   repeated  float repeated_float  = 262142;
   repeated uint64 repeated_uint64 = 262143;
 }
-
 // Test that if an optional or required message/group field appears multiple
 // times in the input, they need to be merged.
 message TestParsingMerge {
-
   // RepeatedFieldsGenerator defines matching field types as TestParsingMerge,
   // except that all fields are repeated. In the tests, we will serialize the
   // RepeatedFieldsGenerator to bytes, and parse the bytes to TestParsingMerge.
   // Repeated fields in RepeatedFieldsGenerator are expected to be merged into
   // the corresponding required/optional fields in TestParsingMerge.
-  message RepeatedFieldsGenerator {
+message RepeatedFieldsGenerator {
     repeated TestAllTypes field1 = 1;
     repeated TestAllTypes field2 = 2;
     repeated TestAllTypes field3 = 3;
+
     group Group1 = 10 {
       optional TestAllTypes field1 = 11;
     }
@@ -776,6 +733,7 @@ message TestParsingMerge {
                     TestAllTypes required_all_types = 1;
            optional TestAllTypes optional_all_types = 2;
   repeated          TestAllTypes repeated_all_types = 3;
+
   optional group OptionalGroup = 10 {
     optional TestAllTypes optional_group_all_types = 11;
   }
@@ -783,17 +741,16 @@ message TestParsingMerge {
     optional TestAllTypes repeated_group_all_types = 21;
   }
   extensions 1000 to max;
+
   extend TestParsingMerge {
              optional TestAllTypes optional_ext = 1000;
     repeated          TestAllTypes repeated_ext = 1001;
   }
 }
 message TestCommentInjectionMessage {
-
   // */ <- This should not close the generated doc comment
   optional string a = 1 [default = "*/ <- Neither should this."];
 }
-
 // Test that RPC services work.
 message FooRequest {}
 message FooResponse {}
@@ -804,7 +761,6 @@ service TestService {
   rpc Foo (FooRequest) returns (FooResponse);
   rpc Bar (BarRequest) returns (BarResponse);
 }
-
 message BarRequest {}
 message BarResponse {}
 message TestJsonName {
@@ -824,10 +780,12 @@ message TestHugeFieldNumbers {
            optional         string optional_string  = 536870005; 
            optional          bytes optional_bytes   = 536870006; 
            optional ForeignMessage optional_message = 536870007; 
+
   optional group OptionalGroup = 536870008 {
     optional int32 group_a = 536870009;
   }
   map <string,string> string_string_map = 536870010;
+
   oneof oneof_field {
           uint32 oneof_uint32         = 536870011;
     TestAllTypes oneof_test_all_types = 536870012;

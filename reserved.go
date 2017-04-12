@@ -25,14 +25,15 @@ package proto
 
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
-	Ranges     []Range
-	FieldNames []string
-	Comment    *Comment
+	Comment       *Comment
+	Ranges        []Range
+	FieldNames    []string
+	InlineComment *Comment
 }
 
 // inlineComment is part of commentInliner.
 func (r *Reserved) inlineComment(c *Comment) {
-	r.Comment = c
+	r.InlineComment = c
 }
 
 // Accept dispatches the call to the visitor.

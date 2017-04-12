@@ -26,13 +26,14 @@ package proto
 // Extensions declare that a range of field numbers in a message are available for third-party extensions.
 // proto2 only
 type Extensions struct {
-	Ranges  []Range
-	Comment *Comment
+	Comment       *Comment
+	Ranges        []Range
+	InlineComment *Comment
 }
 
 // inlineComment is part of commentInliner.
 func (e *Extensions) inlineComment(c *Comment) {
-	e.Comment = c
+	e.InlineComment = c
 }
 
 // Accept dispatches the call to the visitor.

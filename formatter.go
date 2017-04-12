@@ -26,15 +26,15 @@ package proto
 import (
 	"fmt"
 	"io"
-	"strings"
 )
 
 // Formatter visits a Proto and writes formatted source.
 type Formatter struct {
 	w               io.Writer
+	indentSeparator string
 	indentLevel     int
 	lastStmt        string
-	indentSeparator string
+	lastLevel       int
 }
 
 // NewFormatter returns a new Formatter. Only the indentation separator is configurable.
@@ -44,40 +44,24 @@ func NewFormatter(writer io.Writer, indentSeparator string) *Formatter {
 
 // Format visits all proto elements and writes formatted source.
 func (f *Formatter) Format(p *Proto) {
-	f.printAsGroups(p.Elements)
+	for _, each := range p.Elements {
+		each.Accept(f)
+	}
 }
 
-// VisitComment formats a Comment.
+// VisitComment formats a Comment and writes a newline.
 func (f *Formatter) VisitComment(c *Comment) {
-	f.begin("comment")
-	if c.IsMultiline() {
-		fmt.Fprintln(f.w, "/*")
-		lines := strings.Split(c.Message, "\n")
-		for i, each := range lines {
-			// leading no tab or space
-			leftAligned := strings.TrimLeft(each, "\t ")
-			// only skip first and last empty lines
-			skip := (i == 0 && len(leftAligned) == 0) ||
-				(i == len(lines)-1 && len(leftAligned) == 0)
-			if !skip {
-				f.indent(0)
-				fmt.Fprintf(f.w, " %s\n", leftAligned)
-			}
-		}
-		f.indent(0)
-		fmt.Fprintf(f.w, " */\n")
-	} else {
-		fmt.Fprintf(f.w, "//%s\n", c.Message)
-	}
+	f.printComment(c)
+	f.nl()
 }
 
 // VisitEnum formats a Enum.
 func (f *Formatter) VisitEnum(e *Enum) {
-	f.begin("enum")
+	f.begin("enum", e)
 	fmt.Fprintf(f.w, "enum %s {", e.Name)
 	if len(e.Elements) > 0 {
 		f.nl()
-		f.indentLevel++
+		f.level(1)
 		f.printAsGroups(e.Elements)
 		f.indent(-1)
 	}
@@ -86,14 +70,18 @@ func (f *Formatter) VisitEnum(e *Enum) {
 }
 
 // VisitEnumField formats a EnumField.
-func (f *Formatter) VisitEnumField(e *EnumField) {}
+func (f *Formatter) VisitEnumField(e *EnumField) {
+	f.printAsGroups([]Visitee{e})
+}
 
 // VisitImport formats a Import.
-func (f *Formatter) VisitImport(i *Import) {}
+func (f *Formatter) VisitImport(i *Import) {
+	f.printAsGroups([]Visitee{i})
+}
 
 // VisitMessage formats a Message.
 func (f *Formatter) VisitMessage(m *Message) {
-	f.begin("message")
+	f.begin("message", m)
 	if m.IsExtend {
 		fmt.Fprintf(f.w, "extend ")
 	} else {
@@ -102,7 +90,7 @@ func (f *Formatter) VisitMessage(m *Message) {
 	fmt.Fprintf(f.w, "%s {", m.Name)
 	if len(m.Elements) > 0 {
 		f.nl()
-		f.indentLevel++
+		f.level(1)
 		f.printAsGroups(m.Elements)
 		f.indent(-1)
 	}
@@ -112,10 +100,11 @@ func (f *Formatter) VisitMessage(m *Message) {
 
 // VisitOption formats a Option.
 func (f *Formatter) VisitOption(o *Option) {
+	f.begin("option", o)
 	fmt.Fprintf(f.w, "option %s = ", o.Name)
 	if o.AggregatedConstants != nil {
 		fmt.Fprintf(f.w, "{\n")
-		f.indentLevel++
+		f.level(1)
 		for _, each := range o.AggregatedConstants {
 			f.indent(0)
 			fmt.Fprintf(f.w, "%s: %s\n", each.Name, each.Literal.String())
@@ -123,24 +112,29 @@ func (f *Formatter) VisitOption(o *Option) {
 		f.indent(-1)
 		fmt.Fprintf(f.w, "}")
 	} else {
+		// TODO printAs groups with fixed length
 		fmt.Fprintf(f.w, o.Constant.String())
 	}
 	fmt.Fprintf(f.w, ";")
-	if o.Comment != nil {
-		o.Comment.Accept(f)
+	if o.InlineComment != nil {
+		fmt.Fprintf(f.w, " //%s", o.InlineComment.Message())
 	}
+	f.nl()
 }
 
 // VisitPackage formats a Package.
-func (f *Formatter) VisitPackage(p *Package) {}
+func (f *Formatter) VisitPackage(p *Package) {
+	f.nl()
+	f.printAsGroups([]Visitee{p})
+}
 
 // VisitService formats a Service.
 func (f *Formatter) VisitService(s *Service) {
-	f.begin("service")
+	f.begin("service", s)
 	fmt.Fprintf(f.w, "service %s {", s.Name)
 	if len(s.Elements) > 0 {
 		f.nl()
-		f.indentLevel++
+		f.level(1)
 		f.printAsGroups(s.Elements)
 		f.indent(-1)
 	}
@@ -150,17 +144,18 @@ func (f *Formatter) VisitService(s *Service) {
 
 // VisitSyntax formats a Syntax.
 func (f *Formatter) VisitSyntax(s *Syntax) {
-	f.begin("syntax")
-	fmt.Fprintf(f.w, "syntax = %q;\n", s.Value)
+	f.begin("syntax", s)
+	fmt.Fprintf(f.w, "syntax = %q", s.Value)
+	f.endWithComment(s.InlineComment)
 }
 
 // VisitOneof formats a Oneof.
 func (f *Formatter) VisitOneof(o *Oneof) {
-	f.begin("oneof")
+	f.begin("oneof", o)
 	fmt.Fprintf(f.w, "oneof %s {", o.Name)
 	if len(o.Elements) > 0 {
 		f.nl()
-		f.indentLevel++
+		f.level(1)
 		f.printAsGroups(o.Elements)
 		f.indent(-1)
 	}
@@ -169,11 +164,13 @@ func (f *Formatter) VisitOneof(o *Oneof) {
 }
 
 // VisitOneofField formats a OneofField.
-func (f *Formatter) VisitOneofField(o *OneOfField) {}
+func (f *Formatter) VisitOneofField(o *OneOfField) {
+	f.printAsGroups([]Visitee{o})
+}
 
 // VisitReserved formats a Reserved.
 func (f *Formatter) VisitReserved(r *Reserved) {
-	f.begin("reserved")
+	f.begin("reserved", r)
 	io.WriteString(f.w, "reserved ")
 	if len(r.Ranges) > 0 {
 		for i, each := range r.Ranges {
@@ -190,7 +187,7 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 			fmt.Fprintf(f.w, "%q", each)
 		}
 	}
-	f.endWithComment(r.Comment)
+	f.endWithComment(r.InlineComment)
 }
 
 // VisitRPC formats a RPC.
@@ -199,21 +196,25 @@ func (f *Formatter) VisitRPC(r *RPC) {
 }
 
 // VisitMapField formats a MapField.
-func (f *Formatter) VisitMapField(m *MapField) {}
+func (f *Formatter) VisitMapField(m *MapField) {
+	f.printAsGroups([]Visitee{m})
+}
 
 // VisitNormalField formats a NormalField.
-func (f *Formatter) VisitNormalField(f1 *NormalField) {}
+func (f *Formatter) VisitNormalField(f1 *NormalField) {
+	f.printAsGroups([]Visitee{f1})
+}
 
 // VisitGroup formats a proto2 Group.
 func (f *Formatter) VisitGroup(g *Group) {
-	f.begin("group")
+	f.begin("group", g)
 	if g.Optional {
 		io.WriteString(f.w, "optional ")
 	}
 	fmt.Fprintf(f.w, "group %s = %d {", g.Name, g.Sequence)
 	if len(g.Elements) > 0 {
 		f.nl()
-		f.indentLevel++
+		f.level(1)
 		f.printAsGroups(g.Elements)
 		f.indent(-1)
 	}
@@ -223,7 +224,7 @@ func (f *Formatter) VisitGroup(g *Group) {
 
 // VisitExtensions formats a proto2 Extensions.
 func (f *Formatter) VisitExtensions(e *Extensions) {
-	f.begin("extensions")
+	f.begin("extensions", e)
 	io.WriteString(f.w, "extensions ")
 	for i, each := range e.Ranges {
 		if i > 0 {
@@ -231,5 +232,5 @@ func (f *Formatter) VisitExtensions(e *Extensions) {
 		}
 		fmt.Fprintf(f.w, "%s", each.String())
 	}
-	f.endWithComment(e.Comment)
+	f.endWithComment(e.InlineComment)
 }

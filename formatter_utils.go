@@ -23,25 +23,56 @@
 
 package proto
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
-// begin write indentation after a newline depending on whether the last element was a comment.
-func (f *Formatter) begin(stmt string) {
-	if "comment" == stmt && f.lastStmt == "comment" {
-		f.indent(0)
-		return
+// printDoc writes documentation is available
+func (f *Formatter) printDoc(v Visitee) {
+	if hasDoc, ok := v.(Documented); ok {
+		if doc := hasDoc.Doc(); doc != nil {
+			f.printComment(doc)
+		}
 	}
-	if "comment" == stmt && f.lastStmt != "comment" {
-		io.WriteString(f.w, "\n")
-		f.indent(0)
-		f.lastStmt = stmt
-		return
+}
+
+// printComment formats a Comment.
+func (f *Formatter) printComment(c *Comment) {
+	if c.Cstyle {
+		fmt.Fprintln(f.w, "/*")
 	}
-	if "comment" != f.lastStmt && f.lastStmt != stmt && f.indentLevel == 0 {
-		io.WriteString(f.w, "\n")
+	for i, each := range c.Lines {
+		// first indent is already done; additional lines need to be indented too.
+		if i > 0 {
+			f.indent(0)
+		}
+		if c.Cstyle {
+			// only skip first and last empty lines
+			skip := (i == 0 && len(each) == 0) ||
+				(i == len(c.Lines)-1 && len(each) == 0)
+			if !skip {
+				fmt.Fprintf(f.w, "%s\n", each)
+			}
+		} else {
+			fmt.Fprintf(f.w, "//%s\n", each)
+		}
+	}
+	if c.Cstyle {
+		fmt.Fprintf(f.w, " */\n")
+	}
+}
+
+// begin writes a newline if the last statement kind is different. always indents.
+// if the Visitee has comment then print it.
+func (f *Formatter) begin(stmt string, v Visitee) {
+	// if not the first statement and different from last and on same indent level.
+	if len(f.lastStmt) > 0 && f.lastStmt != stmt && f.lastLevel == f.indentLevel {
+		f.nl()
 	}
 	f.indent(0)
 	f.lastStmt = stmt
+	f.printDoc(v)
 }
 
 func (f *Formatter) end(stmt string) {
@@ -50,7 +81,7 @@ func (f *Formatter) end(stmt string) {
 
 // indent changes the indent level and writes indentation.
 func (f *Formatter) indent(diff int) {
-	f.indentLevel += diff
+	f.level(diff)
 	for i := 0; i < f.indentLevel; i++ {
 		io.WriteString(f.w, f.indentSeparator)
 	}
@@ -59,13 +90,13 @@ func (f *Formatter) indent(diff int) {
 // columnsPrintable is for elements that can be printed in aligned columns.
 type columnsPrintable interface {
 	columns() (cols []aligned)
+	//doc() *Comment
 }
 
-func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string) {
+func (f *Formatter) printListOfColumns(list []columnsPrintable) {
 	if len(list) == 0 {
 		return
 	}
-	f.begin(groupName)
 	// collect all column values
 	values := [][]aligned{}
 	widths := map[int]int{}
@@ -86,11 +117,8 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 		}
 	}
 	// now print all values
-	for i, each := range values {
-		if i > 0 {
-			f.nl()
-			f.indent(0)
-		}
+	for _, each := range values {
+		f.indent(0)
 		for c := 0; c < len(widths); c++ {
 			pw := widths[c]
 			// only print if there is a value
@@ -99,13 +127,19 @@ func (f *Formatter) printListOfColumns(list []columnsPrintable, groupName string
 				io.WriteString(f.w, each[c].formatted(f.indentSeparator, f.indentLevel, pw))
 			}
 		}
+		f.nl()
 	}
-	f.nl()
 }
 
 // nl writes a newline.
 func (f *Formatter) nl() {
 	io.WriteString(f.w, "\n")
+}
+
+// level changes the current indentLevel
+func (f *Formatter) level(diff int) {
+	f.lastLevel = f.indentLevel
+	f.indentLevel += diff
 }
 
 // printAsGroups prints the list in groups of the same element type.
@@ -120,9 +154,17 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 				lastGroupName = groupName
 				// print current group
 				if len(group) > 0 {
-					f.printListOfColumns(group, groupName)
+					f.printListOfColumns(group)
 					// begin new group
 					group = []columnsPrintable{}
+				}
+			}
+			// comment as a group entity
+			if hasDoc, ok := each.(Documented); ok {
+				if doc := hasDoc.Doc(); doc != nil {
+					f.printListOfColumns(group)
+					// begin new group
+					group = append([]columnsPrintable{}, doc.columnsPrintables()...)
 				}
 			}
 			group = append(group, printable)
@@ -131,7 +173,7 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 			lastGroupName = groupName
 			// print current group
 			if len(group) > 0 {
-				f.printListOfColumns(group, groupName)
+				f.printListOfColumns(group)
 				// begin new group
 				group = []columnsPrintable{}
 			}
@@ -139,7 +181,7 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 		}
 	}
 	// print last group
-	f.printListOfColumns(group, lastGroupName)
+	f.printListOfColumns(group)
 }
 
 // endWithComment writes a statement end (;) followed by inline comment if present.
@@ -147,7 +189,7 @@ func (f *Formatter) endWithComment(commentOrNil *Comment) {
 	io.WriteString(f.w, ";")
 	if commentOrNil != nil {
 		io.WriteString(f.w, " //")
-		io.WriteString(f.w, commentOrNil.Message)
+		io.WriteString(f.w, commentOrNil.Message())
 	}
 	io.WriteString(f.w, "\n")
 }

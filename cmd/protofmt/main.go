@@ -36,7 +36,8 @@ import (
 )
 
 var (
-	overwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
+	oOverwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
+	oDebug     = flag.Bool("d", false, "dump the AST for debugging")
 )
 
 // go run *.go unformatted.proto
@@ -64,7 +65,7 @@ func readFormatWrite(filename string) error {
 	if err := format(file, buf); err != nil {
 		return err
 	}
-	if *overwrite {
+	if *oOverwrite {
 		// write back to input
 		if err := ioutil.WriteFile(filename, buf.Bytes(), os.ModePerm); err != nil {
 			return err
@@ -84,6 +85,9 @@ func format(input io.Reader, output io.Writer) error {
 	if err != nil {
 		return err
 	}
+	// if *oDebug {
+	// 	spew.Dump(def)
+	// }
 	proto.NewFormatter(output, "  ").Format(def) // 2 spaces
 	return nil
 }

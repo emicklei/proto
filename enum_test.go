@@ -27,6 +27,7 @@ import "testing"
 
 func TestEnum(t *testing.T) {
 	proto := `	
+// enum
 enum EnumAllowingAlias {
   option allow_alias = true;
   UNKNOWN = 0;
@@ -44,6 +45,12 @@ enum EnumAllowingAlias {
 	}
 	if got, want := len(enums[0].Elements), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := enums[0].Comment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := enums[0].Comment.Message(), " enum"; got != want {
+		t.Errorf("got [%v] want [%v]", enums[0].Comment, want)
 	}
 	ef1 := enums[0].Elements[1].(*EnumField)
 	if got, want := ef1.Integer, 0; got != want {

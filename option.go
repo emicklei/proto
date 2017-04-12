@@ -28,21 +28,12 @@ import "bytes"
 
 // Option is a protoc compiler option
 type Option struct {
+	Comment             *Comment
 	Name                string
 	Constant            Literal
 	IsEmbedded          bool
-	Comment             *Comment
 	AggregatedConstants []*NamedLiteral
-}
-
-// inlineComment is part of commentInliner.
-func (o *Option) inlineComment(c *Comment) {
-	o.Comment = c
-}
-
-// Accept dispatches the call to the visitor.
-func (o *Option) Accept(v Visitor) {
-	v.VisitOption(o)
+	InlineComment       *Comment
 }
 
 // columns returns printable source tokens
@@ -58,8 +49,8 @@ func (o *Option) columns() (cols []aligned) {
 	}
 	if !o.IsEmbedded {
 		cols = append(cols, alignedSemicolon)
-		if o.Comment != nil {
-			cols = append(cols, notAligned(" //"), notAligned(o.Comment.Message))
+		if o.InlineComment != nil {
+			cols = append(cols, notAligned(" //"), notAligned(o.InlineComment.Message()))
 		}
 	}
 	return
@@ -127,11 +118,25 @@ func (o *Option) parse(p *Parser) error {
 	return nil
 }
 
+// inlineComment is part of commentInliner.
+func (o *Option) inlineComment(c *Comment) {
+	o.InlineComment = c
+}
+
+// Accept dispatches the call to the visitor.
+func (o *Option) Accept(v Visitor) {
+	v.VisitOption(o)
+}
+
+// Doc is part of Documented
+func (o *Option) Doc() *Comment {
+	return o.Comment
+}
+
 // Literal represents intLit,floatLit,strLit or boolLit
 type Literal struct {
 	Source   string
 	IsString bool
-	Comment  string
 }
 
 // String returns the source (if quoted then use double quote).
@@ -144,21 +149,12 @@ func (l Literal) String() string {
 	if l.IsString {
 		buf.WriteRune('"')
 	}
-	if len(l.Comment) > 0 {
-		buf.WriteString(" //")
-		buf.WriteString(l.Comment)
-	}
 	return buf.String()
 }
 
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	l.Source, l.IsString = p.s.scanLiteral()
-	p.s.skipWhitespace()
-	if p.s.peek('/') {
-		p.s.read() // consume first slash
-		l.Comment = p.s.scanComment()
-	}
 	return nil
 }
 

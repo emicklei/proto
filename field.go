@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,16 +27,17 @@ import "strconv"
 
 // Field is an abstract message field.
 type Field struct {
-	Name     string
-	Type     string
-	Sequence int
-	Options  []*Option
-	Comment  *Comment
+	Comment       *Comment
+	Name          string
+	Type          string
+	Sequence      int
+	Options       []*Option
+	InlineComment *Comment
 }
 
 // inlineComment is part of commentInliner.
 func (f *Field) inlineComment(c *Comment) {
-	f.Comment = c
+	f.InlineComment = c
 }
 
 // NormalField represents a field in a Message.
@@ -52,6 +53,11 @@ func newNormalField() *NormalField { return &NormalField{Field: new(Field)} }
 // Accept dispatches the call to the visitor.
 func (f *NormalField) Accept(v Visitor) {
 	v.VisitNormalField(f)
+}
+
+// Doc is part of Documented
+func (f *NormalField) Doc() *Comment {
+	return f.Comment
 }
 
 // columns returns printable source tokens
@@ -78,8 +84,8 @@ func (f *NormalField) columns() (cols []aligned) {
 		cols = append(cols, leftAligned("]"))
 	}
 	cols = append(cols, alignedSemicolon)
-	if f.Comment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(f.Comment.Message))
+	if f.InlineComment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(f.InlineComment.Message()))
 	}
 	return
 }
@@ -188,8 +194,8 @@ func (f *MapField) columns() (cols []aligned) {
 		cols = append(cols, leftAligned("]"))
 	}
 	cols = append(cols, alignedSemicolon)
-	if f.Comment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(f.Comment.Message))
+	if f.InlineComment != nil {
+		cols = append(cols, notAligned(" //"), notAligned(f.InlineComment.Message()))
 	}
 	return
 }
