@@ -43,10 +43,7 @@ func (f *Formatter) printComment(c *Comment) {
 		fmt.Fprintln(f.w, "/*")
 	}
 	for i, each := range c.Lines {
-		// first indent is already done; additional lines need to be indented too.
-		if i > 0 {
-			f.indent(0)
-		}
+		f.indent(0)
 		if c.Cstyle {
 			// only skip first and last empty lines
 			skip := (i == 0 && len(each) == 0) ||
@@ -70,9 +67,9 @@ func (f *Formatter) begin(stmt string, v Visitee) {
 	if len(f.lastStmt) > 0 && f.lastStmt != stmt && f.lastLevel == f.indentLevel {
 		f.nl()
 	}
-	f.indent(0)
 	f.lastStmt = stmt
 	f.printDoc(v)
+	f.indent(0)
 }
 
 func (f *Formatter) end(stmt string) {

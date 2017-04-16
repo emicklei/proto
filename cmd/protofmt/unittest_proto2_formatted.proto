@@ -377,10 +377,10 @@ message TestDupFieldNumber {
     optional int32 a = 1;
   }
   // NO_PROTO1
-optional group Bar = 3 {
+  optional group Bar = 3 {
     optional int32 a = 1;
   }
-// NO_PROTO1
+  // NO_PROTO1
 
 }
 // NO_PROTO1
@@ -716,7 +716,7 @@ message TestParsingMerge {
   // RepeatedFieldsGenerator to bytes, and parse the bytes to TestParsingMerge.
   // Repeated fields in RepeatedFieldsGenerator are expected to be merged into
   // the corresponding required/optional fields in TestParsingMerge.
-message RepeatedFieldsGenerator {
+  message RepeatedFieldsGenerator {
     repeated TestAllTypes field1 = 1;
     repeated TestAllTypes field2 = 2;
     repeated TestAllTypes field3 = 3;
