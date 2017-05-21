@@ -38,3 +38,22 @@ import "some.proto"; // inline 6
 
 // comment 14
 option (test.option) = 42; // inline 7
+
+message MyMessage {
+    oneof type {
+        // comment 15
+        Null null = 1;
+    }
+}
+
+// comment 16
+message super {
+    // comment 17
+    message sub {
+        // comment 18
+        message subbest {
+            // comment 19
+            Wrapped string = 1;
+        }
+    }
+}
