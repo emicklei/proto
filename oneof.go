@@ -66,8 +66,13 @@ func (o *Oneof) parse(p *Parser) error {
 	for {
 		tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
+		case tCOMMENT:
+			if com := mergeOrReturnComment(o.elements(), lit, p.s.line); com != nil { // not merged?
+				o.Elements = append(o.Elements, com)
+			}
 		case tIDENT:
 			f := newOneOfField()
+			f.Comment, o.Elements = takeLastComment(o.elements())
 			f.Type = lit
 			if err := parseFieldAfterType(f.Field, p); err != nil {
 				return err
@@ -75,6 +80,7 @@ func (o *Oneof) parse(p *Parser) error {
 			o.Elements = append(o.Elements, f)
 		case tGROUP:
 			g := new(Group)
+			g.Comment, o.Elements = takeLastComment(o.elements())
 			if err := g.parse(p); err != nil {
 				return err
 			}
@@ -108,6 +114,12 @@ func newOneOfField() *OneOfField { return &OneOfField{Field: new(Field)} }
 // Accept dispatches the call to the visitor.
 func (o *OneOfField) Accept(v Visitor) {
 	v.VisitOneofField(o)
+}
+
+// Doc is part of Documented
+// Note: although Doc() is defined on Field, it must be implemented here as well.
+func (o *OneOfField) Doc() *Comment {
+	return o.Comment
 }
 
 // columns returns printable source tokens

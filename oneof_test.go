@@ -1,7 +1,7 @@
 // Copyright (c) 2017 Ernest Micklei
-// 
+//
 // MIT License
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,7 +27,8 @@ import "testing"
 
 func TestOneof(t *testing.T) {
 	proto := `oneof foo {
-    string name = 4;
+	// just a name
+    string	 name = 4;
     SubMessage sub_message = 9 [options=none];
 }`
 	p := newParserOn(proto)
@@ -42,6 +43,10 @@ func TestOneof(t *testing.T) {
 	}
 	if got, want := len(o.Elements), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	first := o.Elements[0].(*OneOfField)
+	if got, want := first.Comment.Message(), " just a name"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	second := o.Elements[1].(*OneOfField)
 	if got, want := second.Name, "sub_message"; got != want {
