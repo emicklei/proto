@@ -93,13 +93,10 @@ func withNormalFieldToSequence(f *proto.NormalField, s XSDSequence) XSDSequence 
 		el.Comment = f.Comment.Message()
 	}
 	el.Type = mapProtoSimpleTypeToXSDSimpleType(f.Type)
+	// proto 3 fields are always optional. TODO check proto version
+	el.MinOccurs = "0"
 	if f.Repeated {
-		el.MinOccurs = "0"
 		el.MaxOccurs = "unbounded"
-	}
-	if f.Optional {
-		el.MinOccurs = "0"
-		el.MaxOccurs = "0"
 	}
 	s.Elements = append(s.Elements, el)
 	return s
