@@ -96,15 +96,14 @@ func convert(input io.Reader, output io.Writer) error {
 		return err
 	}
 	fmt.Fprintln(output, xml.Header)
-	fmt.Fprintln(output, `<schema xmlns:tns="http://www.w3.org/2001/XMLSchema">`)
-	for _, each := range types {
-		data, err := xml.MarshalIndent(each, "", "\t")
-		if err != nil {
-			return err
-		}
-		output.Write(data)
-		io.WriteString(output, "\n\n")
+
+	schema := buildXSDSchema("http://www.kramphub.com/Catalog")
+	schema.Types = types
+	data, err := xml.MarshalIndent(schema, "", "\t")
+	if err != nil {
+		return err
 	}
-	fmt.Fprintf(output, "\n</schema>")
+	output.Write(data)
+
 	return nil
 }
