@@ -86,6 +86,6 @@ It can be used as part of your continuous integration build pipeline.
 	docker build -t emicklei/protofmt .
 
 ### run
-	 docker run emicklei/protofmt	
+	 docker run -v $(pwd):/data emicklei/protofmt /data/YOUR.proto	
 
 © 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License.     

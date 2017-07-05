@@ -15,6 +15,6 @@ It can be used as part of your continuous integration build pipeline.
 	docker build -t emicklei/proto2xsd .
 
 ### run
-	 docker run emicklei/proto2xsd
+	 docker run -v $(pwd):/data emicklei/proto2xsd /data/YOUR.proto
 
 © 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License.     

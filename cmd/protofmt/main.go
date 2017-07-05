@@ -37,7 +37,7 @@ import (
 
 var (
 	oOverwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
-	oDebug     = flag.Bool("d", false, "dump the AST for debugging")
+	oDebug     = flag.Bool("d", false, "debug mode")
 )
 
 // go run *.go unformatted.proto
