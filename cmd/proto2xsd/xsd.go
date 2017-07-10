@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"log"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -90,7 +91,7 @@ func withNormalFieldToSequence(f *proto.NormalField, s XSDSequence) XSDSequence 
 	el := XSDElement{}
 	el.Name = f.Name
 	if f.Comment != nil {
-		el.Comment = f.Comment.Message()
+		el.Comment = strings.Join(f.Comment.Lines, "\n")
 	}
 	el.Type = mapProtoSimpleTypeToXSDSimpleType(f.Type)
 	// proto 3 fields are always optional. TODO check proto version

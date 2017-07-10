@@ -40,7 +40,6 @@ import (
 
 var (
 	oOverwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
-	oDebug     = flag.Bool("d", false, "debug mode")
 )
 
 // go run *.go unformatted.proto
@@ -88,9 +87,6 @@ func convert(input io.Reader, output io.Writer) error {
 	if err != nil {
 		return err
 	}
-	// if *oDebug {
-	// 	spew.Dump(def)
-	// }
 	types, err := buildXSDTypes(def)
 	if err != nil {
 		return err

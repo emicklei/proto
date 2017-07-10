@@ -58,13 +58,13 @@ func TestTakeLastComment(t *testing.T) {
 	}
 }
 
-func TestParseCommentWithEmptyLines(t *testing.T) {
+func TestParseCommentWithEmptyLinesAndTripleSlash(t *testing.T) {
 	proto := `
 // comment 1
 // comment 2
 //
 // comment 3
-// comment 4`
+/// comment 4`
 	p := newParserOn(proto)
 	def, err := p.Parse()
 	if err != nil {
@@ -76,6 +76,9 @@ func TestParseCommentWithEmptyLines(t *testing.T) {
 	}
 
 	if got, want := len(def.Elements[0].(*Comment).Lines), 5; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[4], " comment 4"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
