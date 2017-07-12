@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateComment(t *testing.T) {
 	c0 := newComment("")
@@ -79,6 +81,27 @@ func TestParseCommentWithEmptyLinesAndTripleSlash(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := def.Elements[0].(*Comment).Lines[4], " comment 4"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestParseCommentWithTripleSlash(t *testing.T) {
+	proto := `
+/// comment 1
+`
+	p := newParserOn(proto)
+	def, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	//spew.Dump(def)
+	if got, want := len(def.Elements), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).ExtraSlash, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[0], " comment 1"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }

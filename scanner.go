@@ -316,16 +316,10 @@ func (s *scanner) peek(ch rune) bool {
 	return r == ch
 }
 
-// scaneComment returns the string after // or between /* and */. COMMENT token was consumed.
+// scanComment returns the string after // or between /* and */. COMMENT token was consumed.
 func (s *scanner) scanComment() string {
 	next := s.read()
 	if '/' == next {
-		// double slash (//) has been read
-		// see if a triple is found (used in proto-gen-doc)
-		// this means single line comment cannot start with a slash
-		if s.peek('/') {
-			s.read()
-		}
 		// single line
 		return s.scanUntil('\n')
 	}

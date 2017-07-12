@@ -53,6 +53,9 @@ func (f *Formatter) printComment(c *Comment) {
 				fmt.Fprintf(f.w, "%s\n", each)
 			}
 		} else {
+			if c.ExtraSlash {
+				fmt.Fprint(f.w, "/")
+			}
 			fmt.Fprintf(f.w, "//%s\n", each)
 		}
 	}

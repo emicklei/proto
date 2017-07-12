@@ -150,13 +150,14 @@ message Test {
     // comment 8
     int64 i = 1; // inline 3
 }	
+/// triple
 `
 	p := newParserOn(proto)
 	def, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := len(def.Elements), 4; got != want {
+	if got, want := len(def.Elements), 5; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	b := new(bytes.Buffer)

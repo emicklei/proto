@@ -30,16 +30,28 @@ type Comment struct {
 	lineNumber int
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
+	ExtraSlash bool
 }
 
 // newComment returns a comment.
 func newComment(lit string) *Comment {
 	nonEmpty := []string{}
+	extraSlash := false
 	lines := strings.Split(lit, "\n")
-	for _, each := range lines {
-		nonEmpty = append(nonEmpty, each)
+	if len(lines) > 1 {
+		for _, each := range lines {
+			// do not modify if a line has an extra slash prefix
+			nonEmpty = append(nonEmpty, each)
+		}
+	} else {
+		if strings.HasPrefix(lit, "/") {
+			extraSlash = true
+			nonEmpty = append(nonEmpty, strings.TrimLeft(lit, "/"))
+		} else {
+			nonEmpty = append(nonEmpty, lit)
+		}
 	}
-	return &Comment{Lines: nonEmpty, Cstyle: len(lines) > 1}
+	return &Comment{Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
 // columns is part of columnsPrintable
