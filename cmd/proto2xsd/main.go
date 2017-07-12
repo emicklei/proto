@@ -40,9 +40,9 @@ import (
 
 var (
 	oOverwrite = flag.Bool("w", false, "write result to (source) file instead of stdout")
+	oNamespace = flag.String("ns", "http://your.company.com/domain/version", "namespace of the target types")
 )
 
-// go run *.go unformatted.proto
 func main() {
 	flag.Parse()
 	if len(flag.Args()) == 0 {
@@ -93,7 +93,7 @@ func convert(input io.Reader, output io.Writer) error {
 	}
 	fmt.Fprintln(output, xml.Header)
 
-	schema := buildXSDSchema("http://www.kramphub.com/Catalog")
+	schema := buildXSDSchema(*oNamespace)
 	schema.Types = types
 	data, err := xml.MarshalIndent(schema, "", "\t")
 	if err != nil {
