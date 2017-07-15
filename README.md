@@ -10,19 +10,29 @@ This repository also includes 2 commands. The `protofmt` tool is for formatting 
 
 ### usage as package
 
-    parser := proto.NewParser(reader)
-	definition, err := parser.Parse()
-	if err != nil {
-		log.Fatalln("proto parsing failed", err)
-	}
+	package main
 
-	formatter := proto.NewFormatter(writer," ")
-	formatter.Format(definition)
+	import (
+		"os"
+
+		"github.com/emicklei/proto"
+	)
+
+	func main() {
+		reader, _ := os.Open("test.proto")
+		defer reader.Close()
+		parser := proto.NewParser(reader)
+		definition, _ := parser.Parse()
+		formatter := proto.NewFormatter(os.Stdout, " ")
+		formatter.Format(definition)
+	}
 
 ### usage of proto2xsd command
 
 	> proto2xsd -help
 		Usage of proto2xsd [flags] [path ...]
+  		-ns string
+    		namespace of the target types (default "http://your.company.com/domain/version")		
   		-w	write result to an XSD files instead of stdout
 
 See folder `cmd/proto2xsd/README.md` for more details.

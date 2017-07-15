@@ -44,6 +44,9 @@ func newComment(lit string) *Comment {
 
 // columns is part of columnsPrintable
 func (c *Comment) columnsPrintables() (list []columnsPrintable) {
+	if len(c.Lines) > 0 {
+		list = append(list, inlineComment{})
+	}
 	for _, each := range c.Lines {
 		list = append(list, inlineComment{each})
 	}
@@ -55,6 +58,9 @@ type inlineComment struct {
 }
 
 func (i inlineComment) columns() (list []aligned) {
+	if len(i.line) == 0 {
+		return append(list, notAligned(""))
+	}
 	return append(list, notAligned("//"+i.line))
 }
 

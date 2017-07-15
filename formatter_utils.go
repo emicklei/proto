@@ -39,6 +39,7 @@ func (f *Formatter) printDoc(v Visitee) {
 
 // printComment formats a Comment.
 func (f *Formatter) printComment(c *Comment) {
+	f.nl()
 	if c.Cstyle {
 		fmt.Fprintln(f.w, "/*")
 	}
