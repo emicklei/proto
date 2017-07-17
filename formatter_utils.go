@@ -189,7 +189,11 @@ func (f *Formatter) printAsGroups(list []Visitee) {
 func (f *Formatter) endWithComment(commentOrNil *Comment) {
 	io.WriteString(f.w, ";")
 	if commentOrNil != nil {
-		io.WriteString(f.w, " //")
+		if commentOrNil.ExtraSlash {
+			io.WriteString(f.w, " ///")
+		} else {
+			io.WriteString(f.w, " //")
+		}
 		io.WriteString(f.w, commentOrNil.Message())
 	}
 	io.WriteString(f.w, "\n")

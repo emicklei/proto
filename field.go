@@ -85,7 +85,7 @@ func (f *NormalField) columns() (cols []aligned) {
 	}
 	cols = append(cols, alignedSemicolon)
 	if f.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(f.InlineComment.Message()))
+		cols = append(cols, f.InlineComment.alignedInlinePrefix(), notAligned(f.InlineComment.Message()))
 	}
 	return
 }
@@ -195,7 +195,7 @@ func (f *MapField) columns() (cols []aligned) {
 	}
 	cols = append(cols, alignedSemicolon)
 	if f.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(f.InlineComment.Message()))
+		cols = append(cols, f.InlineComment.alignedInlinePrefix(), notAligned(f.InlineComment.Message()))
 	}
 	return
 }

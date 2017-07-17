@@ -56,24 +56,34 @@ func newComment(lit string) *Comment {
 
 // columns is part of columnsPrintable
 func (c *Comment) columnsPrintables() (list []columnsPrintable) {
-	if len(c.Lines) > 0 {
-		list = append(list, inlineComment{})
-	}
 	for _, each := range c.Lines {
-		list = append(list, inlineComment{each})
+		list = append(list, inlineComment{each, c.ExtraSlash})
 	}
 	return
 }
 
+func (c *Comment) alignedInlinePrefix() aligned {
+	prefix := " //"
+	if c.ExtraSlash {
+		prefix = " ///"
+	}
+	return notAligned(prefix)
+}
+
 type inlineComment struct {
-	line string
+	line       string
+	extraSlash bool
 }
 
 func (i inlineComment) columns() (list []aligned) {
 	if len(i.line) == 0 {
 		return append(list, notAligned(""))
 	}
-	return append(list, notAligned("//"+i.line))
+	prefix := "//"
+	if i.extraSlash {
+		prefix = "///"
+	}
+	return append(list, notAligned(prefix+i.line))
 }
 
 // Accept dispatches the call to the visitor.

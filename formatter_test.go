@@ -82,7 +82,6 @@ func TestFormatExtendMessage(t *testing.T) {
 	proto := `
 // extend
 extend google.protobuf.MessageOptions {
-  
   // my_option
   optional string my_option = 51234; // mynumber
 }
