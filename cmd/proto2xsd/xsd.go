@@ -124,6 +124,8 @@ func mapProtoSimpleTypeToXSDSimpleType(pt string) string {
 		return "integer"
 	case "uint64", "int64", "fixed64", "sfixed64", "sint64":
 		return "long"
+	case "bool":
+		return "boolean"
 	default:
 		// assume that target types are in uppercase
 		r, _ := utf8.DecodeRuneInString(pt)
