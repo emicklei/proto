@@ -169,8 +169,22 @@ func (o *Option) parseAggregate(p *Parser) error {
 	o.AggregatedConstants = []*NamedLiteral{}
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
+		if tRIGHTSQUARE == tok {
+			p.unscan()
+			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
+			return nil
+		}
 		if tRIGHTCURLY == tok {
-			break
+			continue
+		}
+		if tSEMICOLON == tok {
+			return nil
+		}
+		if tCOMMA == tok {
+			if len(o.AggregatedConstants) == 0 {
+				return p.unexpected(lit, "non-empty option aggregate key", o)
+			}
+			continue
 		}
 		if tIDENT != tok {
 			return p.unexpected(lit, "option aggregate key", o)
@@ -186,9 +200,4 @@ func (o *Option) parseAggregate(p *Parser) error {
 		}
 		o.AggregatedConstants = append(o.AggregatedConstants, &NamedLiteral{Name: key, Literal: l})
 	}
-	tok, lit := p.scanIgnoreWhitespace()
-	if tSEMICOLON != tok {
-		return p.unexpected(lit, "option aggregate end ;", o)
-	}
-	return nil
 }

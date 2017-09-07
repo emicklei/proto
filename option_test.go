@@ -126,3 +126,42 @@ option Help = "me"; // inline`
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestIssue8(t *testing.T) {
+	proto := `
+// usage:
+message Bar {
+  // alternative aggregate syntax (uses TextFormat):
+  int32 b = 2 [(foo_options) = {
+    opt1: 123,
+    opt2: "baz"
+  }];
+}
+	`
+	p := newParserOn(proto)
+	pr, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := pr.Elements[0].(*Message)
+	f := o.Elements[0].(*NormalField)
+	if got, want := len(f.Options), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	ac := f.Options[0].AggregatedConstants
+	if got, want := len(ac), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ac[0].Name, "opt1"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ac[1].Name, "opt2"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ac[0].Source, "123"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ac[1].Source, "baz"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}

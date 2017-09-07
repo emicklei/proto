@@ -1,3 +1,4 @@
 cmd/proto2xsd/sample.proto
 cmd/proto2xsd/proto2xsd
 cmd/protofmt/protofmt
+debug.test
