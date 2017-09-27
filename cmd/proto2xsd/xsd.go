@@ -41,6 +41,7 @@ type XSDSchema struct {
 	Version            string   `xml:"xmlns:version,attr"`
 	ElementFormDefault string   `xml:"elementFormDefault,attr"`
 	Types              []XSDComplexType
+	Elements           []XSDElement
 }
 
 func buildXSDSchema(target string) XSDSchema {
@@ -68,7 +69,7 @@ type XSDSequence struct {
 
 // XSDElement represents an element as part of e.g. sequence
 type XSDElement struct {
-	XMLName   xml.Name
+	XMLName   xml.Name `xml:"element"`
 	Name      string `xml:"name,attr"`
 	Comment   string `xml:",comment"`
 	Type      string `xml:"type,attr"`
@@ -83,6 +84,22 @@ func buildXSDTypes(def *proto.Proto) (list []XSDComplexType, err error) {
 		}
 	}
 	return list, nil
+}
+
+func buildXSDElements(def *proto.Proto)(list []XSDElement, err error) {
+	for _, each := range def.Elements {
+		if msg, ok := each.(*proto.Message); ok {
+			list = append(list, buildElementType(msg))
+		}
+	}
+	return list, nil
+}
+
+func buildElementType(msg *proto.Message) XSDElement {
+	et := XSDElement{}
+	et.Name = msg.Name + "Element"
+	et.Type = "target:" + msg.Name
+	return et
 }
 
 func buildComplexType(msg *proto.Message) XSDComplexType {

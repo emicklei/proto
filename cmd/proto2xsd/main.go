@@ -92,9 +92,13 @@ func convert(input io.Reader, output io.Writer) error {
 		return err
 	}
 	fmt.Fprintln(output, xml.Header)
-
+	elements, err := buildXSDElements(def)
+	if err != nil {
+		return err
+	}
 	schema := buildXSDSchema(*oNamespace)
 	schema.Types = types
+	schema.Elements = elements
 	data, err := xml.MarshalIndent(schema, "", "\t")
 	if err != nil {
 		return err
