@@ -60,6 +60,9 @@ func TestField(t *testing.T) {
 	if got, want := f.Options[2].Constant.Source, "happy"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := f.LineNumber, 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
 
 func TestFieldSimple(t *testing.T) {

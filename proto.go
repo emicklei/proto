@@ -48,14 +48,15 @@ func (proto *Proto) takeLastComment() (last *Comment) {
 // parse parsers a complete .proto definition source.
 func (proto *Proto) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		line, tok, lit := p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(proto.Elements, lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(proto.Elements, lit, line); com != nil { // not merged?
 				proto.Elements = append(proto.Elements, com)
 			}
 		case tOPTION:
 			o := new(Option)
+			o.LineNumber = line
 			o.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := o.parse(p); err != nil {
 				return err
@@ -63,6 +64,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, o)
 		case tSYNTAX:
 			s := new(Syntax)
+			s.LineNumber = line
 			s.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := s.parse(p); err != nil {
 				return err
@@ -70,6 +72,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, s)
 		case tIMPORT:
 			im := new(Import)
+			im.LineNumber = line
 			im.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := im.parse(p); err != nil {
 				return err
@@ -77,6 +80,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, im)
 		case tENUM:
 			enum := new(Enum)
+			enum.LineNumber = line
 			enum.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := enum.parse(p); err != nil {
 				return err
@@ -84,6 +88,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, enum)
 		case tSERVICE:
 			service := new(Service)
+			service.LineNumber = line
 			service.Comment, proto.Elements = takeLastComment(proto.Elements)
 			err := service.parse(p)
 			if err != nil {
@@ -92,6 +97,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, service)
 		case tPACKAGE:
 			pkg := new(Package)
+			pkg.LineNumber = line
 			pkg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := pkg.parse(p); err != nil {
 				return err
@@ -99,6 +105,7 @@ func (proto *Proto) parse(p *Parser) error {
 			proto.Elements = append(proto.Elements, pkg)
 		case tMESSAGE:
 			msg := new(Message)
+			msg.LineNumber = line
 			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := msg.parse(p); err != nil {
 				return err
@@ -107,6 +114,7 @@ func (proto *Proto) parse(p *Parser) error {
 		// BEGIN proto2
 		case tEXTEND:
 			msg := new(Message)
+			msg.LineNumber = line
 			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			msg.IsExtend = true
 			if err := msg.parse(p); err != nil {

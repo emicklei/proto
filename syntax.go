@@ -25,13 +25,14 @@ package proto
 
 // Syntax should have value "proto"
 type Syntax struct {
+	LineNumber    int
 	Comment       *Comment
 	Value         string
 	InlineComment *Comment
 }
 
 func (s *Syntax) parse(p *Parser) error {
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
+	if _, tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
 		return p.unexpected(lit, "syntax =", s)
 	}
 	lit, ok := p.s.scanLiteral()

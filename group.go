@@ -26,11 +26,12 @@ package proto
 // Group represents a (proto2 only) group.
 // https://developers.google.com/protocol-buffers/docs/reference/proto2-spec#group_field
 type Group struct {
-	Comment  *Comment
-	Name     string
-	Optional bool
-	Sequence int
-	Elements []Visitee
+	LineNumber int
+	Comment    *Comment
+	Name       string
+	Optional   bool
+	Sequence   int
+	Elements   []Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -63,14 +64,14 @@ func (g *Group) takeLastComment() (last *Comment) {
 // parse expects:
 // groupName "=" fieldNumber { messageBody }
 func (g *Group) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "group name", g)
 		}
 	}
 	g.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "group =", g)
 	}
@@ -79,7 +80,7 @@ func (g *Group) parse(p *Parser) error {
 		return p.unexpected(lit, "group sequence number", g)
 	}
 	g.Sequence = i
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "group opening {", g)
 	}

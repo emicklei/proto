@@ -45,59 +45,61 @@ func newScanner(r io.Reader) *scanner {
 }
 
 // scan returns the next token and literal value.
-func (s *scanner) scan() (tok token, lit string) {
+func (s *scanner) scan() (line int, tok token, lit string) {
 	// Read the next rune.
 	ch := s.read()
-
+	line = s.line
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
 	// If we see a slash then consume all as a comment (can be multiline)
 	if isWhitespace(ch) {
 		s.unread(ch)
-		return s.scanWhitespace()
+		tok, lit = s.scanWhitespace()
+		return
 	} else if isLetter(ch) || ch == '_' {
 		s.unread(ch)
-		return s.scanIdent()
+		tok, lit = s.scanIdent()
+		return
 	}
 
 	// Otherwise read the individual character.
 	switch ch {
 	case eof:
-		return tEOF, ""
+		return line, tEOF, ""
 	case ';':
-		return tSEMICOLON, string(ch)
+		return line, tSEMICOLON, string(ch)
 	case ':':
-		return tCOLON, string(ch)
+		return line, tCOLON, string(ch)
 	case '=':
-		return tEQUALS, string(ch)
+		return line, tEQUALS, string(ch)
 	case '"':
-		return tQUOTE, string(ch)
+		return line, tQUOTE, string(ch)
 	case '\'':
-		return tSINGLEQUOTE, string(ch)
+		return line, tSINGLEQUOTE, string(ch)
 	case '(':
-		return tLEFTPAREN, string(ch)
+		return line, tLEFTPAREN, string(ch)
 	case ')':
-		return tRIGHTPAREN, string(ch)
+		return line, tRIGHTPAREN, string(ch)
 	case '{':
-		return tLEFTCURLY, string(ch)
+		return line, tLEFTCURLY, string(ch)
 	case '}':
-		return tRIGHTCURLY, string(ch)
+		return line, tRIGHTCURLY, string(ch)
 	case '[':
-		return tLEFTSQUARE, string(ch)
+		return line, tLEFTSQUARE, string(ch)
 	case ']':
-		return tRIGHTSQUARE, string(ch)
+		return line, tRIGHTSQUARE, string(ch)
 	case '/':
-		return tCOMMENT, s.scanComment()
+		return line, tCOMMENT, s.scanComment()
 	case '<':
-		return tLESS, string(ch)
+		return line, tLESS, string(ch)
 	case ',':
-		return tCOMMA, string(ch)
+		return line, tCOMMA, string(ch)
 	case '.':
-		return tDOT, string(ch)
+		return line, tDOT, string(ch)
 	case '>':
-		return tGREATER, string(ch)
+		return line, tGREATER, string(ch)
 	}
-	return tILLEGAL, string(ch)
+	return line, tILLEGAL, string(ch)
 }
 
 // skipWhitespace consumes all whitespace until eof or a non-whitespace rune.
