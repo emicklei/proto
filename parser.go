@@ -33,9 +33,10 @@ import (
 type Parser struct {
 	s   *scanner
 	buf struct {
-		tok token  // last read token
-		lit string // last read literal
-		n   int    // buffer size (max=1)
+		line int
+		tok  token  // last read token
+		lit  string // last read literal
+		n    int    // buffer size (max=1)
 	}
 	debug bool
 }
@@ -53,27 +54,27 @@ func (p *Parser) Parse() (*Proto, error) {
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *Parser) scan() (tok token, lit string) {
+func (p *Parser) scan() (line int, tok token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
-		return p.buf.tok, p.buf.lit
+		return p.buf.line, p.buf.tok, p.buf.lit
 	}
 
 	// Otherwise read the next token from the scanner.
-	tok, lit = p.s.scan()
+	line, tok, lit = p.s.scan()
 
 	// Save it to the buffer in case we unscan later.
-	p.buf.tok, p.buf.lit = tok, lit
+	p.buf.line, p.buf.tok, p.buf.lit = line, tok, lit
 
 	return
 }
 
 // scanIgnoreWhitespace scans the next non-whitespace token.
-func (p *Parser) scanIgnoreWhitespace() (tok token, lit string) {
-	tok, lit = p.scan()
+func (p *Parser) scanIgnoreWhitespace() (line int, tok token, lit string) {
+	line, tok, lit = p.scan()
 	if tok == tWS {
-		tok, lit = p.scan()
+		line, tok, lit = p.scan()
 	}
 	return
 }

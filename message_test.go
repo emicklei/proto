@@ -32,7 +32,7 @@ func TestMessage(t *testing.T) {
 		string   id  = 1;
 		// size
 		int64   size = 2;
-		
+
 		oneof foo {
 			string     name        = 4;
 			SubMessage sub_message = 9;
@@ -54,6 +54,18 @@ func TestMessage(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(m.Elements), 6; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[0].(*NormalField).LineNumber, 4; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[0].(*NormalField).Comment.LineNumber, 3; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[3].(*Message).LineNumber, 12; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).LineNumber, 13; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

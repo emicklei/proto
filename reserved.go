@@ -25,6 +25,7 @@ package proto
 
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
+	LineNumber    int
 	Comment       *Comment
 	Ranges        []Range
 	FieldNames    []string
@@ -43,7 +44,7 @@ func (r *Reserved) Accept(v Visitor) {
 
 func (r *Reserved) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		_, tok, lit := p.scanIgnoreWhitespace()
 		if len(lit) == 0 {
 			return p.unexpected(lit, "reserved string or integer", r)
 		}

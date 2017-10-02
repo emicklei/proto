@@ -27,6 +27,7 @@ import "strconv"
 
 // Field is an abstract message field.
 type Field struct {
+	LineNumber    int
 	Comment       *Comment
 	Name          string
 	Type          string
@@ -94,7 +95,8 @@ func (f *NormalField) columns() (cols []aligned) {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		line, tok, lit := p.scanIgnoreWhitespace()
+		f.LineNumber = line
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
@@ -116,14 +118,14 @@ done:
 // parseFieldAfterType expects:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseFieldAfterType(f *Field, p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	line, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "field identifier", f)
 		}
 	}
 	f.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	line, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "field =", f)
 	}
@@ -133,7 +135,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	}
 	f.Sequence = i
 	// see if there are options
-	tok, lit = p.scanIgnoreWhitespace()
+	line, tok, lit = p.scanIgnoreWhitespace()
 	if tLEFTSQUARE != tok {
 		p.unscan()
 		return nil
@@ -141,6 +143,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	// consume options
 	for {
 		o := new(Option)
+		o.LineNumber = line
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
@@ -148,7 +151,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 		}
 		f.Options = append(f.Options, o)
 
-		tok, lit = p.scanIgnoreWhitespace()
+		line, tok, lit = p.scanIgnoreWhitespace()
 		if tRIGHTSQUARE == tok {
 			break
 		}
@@ -205,25 +208,25 @@ func (f *MapField) columns() (cols []aligned) {
 // keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
 //           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 func (f *MapField) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.scanIgnoreWhitespace()
 	if tLESS != tok {
 		return p.unexpected(lit, "map keyType <", f)
 	}
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map identifier", f)
 	}
 	f.KeyType = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tCOMMA != tok {
 		return p.unexpected(lit, "map type separator ,", f)
 	}
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map valueType identifier", f)
 	}
 	f.Type = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tGREATER != tok {
 		return p.unexpected(lit, "mak valueType >", f)
 	}

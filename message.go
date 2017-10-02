@@ -25,10 +25,11 @@ package proto
 
 // Message consists of a message name and a message body.
 type Message struct {
-	Comment  *Comment
-	Name     string
-	IsExtend bool
-	Elements []Visitee
+	LineNumber int
+	Comment    *Comment
+	Name       string
+	IsExtend   bool
+	Elements   []Visitee
 }
 
 func (m *Message) groupName() string {
@@ -40,14 +41,14 @@ func (m *Message) groupName() string {
 
 // parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, m.groupName()+" identifier", m)
 		}
 	}
 	m.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, m.groupName()+" opening {", m)
 	}
@@ -57,18 +58,20 @@ func (m *Message) parse(p *Parser) error {
 // parseMessageBody parses elements after {. It consumes the closing }
 func parseMessageBody(p *Parser, c elementContainer) error {
 	var (
-		tok token
-		lit string
+		line int
+		tok  token
+		lit  string
 	)
 	for {
-		tok, lit = p.scanIgnoreWhitespace()
+		line, tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(c.elements(), lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(c.elements(), lit, line); com != nil { // not merged?
 				c.addElement(com)
 			}
 		case tENUM:
 			e := new(Enum)
+			e.LineNumber = line
 			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
@@ -76,6 +79,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(e)
 		case tMESSAGE:
 			msg := new(Message)
+			msg.LineNumber = line
 			msg.Comment = c.takeLastComment()
 			if err := msg.parse(p); err != nil {
 				return err
@@ -83,6 +87,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(msg)
 		case tOPTION:
 			o := new(Option)
+			o.LineNumber = line
 			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
@@ -90,6 +95,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(o)
 		case tONEOF:
 			o := new(Oneof)
+			o.LineNumber = line
 			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
@@ -97,6 +103,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(o)
 		case tMAP:
 			f := newMapField()
+			f.LineNumber = line
 			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err
@@ -104,6 +111,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(f)
 		case tRESERVED:
 			r := new(Reserved)
+			r.LineNumber = line
 			r.Comment = c.takeLastComment()
 			if err := r.parse(p); err != nil {
 				return err
@@ -113,9 +121,10 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tOPTIONAL, tREPEATED, tREQUIRED:
 			// look ahead
 			prevTok := tok
-			tok, lit = p.scanIgnoreWhitespace()
+			_, tok, lit = p.scanIgnoreWhitespace()
 			if tGROUP == tok {
 				g := new(Group)
+				g.LineNumber = line
 				g.Comment = c.takeLastComment()
 				g.Optional = prevTok == tOPTIONAL
 				if err := g.parse(p); err != nil {
@@ -126,6 +135,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				// not a group, will be tFIELD
 				p.unscan()
 				f := newNormalField()
+				f.LineNumber = line
 				f.Comment = c.takeLastComment()
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
@@ -137,6 +147,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 		case tGROUP:
 			g := new(Group)
+			g.LineNumber = line
 			g.Comment = c.takeLastComment()
 			if err := g.parse(p); err != nil {
 				return err
@@ -144,6 +155,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(g)
 		case tEXTENSIONS:
 			e := new(Extensions)
+			e.LineNumber = line
 			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
@@ -151,6 +163,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(e)
 		case tEXTEND:
 			e := new(Message)
+			e.LineNumber = line
 			e.Comment = c.takeLastComment()
 			e.IsExtend = true
 			if err := e.parse(p); err != nil {
@@ -167,6 +180,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			// tFIELD
 			p.unscan()
 			f := newNormalField()
+			f.LineNumber = line
 			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err

@@ -48,6 +48,9 @@ func TestOneof(t *testing.T) {
 	if got, want := first.Comment.Message(), " just a name"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := first.LineNumber, 3; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	second := o.Elements[1].(*OneOfField)
 	if got, want := second.Name, "sub_message"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -56,6 +59,9 @@ func TestOneof(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := second.Sequence, 9; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := second.LineNumber, 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
