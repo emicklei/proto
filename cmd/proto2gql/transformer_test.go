@@ -682,3 +682,67 @@ type Timestamp {
 		t.Fatalf("Expected %s to equal to %s", expected, actual)
 	}
 }
+
+func TestTransformWithPackageAliases2(t *testing.T) {
+	schema := []byte(`
+syntax = "proto3";
+package com.users.api;
+
+enum ContactType {
+    PHONE = 0;
+    EMAIL = 1;
+    WEBSITE = 2;
+    FACEBOOK = 3;
+    TWITTER = 4;
+    INSTAGRAM = 5;
+    YOUTUBE = 6;
+    FLICKR = 7;
+    MEDIUM = 8;
+}
+
+message Contact {
+    uint64 id = 1;
+    ContactType type = 2;
+    string value = 3;
+}
+	`)
+
+	input := new(bytes.Buffer)
+	input.Write(schema)
+
+	output := new(bytes.Buffer)
+	transformer := NewTransformer(output)
+	transformer.SetPackageAlias("com.users.api", "User")
+
+	if err := transformer.Transform(input); err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `
+enum UserContactType {
+    PHONE
+    EMAIL
+    WEBSITE
+    FACEBOOK
+    TWITTER
+    INSTAGRAM
+    YOUTUBE
+    FLICKR
+    MEDIUM
+}
+
+type UserContact {
+    id: Int
+    type: UserContactType
+    value: String
+}
+
+	`
+
+	expected = strings.TrimSpace(expected)
+	actual := strings.TrimSpace(output.String())
+
+	if expected != actual {
+		t.Fatalf("Expected %s to equal to %s", expected, actual)
+	}
+}

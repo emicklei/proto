@@ -127,6 +127,8 @@ func (v *Visitor) VisitEnumField(i *proto.EnumField) {
 	v.buff.WriteString("    " + i.Name + "\n")
 }
 func (v *Visitor) VisitEnum(e *proto.Enum) {
+	v.scope.AddLocalType(e.Name)
+
 	v.buff.WriteString("\n")
 
 	v.buff.WriteString("enum " + v.scope.converter.NewTypeName(v.scope, e.Name) + " {\n")
