@@ -37,6 +37,28 @@ This repository also includes 2 commands. The `protofmt` tool is for formatting 
 
 See folder `cmd/proto2xsd/README.md` for more details.
 
+### usage of proto2gql command
+
+	> proto2gql -help
+	    Usage of proto2gql [flags] [path ...]
+
+        -std_out
+            Writes transformed files to stdout
+        -txt_out string
+            Writes transformed files to .graphql file
+        -go_out string
+            Writes transformed files to .go file
+        -js_out string
+            Writes transformed files to .js file
+        -package_alias value
+            Renames packages using given aliases
+        -resolve_import value
+            Resolves given external packages
+        -no_prefix
+            Disables package prefix for type names
+
+See folder `cmd/proto2gql/README.md` for more details.
+
 ### usage of protofmt command
 
 	> protofmt -help
