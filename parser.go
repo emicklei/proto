@@ -33,7 +33,8 @@ import (
 type Parser struct {
 	s   *scanner
 	buf struct {
-		line int
+		line int    // line (1+) in document where the token started
+		col  int    // column (1+) on the line where the token started
 		tok  token  // last read token
 		lit  string // last read literal
 		n    int    // buffer size (max=1)
