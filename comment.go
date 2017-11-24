@@ -23,18 +23,20 @@
 
 package proto
 
-import "strings"
+import (
+	"strings"
+)
 
 // Comment holds a message.
 type Comment struct {
-	LineNumber int
+	Pos        Position
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
 	ExtraSlash bool
 }
 
 // newComment returns a comment.
-func newComment(line int, lit string) *Comment {
+func newComment(pos Position, lit string) *Comment {
 	nonEmpty := []string{}
 	extraSlash := false
 	lines := strings.Split(lit, "\n")
@@ -51,7 +53,7 @@ func newComment(line int, lit string) *Comment {
 			nonEmpty = append(nonEmpty, lit)
 		}
 	}
-	return &Comment{LineNumber: line, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
+	return &Comment{Pos: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
 // columns is part of columnsPrintable
