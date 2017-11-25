@@ -114,7 +114,7 @@ type commentInliner interface {
 
 // maybeScanInlineComment tries to scan comment on the current line ; if present then set it for the last element added.
 func maybeScanInlineComment(p *Parser, c elementContainer) {
-	currentLine := p.s.line
+	currentPos := p.s.pos
 	// see if there is an inline Comment
 	line, tok, lit := p.scanIgnoreWhitespace()
 	esize := len(c.elements())

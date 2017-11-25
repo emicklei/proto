@@ -35,20 +35,20 @@ import (
 
 // scanner represents a lexical scanner.
 type scanner struct {
-	r    *bufio.Reader
-	line int
+	r   *bufio.Reader
+	pos Position
 }
 
 // newScanner returns a new instance of Scanner.
 func newScanner(r io.Reader) *scanner {
-	return &scanner{r: bufio.NewReader(r), line: 1}
+	return &scanner{r: bufio.NewReader(r), pos: startPosition}
 }
 
 // scan returns the next token and literal value.
-func (s *scanner) scan() (line int, tok token, lit string) {
+func (s *scanner) scan() (pos Position, tok token, lit string) {
 	// Read the next rune.
 	ch := s.read()
-	line = s.line
+	pos = s.pos
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
 	// If we see a slash then consume all as a comment (can be multiline)
@@ -65,41 +65,41 @@ func (s *scanner) scan() (line int, tok token, lit string) {
 	// Otherwise read the individual character.
 	switch ch {
 	case eof:
-		return line, tEOF, ""
+		return pos, tEOF, ""
 	case ';':
-		return line, tSEMICOLON, string(ch)
+		return pos, tSEMICOLON, string(ch)
 	case ':':
-		return line, tCOLON, string(ch)
+		return pos, tCOLON, string(ch)
 	case '=':
-		return line, tEQUALS, string(ch)
+		return pos, tEQUALS, string(ch)
 	case '"':
-		return line, tQUOTE, string(ch)
+		return pos, tQUOTE, string(ch)
 	case '\'':
-		return line, tSINGLEQUOTE, string(ch)
+		return pos, tSINGLEQUOTE, string(ch)
 	case '(':
-		return line, tLEFTPAREN, string(ch)
+		return pos, tLEFTPAREN, string(ch)
 	case ')':
-		return line, tRIGHTPAREN, string(ch)
+		return pos, tRIGHTPAREN, string(ch)
 	case '{':
-		return line, tLEFTCURLY, string(ch)
+		return pos, tLEFTCURLY, string(ch)
 	case '}':
-		return line, tRIGHTCURLY, string(ch)
+		return pos, tRIGHTCURLY, string(ch)
 	case '[':
-		return line, tLEFTSQUARE, string(ch)
+		return pos, tLEFTSQUARE, string(ch)
 	case ']':
-		return line, tRIGHTSQUARE, string(ch)
+		return pos, tRIGHTSQUARE, string(ch)
 	case '/':
-		return line, tCOMMENT, s.scanComment()
+		return pos, tCOMMENT, s.scanComment()
 	case '<':
-		return line, tLESS, string(ch)
+		return pos, tLESS, string(ch)
 	case ',':
-		return line, tCOMMA, string(ch)
+		return pos, tCOMMA, string(ch)
 	case '.':
-		return line, tDOT, string(ch)
+		return pos, tDOT, string(ch)
 	case '>':
-		return line, tGREATER, string(ch)
+		return pos, tGREATER, string(ch)
 	}
-	return line, tILLEGAL, string(ch)
+	return pos, tILLEGAL, string(ch)
 }
 
 // skipWhitespace consumes all whitespace until eof or a non-whitespace rune.

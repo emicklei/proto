@@ -16,6 +16,8 @@ type Position struct {
 	Column   int    // column number, starting at 1 (byte count)
 }
 
+var startPosition = Position{Line: 1, Column: 1}
+
 // IsValid reports whether the position is valid.
 func (pos *Position) IsValid() bool { return pos.Line > 0 }
 
