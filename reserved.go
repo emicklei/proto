@@ -25,7 +25,7 @@ package proto
 
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Ranges        []Range
 	FieldNames    []string

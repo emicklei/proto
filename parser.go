@@ -33,11 +33,10 @@ import (
 type Parser struct {
 	s   *scanner
 	buf struct {
-		line int    // line (1+) in document where the token started
-		col  int    // column (1+) on the line where the token started
-		tok  token  // last read token
-		lit  string // last read literal
-		n    int    // buffer size (max=1)
+		pos Position // location where last read token started
+		tok token    // last read token
+		lit string   // last read literal
+		n   int      // buffer size (max=1)
 	}
 	debug bool
 }
@@ -55,27 +54,27 @@ func (p *Parser) Parse() (*Proto, error) {
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *Parser) scan() (line int, tok token, lit string) {
+func (p *Parser) scan() (pos Position, tok token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
-		return p.buf.line, p.buf.tok, p.buf.lit
+		return p.buf.pos, p.buf.tok, p.buf.lit
 	}
 
 	// Otherwise read the next token from the scanner.
-	line, tok, lit = p.s.scan()
+	pos, tok, lit = p.s.scan()
 
 	// Save it to the buffer in case we unscan later.
-	p.buf.line, p.buf.tok, p.buf.lit = line, tok, lit
+	p.buf.pos, p.buf.tok, p.buf.lit = pos, tok, lit
 
 	return
 }
 
 // scanIgnoreWhitespace scans the next non-whitespace token.
-func (p *Parser) scanIgnoreWhitespace() (line int, tok token, lit string) {
-	line, tok, lit = p.scan()
+func (p *Parser) scanIgnoreWhitespace() (pos Position, tok token, lit string) {
+	pos, tok, lit = p.scan()
 	if tok == tWS {
-		line, tok, lit = p.scan()
+		pos, tok, lit = p.scan()
 	}
 	return
 }
@@ -89,5 +88,5 @@ func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 		_, file, line, _ := runtime.Caller(1)
 		debug = fmt.Sprintf(" at %s:%d (with %#v)", file, line, obj)
 	}
-	return fmt.Errorf("found %q on line %d, expected [%s]%s", found, p.s.line, expected, debug)
+	return fmt.Errorf("found %q on %v, expected [%s]%s", found, p.s.pos, expected, debug)
 }

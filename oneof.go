@@ -27,10 +27,10 @@ import "strconv"
 
 // Oneof is a field alternate.
 type Oneof struct {
-	LineNumber int
-	Comment    *Comment
-	Name       string
-	Elements   []Visitee
+	Position Position
+	Comment  *Comment
+	Name     string
+	Elements []Visitee
 }
 
 // addElement is part of elementContainer
@@ -53,27 +53,27 @@ func (o *Oneof) takeLastComment() (last *Comment) {
 // parse expects:
 // oneofName "{" { oneofField | emptyStatement } "}"
 func (o *Oneof) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "oneof identifier", o)
 		}
 	}
 	o.Name = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "oneof opening {", o)
 	}
 	for {
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(o.elements(), lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(o.elements(), lit, p.s.pos); com != nil { // not merged?
 				o.Elements = append(o.Elements, com)
 			}
 		case tIDENT:
 			f := newOneOfField()
-			f.LineNumber = line
+			f.Position = pos
 			f.Comment, o.Elements = takeLastComment(o.elements())
 			f.Type = lit
 			if err := parseFieldAfterType(f.Field, p); err != nil {
@@ -82,7 +82,7 @@ func (o *Oneof) parse(p *Parser) error {
 			o.Elements = append(o.Elements, f)
 		case tGROUP:
 			g := new(Group)
-			g.LineNumber = line
+			g.Position = pos
 			g.Comment, o.Elements = takeLastComment(o.elements())
 			if err := g.parse(p); err != nil {
 				return err

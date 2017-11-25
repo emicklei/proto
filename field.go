@@ -27,7 +27,7 @@ import "strconv"
 
 // Field is an abstract message field.
 type Field struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Name          string
 	Type          string
@@ -95,8 +95,8 @@ func (f *NormalField) columns() (cols []aligned) {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		line, tok, lit := p.scanIgnoreWhitespace()
-		f.LineNumber = line
+		pos, tok, lit := p.scanIgnoreWhitespace()
+		f.Position = pos
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
@@ -118,14 +118,14 @@ done:
 // parseFieldAfterType expects:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseFieldAfterType(f *Field, p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "field identifier", f)
 		}
 	}
 	f.Name = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "field =", f)
 	}
@@ -135,7 +135,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	}
 	f.Sequence = i
 	// see if there are options
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tLEFTSQUARE != tok {
 		p.unscan()
 		return nil
@@ -143,7 +143,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	// consume options
 	for {
 		o := new(Option)
-		o.LineNumber = line
+		o.Position = pos
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
@@ -151,7 +151,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 		}
 		f.Options = append(f.Options, o)
 
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		if tRIGHTSQUARE == tok {
 			break
 		}

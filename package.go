@@ -25,7 +25,7 @@ package proto
 
 // Package specifies the namespace for all proto elements.
 type Package struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Name          string
 	InlineComment *Comment

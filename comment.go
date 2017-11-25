@@ -29,7 +29,7 @@ import (
 
 // Comment holds a message.
 type Comment struct {
-	Pos        Position
+	Position   Position
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
 	ExtraSlash bool
@@ -53,7 +53,7 @@ func newComment(pos Position, lit string) *Comment {
 			nonEmpty = append(nonEmpty, lit)
 		}
 	}
-	return &Comment{Pos: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
+	return &Comment{Position: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
 // columns is part of columnsPrintable
@@ -119,7 +119,7 @@ func maybeScanInlineComment(p *Parser, c elementContainer) {
 	line, tok, lit := p.scanIgnoreWhitespace()
 	esize := len(c.elements())
 	// seen comment and on same line and elements have been added
-	if tCOMMENT == tok && p.s.line <= currentLine+1 && esize > 0 {
+	if tCOMMENT == tok && p.s.pos.Line <= currentPos.Line+1 && esize > 0 {
 		// if the last added element can have an inline comment then set it
 		last := c.elements()[esize-1]
 		if inliner, ok := last.(commentInliner); ok {
@@ -143,13 +143,13 @@ func takeLastComment(list []Visitee) (*Comment, []Visitee) {
 }
 
 // mergeOrReturnComment creates a new comment and tries to merge it with the last element (if is a comment and is on the next line).
-func mergeOrReturnComment(elements []Visitee, lit string, lineNumber int) *Comment {
-	com := newComment(lineNumber, lit)
+func mergeOrReturnComment(elements []Visitee, lit string, pos Position) *Comment {
+	com := newComment(pos, lit)
 	// last element must be a comment to merge +
 	// do not merge c-style comments +
 	// last comment line was on previous line
 	if esize := len(elements); esize > 0 {
-		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && lineNumber <= last.LineNumber+len(last.Lines) { // less than because last line of file could be inline comment
+		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && pos.Line <= last.Position.Line+len(last.Lines) { // less than because last line of file could be inline comment
 			last.Merge(com)
 			// mark as merged
 			com = nil

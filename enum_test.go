@@ -52,14 +52,14 @@ enum EnumAllowingAlias {
 	if got, want := enums[0].Comment.Message(), " enum"; got != want {
 		t.Errorf("got [%v] want [%v]", enums[0].Comment, want)
 	}
-	if got, want := enums[0].LineNumber, 3; got != want {
+	if got, want := enums[0].Position.Line, 3; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
 	ef1 := enums[0].Elements[1].(*EnumField)
 	if got, want := ef1.Integer, 0; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef1.LineNumber, 5; got != want {
+	if got, want := ef1.Position.Line, 5; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
 	ef3 := enums[0].Elements[3].(*EnumField)
@@ -72,7 +72,7 @@ enum EnumAllowingAlias {
 	if got, want := ef3.ValueOption.Constant.Source, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef3.LineNumber, 7; got != want {
+	if got, want := ef3.Position.Line, 7; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
 }

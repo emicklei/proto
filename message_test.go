@@ -56,16 +56,16 @@ func TestMessage(t *testing.T) {
 	if got, want := len(m.Elements), 6; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[0].(*NormalField).LineNumber, 4; got != want {
+	if got, want := m.Elements[0].(*NormalField).Position.Line, 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[0].(*NormalField).Comment.LineNumber, 3; got != want {
+	if got, want := m.Elements[0].(*NormalField).Comment.Position.Line, 3; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[3].(*Message).LineNumber, 12; got != want {
+	if got, want := m.Elements[3].(*Message).Position.Line, 12; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).LineNumber, 13; got != want {
+	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).Position.Line, 13; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

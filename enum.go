@@ -27,10 +27,10 @@ import "strconv"
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
-	LineNumber int
-	Comment    *Comment
-	Name       string
-	Elements   []Visitee
+	Position Position
+	Comment  *Comment
+	Name     string
+	Elements []Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -61,7 +61,7 @@ func (e *Enum) takeLastComment() (last *Comment) {
 }
 
 func (e *Enum) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "enum identifier", e)
@@ -73,15 +73,15 @@ func (e *Enum) parse(p *Parser) error {
 		return p.unexpected(lit, "enum opening {", e)
 	}
 	for {
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(e.elements(), lit, line); com != nil { // not merged?
+			if com := mergeOrReturnComment(e.elements(), lit, pos); com != nil { // not merged?
 				e.Elements = append(e.Elements, com)
 			}
 		case tOPTION:
 			v := new(Option)
-			v.LineNumber = line
+			v.Position = pos
 			v.Comment = e.takeLastComment()
 			err := v.parse(p)
 			if err != nil {
@@ -95,7 +95,7 @@ func (e *Enum) parse(p *Parser) error {
 		default:
 			p.unscan()
 			f := new(EnumField)
-			f.LineNumber = line
+			f.Position = pos
 			f.Comment = e.takeLastComment()
 			err := f.parse(p)
 			if err != nil {
@@ -113,7 +113,7 @@ done:
 
 // EnumField is part of the body of an Enum.
 type EnumField struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Name          string
 	Integer       int
@@ -150,14 +150,14 @@ func (f EnumField) columns() (cols []aligned) {
 }
 
 func (f *EnumField) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "enum field identifier", f)
 		}
 	}
 	f.Name = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "enum field =", f)
 	}
@@ -166,17 +166,17 @@ func (f *EnumField) parse(p *Parser) error {
 		return p.unexpected(lit, "enum field integer", f)
 	}
 	f.Integer = i
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok == tLEFTSQUARE {
 		o := new(Option)
-		o.LineNumber = line
+		o.Position = pos
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
 			return err
 		}
 		f.ValueOption = o
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		if tok != tRIGHTSQUARE {
 			return p.unexpected(lit, "option closing ]", f)
 		}

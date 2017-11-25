@@ -30,10 +30,10 @@ import (
 
 // Service defines a set of RPC calls.
 type Service struct {
-	LineNumber int
-	Comment    *Comment
-	Name       string
-	Elements   []Visitee
+	Position Position
+	Comment  *Comment
+	Name     string
+	Elements []Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -65,27 +65,27 @@ func (s *Service) takeLastComment() (last *Comment) {
 
 // parse continues after reading "service"
 func (s *Service) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "service identifier", s)
 		}
 	}
 	s.Name = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "service opening {", s)
 	}
 	for {
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(s.Elements, lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(s.Elements, lit, p.s.pos); com != nil { // not merged?
 				s.Elements = append(s.Elements, com)
 			}
 		case tRPC:
 			rpc := new(RPC)
-			rpc.LineNumber = line
+			rpc.Position = pos
 			rpc.Comment, s.Elements = takeLastComment(s.Elements)
 			err := rpc.parse(p)
 			if err != nil {
@@ -106,7 +106,7 @@ done:
 
 // RPC represents an rpc entry in a message.
 type RPC struct {
-	LineNumber     int
+	Position       Position
 	Comment        *Comment
 	Name           string
 	RequestType    string
@@ -179,50 +179,50 @@ func (r *RPC) columns() (cols []aligned) {
 
 // parse continues after reading "rpc"
 func (r *RPC) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc method", r)
 	}
 	r.Name = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if iSTREAM == lit {
 		r.StreamsRequest = true
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | request type", r)
 	}
 	r.RequestType = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
 		return p.unexpected(lit, "rpc type closing )", r)
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRETURNS {
 		return p.unexpected(lit, "rpc returns", r)
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if iSTREAM == lit {
 		r.StreamsReturns = true
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | returns type", r)
 	}
 	r.ReturnsType = lit
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tok != tRIGHTPAREN {
 		return p.unexpected(lit, "rpc type closing )", r)
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tSEMICOLON == tok {
 		p.s.unread(';') // allow for inline comment parsing
 		return nil
@@ -230,7 +230,7 @@ func (r *RPC) parse(p *Parser) error {
 	if tLEFTCURLY == tok {
 		// parse options
 		for {
-			line, tok, lit = p.scanIgnoreWhitespace()
+			pos, tok, lit = p.scanIgnoreWhitespace()
 			if tRIGHTCURLY == tok {
 				break
 			}
@@ -242,7 +242,7 @@ func (r *RPC) parse(p *Parser) error {
 				return p.unexpected(lit, "rpc option", r)
 			}
 			o := new(Option)
-			o.LineNumber = line
+			o.Position = pos
 			if err := o.parse(p); err != nil {
 				return err
 			}

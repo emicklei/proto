@@ -125,13 +125,13 @@ option Help = "me"; // inline`
 	if got, want := o.InlineComment.Lines[0], " inline"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.LineNumber, 3; got != want {
+	if got, want := o.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.Comment.LineNumber, 2; got != want {
+	if got, want := o.Comment.Position.Line, 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.InlineComment.LineNumber, 3; got != want {
+	if got, want := o.InlineComment.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
@@ -173,19 +173,19 @@ message Bar {
 	if got, want := ac[1].Source, "baz"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.LineNumber, 3; got != want {
+	if got, want := o.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.Comment.LineNumber, 2; got != want {
+	if got, want := o.Comment.Position.Line, 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.LineNumber, 5; got != want {
+	if got, want := f.Position.Line, 5; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ac[0].LineNumber, 6; got != want {
+	if got, want := ac[0].Position.Line, 6; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ac[1].LineNumber, 7; got != want {
+	if got, want := ac[1].Position.Line, 7; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }

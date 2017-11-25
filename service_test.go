@@ -39,7 +39,7 @@ func TestService(t *testing.T) {
 	if got, want := len(srv.Elements), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := srv.LineNumber, 1; got != want {
+	if got, want := srv.Position.Line, 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc1 := srv.Elements[0].(*RPC)
@@ -49,7 +49,7 @@ func TestService(t *testing.T) {
 	if got, want := rpc1.Doc().Message(), " comment"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := rpc1.LineNumber, 3; got != want {
+	if got, want := rpc1.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc2 := srv.Elements[1].(*RPC)

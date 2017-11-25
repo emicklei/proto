@@ -41,3 +41,13 @@ func (pos Position) String() string {
 	}
 	return s
 }
+
+// p.s.line <= currentLine+1
+
+func (pos Position) NextLine() Position {
+	return Position{Filename: pos.Filename, Line: pos.Line + 1, Column: 1}
+}
+
+func (pos Position) PreviousLine() Position {
+	return Position{Filename: pos.Filename, Line: pos.Line - 1, Column: 1}
+}

@@ -44,7 +44,7 @@ func TestExtensions(t *testing.T) {
 	if got, want := len(f.Ranges), 2; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
-	if got, want := f.LineNumber, 3; got != want {
+	if got, want := f.Position.Line, 3; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
 	if got, want := f.Ranges[1].String(), "20 to max"; got != want {

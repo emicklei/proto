@@ -28,11 +28,11 @@ import (
 )
 
 func TestCreateComment(t *testing.T) {
-	c0 := newComment(0, "")
+	c0 := newComment(startPosition, "")
 	if got, want := len(c0.Lines), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	c1 := newComment(0, `hello
+	c1 := newComment(startPosition, `hello
 world`)
 	if got, want := len(c1.Lines), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -49,8 +49,8 @@ world`)
 }
 
 func TestTakeLastComment(t *testing.T) {
-	c0 := newComment(0, "hi")
-	c1 := newComment(0, "there")
+	c0 := newComment(startPosition, "hi")
+	c1 := newComment(startPosition, "there")
 	_, l := takeLastComment([]Visitee{c0, c1})
 	if got, want := len(l), 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
@@ -83,7 +83,7 @@ func TestParseCommentWithEmptyLinesAndTripleSlash(t *testing.T) {
 	if got, want := def.Elements[0].(*Comment).Lines[4], " comment 4"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := def.Elements[0].(*Comment).LineNumber, 2; got != want {
+	if got, want := def.Elements[0].(*Comment).Position.Line, 2; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
 }
@@ -107,7 +107,7 @@ func TestParseCommentWithTripleSlash(t *testing.T) {
 	if got, want := def.Elements[0].(*Comment).Lines[0], " comment 1"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := def.Elements[0].(*Comment).LineNumber, 2; got != want {
+	if got, want := def.Elements[0].(*Comment).Position.Line, 2; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
 }

@@ -26,7 +26,7 @@ package proto
 // Extensions declare that a range of field numbers in a message are available for third-party extensions.
 // proto2 only
 type Extensions struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Ranges        []Range
 	InlineComment *Comment

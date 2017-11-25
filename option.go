@@ -28,7 +28,7 @@ import "bytes"
 
 // Option is a protoc compiler option
 type Option struct {
-	LineNumber          int
+	Position            Position
 	Comment             *Comment
 	Name                string
 	Constant            Literal
@@ -70,15 +70,15 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 // parse reads an Option body
 // ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
-	line, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.scanIgnoreWhitespace()
 	if tLEFTPAREN == tok {
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
 			if !isKeyword(tok) {
 				return p.unexpected(lit, "option full identifier", o)
 			}
 		}
-		line, tok, _ = p.scanIgnoreWhitespace()
+		pos, tok, _ = p.scanIgnoreWhitespace()
 		if tok != tRIGHTPAREN {
 			return p.unexpected(lit, "full identifier closing )", o)
 		}
@@ -92,15 +92,15 @@ func (o *Option) parse(p *Parser) error {
 		}
 		o.Name = lit
 	}
-	line, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.scanIgnoreWhitespace()
 	if tDOT == tok {
 		// extend identifier
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		if tok != tIDENT {
 			return p.unexpected(lit, "option postfix identifier", o)
 		}
 		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 	}
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
@@ -112,7 +112,7 @@ func (o *Option) parse(p *Parser) error {
 	}
 	// non aggregate
 	l := new(Literal)
-	l.LineNumber = line
+	l.Position = pos
 	if err := l.parse(p); err != nil {
 		return err
 	}
@@ -137,9 +137,9 @@ func (o *Option) Doc() *Comment {
 
 // Literal represents intLit,floatLit,strLit or boolLit
 type Literal struct {
-	LineNumber int
-	Source     string
-	IsString   bool
+	Position Position
+	Source   string
+	IsString bool
 }
 
 // String returns the source (if quoted then use double quote).
@@ -171,7 +171,7 @@ type NamedLiteral struct {
 func (o *Option) parseAggregate(p *Parser) error {
 	o.AggregatedConstants = []*NamedLiteral{}
 	for {
-		line, tok, lit := p.scanIgnoreWhitespace()
+		pos, tok, lit := p.scanIgnoreWhitespace()
 		if tRIGHTSQUARE == tok {
 			p.unscan()
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
@@ -193,12 +193,12 @@ func (o *Option) parseAggregate(p *Parser) error {
 			return p.unexpected(lit, "option aggregate key", o)
 		}
 		key := lit
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		if tCOLON != tok {
 			return p.unexpected(lit, "option aggregate key colon :", o)
 		}
 		l := new(Literal)
-		l.LineNumber = line
+		l.Position = pos
 		if err := l.parse(p); err != nil {
 			return err
 		}

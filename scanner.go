@@ -263,7 +263,7 @@ func (s *scanner) read() rune {
 		return eof
 	}
 	if '\n' == ch {
-		s.line++
+		s.pos = s.pos.NextLine()
 	}
 	return ch
 }
@@ -273,7 +273,7 @@ func (s *scanner) read() rune {
 func (s *scanner) unread(ch rune) {
 	_ = s.r.UnreadRune()
 	if '\n' == ch {
-		s.line--
+		s.pos = s.pos.PreviousLine()
 	}
 }
 

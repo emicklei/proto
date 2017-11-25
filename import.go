@@ -27,7 +27,7 @@ import "fmt"
 
 // Import holds a filename to another .proto definition.
 type Import struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Filename      string
 	Kind          string // weak, public, <empty>

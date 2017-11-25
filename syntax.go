@@ -25,7 +25,7 @@ package proto
 
 // Syntax should have value "proto"
 type Syntax struct {
-	LineNumber    int
+	Position      Position
 	Comment       *Comment
 	Value         string
 	InlineComment *Comment

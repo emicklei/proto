@@ -25,11 +25,11 @@ package proto
 
 // Message consists of a message name and a message body.
 type Message struct {
-	LineNumber int
-	Comment    *Comment
-	Name       string
-	IsExtend   bool
-	Elements   []Visitee
+	Position Position
+	Comment  *Comment
+	Name     string
+	IsExtend bool
+	Elements []Visitee
 }
 
 func (m *Message) groupName() string {
@@ -58,20 +58,20 @@ func (m *Message) parse(p *Parser) error {
 // parseMessageBody parses elements after {. It consumes the closing }
 func parseMessageBody(p *Parser, c elementContainer) error {
 	var (
-		line int
-		tok  token
-		lit  string
+		pos Position
+		tok token
+		lit string
 	)
 	for {
-		line, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.scanIgnoreWhitespace()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(c.elements(), lit, line); com != nil { // not merged?
+			if com := mergeOrReturnComment(c.elements(), lit, pos); com != nil { // not merged?
 				c.addElement(com)
 			}
 		case tENUM:
 			e := new(Enum)
-			e.LineNumber = line
+			e.Position = pos
 			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
@@ -79,7 +79,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(e)
 		case tMESSAGE:
 			msg := new(Message)
-			msg.LineNumber = line
+			msg.Position = pos
 			msg.Comment = c.takeLastComment()
 			if err := msg.parse(p); err != nil {
 				return err
@@ -87,7 +87,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(msg)
 		case tOPTION:
 			o := new(Option)
-			o.LineNumber = line
+			o.Position = pos
 			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
@@ -95,7 +95,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(o)
 		case tONEOF:
 			o := new(Oneof)
-			o.LineNumber = line
+			o.Position = pos
 			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
@@ -103,7 +103,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(o)
 		case tMAP:
 			f := newMapField()
-			f.LineNumber = line
+			f.Position = pos
 			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err
@@ -111,7 +111,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(f)
 		case tRESERVED:
 			r := new(Reserved)
-			r.LineNumber = line
+			r.Position = pos
 			r.Comment = c.takeLastComment()
 			if err := r.parse(p); err != nil {
 				return err
@@ -124,7 +124,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			_, tok, lit = p.scanIgnoreWhitespace()
 			if tGROUP == tok {
 				g := new(Group)
-				g.LineNumber = line
+				g.Position = pos
 				g.Comment = c.takeLastComment()
 				g.Optional = prevTok == tOPTIONAL
 				if err := g.parse(p); err != nil {
@@ -135,7 +135,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				// not a group, will be tFIELD
 				p.unscan()
 				f := newNormalField()
-				f.LineNumber = line
+				f.Position = pos
 				f.Comment = c.takeLastComment()
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
@@ -147,7 +147,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 		case tGROUP:
 			g := new(Group)
-			g.LineNumber = line
+			g.Position = pos
 			g.Comment = c.takeLastComment()
 			if err := g.parse(p); err != nil {
 				return err
@@ -155,7 +155,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(g)
 		case tEXTENSIONS:
 			e := new(Extensions)
-			e.LineNumber = line
+			e.Position = pos
 			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
@@ -163,7 +163,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			c.addElement(e)
 		case tEXTEND:
 			e := new(Message)
-			e.LineNumber = line
+			e.Position = pos
 			e.Comment = c.takeLastComment()
 			e.IsExtend = true
 			if err := e.parse(p); err != nil {
@@ -180,7 +180,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			// tFIELD
 			p.unscan()
 			f := newNormalField()
-			f.LineNumber = line
+			f.Position = pos
 			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err

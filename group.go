@@ -26,12 +26,12 @@ package proto
 // Group represents a (proto2 only) group.
 // https://developers.google.com/protocol-buffers/docs/reference/proto2-spec#group_field
 type Group struct {
-	LineNumber int
-	Comment    *Comment
-	Name       string
-	Optional   bool
-	Sequence   int
-	Elements   []Visitee
+	Position Position
+	Comment  *Comment
+	Name     string
+	Optional bool
+	Sequence int
+	Elements []Visitee
 }
 
 // Accept dispatches the call to the visitor.
