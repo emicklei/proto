@@ -27,6 +27,7 @@ import "fmt"
 
 // Import holds a filename to another .proto definition.
 type Import struct {
+	LineNumber    int
 	Comment       *Comment
 	Filename      string
 	Kind          string // weak, public, <empty>
@@ -34,7 +35,7 @@ type Import struct {
 }
 
 func (i *Import) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.scanIgnoreWhitespace()
 	switch tok {
 	case tWEAK:
 		i.Kind = lit

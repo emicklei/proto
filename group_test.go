@@ -47,6 +47,9 @@ func TestGroup(t *testing.T) {
 	if got, want := len(g.Elements), 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	if got, want := g.LineNumber, 3; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 	if got, want := g.Comment != nil, true; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}

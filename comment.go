@@ -27,14 +27,14 @@ import "strings"
 
 // Comment holds a message.
 type Comment struct {
-	lineNumber int
+	LineNumber int
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
 	ExtraSlash bool
 }
 
 // newComment returns a comment.
-func newComment(lit string) *Comment {
+func newComment(line int, lit string) *Comment {
 	nonEmpty := []string{}
 	extraSlash := false
 	lines := strings.Split(lit, "\n")
@@ -51,7 +51,7 @@ func newComment(lit string) *Comment {
 			nonEmpty = append(nonEmpty, lit)
 		}
 	}
-	return &Comment{Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
+	return &Comment{LineNumber: line, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
 // columns is part of columnsPrintable
@@ -114,7 +114,7 @@ type commentInliner interface {
 func maybeScanInlineComment(p *Parser, c elementContainer) {
 	currentLine := p.s.line
 	// see if there is an inline Comment
-	tok, lit := p.scanIgnoreWhitespace()
+	line, tok, lit := p.scanIgnoreWhitespace()
 	esize := len(c.elements())
 	// seen comment and on same line and elements have been added
 	if tCOMMENT == tok && p.s.line <= currentLine+1 && esize > 0 {
@@ -122,7 +122,7 @@ func maybeScanInlineComment(p *Parser, c elementContainer) {
 		last := c.elements()[esize-1]
 		if inliner, ok := last.(commentInliner); ok {
 			// TODO skip multiline?
-			inliner.inlineComment(newComment(lit))
+			inliner.inlineComment(newComment(line, lit))
 		}
 	} else {
 		p.unscan()
@@ -142,13 +142,12 @@ func takeLastComment(list []Visitee) (*Comment, []Visitee) {
 
 // mergeOrReturnComment creates a new comment and tries to merge it with the last element (if is a comment and is on the next line).
 func mergeOrReturnComment(elements []Visitee, lit string, lineNumber int) *Comment {
-	com := newComment(lit)
-	com.lineNumber = lineNumber
+	com := newComment(lineNumber, lit)
 	// last element must be a comment to merge +
 	// do not merge c-style comments +
 	// last comment line was on previous line
 	if esize := len(elements); esize > 0 {
-		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && lineNumber <= last.lineNumber+len(last.Lines) { // less than because last line of file could be inline comment
+		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && lineNumber <= last.LineNumber+len(last.Lines) { // less than because last line of file could be inline comment
 			last.Merge(com)
 			// mark as merged
 			com = nil

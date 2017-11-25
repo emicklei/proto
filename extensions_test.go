@@ -26,7 +26,7 @@ package proto
 import "testing"
 
 func TestExtensions(t *testing.T) {
-	proto := `message M { 
+	proto := `message M {
 		// extensions
 		extensions 4, 20 to max; // max
 	}`
@@ -42,6 +42,9 @@ func TestExtensions(t *testing.T) {
 	}
 	f := m.Elements[0].(*Extensions)
 	if got, want := len(f.Ranges), 2; got != want {
+		t.Fatalf("got [%d] want [%d]", got, want)
+	}
+	if got, want := f.LineNumber, 3; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
 	if got, want := f.Ranges[1].String(), "20 to max"; got != want {
