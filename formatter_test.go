@@ -113,7 +113,7 @@ func TestFormatAggregatedOptionSyntax(t *testing.T) {
 `
 	p := newParserOn(proto)
 	r := new(RPC)
-	p.scanIgnoreWhitespace() // consumer rpc
+	p.next() // consumer rpc
 	err := r.parse(p)
 	if err != nil {
 		t.Fatal(err)

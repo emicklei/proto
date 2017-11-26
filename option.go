@@ -23,12 +23,15 @@
 
 package proto
 
-import "fmt"
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+	"text/scanner"
+)
 
 // Option is a protoc compiler option
 type Option struct {
-	Position            Position
+	Position            scanner.Position
 	Comment             *Comment
 	Name                string
 	Constant            Literal
@@ -70,15 +73,15 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 // parse reads an Option body
 // ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
-	pos, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tLEFTPAREN == tok {
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		if tok != tIDENT {
 			if !isKeyword(tok) {
 				return p.unexpected(lit, "option full identifier", o)
 			}
 		}
-		pos, tok, _ = p.scanIgnoreWhitespace()
+		pos, tok, _ = p.next()
 		if tok != tRIGHTPAREN {
 			return p.unexpected(lit, "full identifier closing )", o)
 		}
@@ -92,22 +95,22 @@ func (o *Option) parse(p *Parser) error {
 		}
 		o.Name = lit
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tDOT == tok {
 		// extend identifier
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		if tok != tIDENT {
 			return p.unexpected(lit, "option postfix identifier", o)
 		}
 		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 	}
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
 	}
-	p.s.skipWhitespace()
-	if p.s.peek('{') {
-		p.s.read()
+	r := p.peekNonWhitespace()
+	if '{' == r {
+		p.next()
 		return o.parseAggregate(p)
 	}
 	// non aggregate
@@ -137,7 +140,7 @@ func (o *Option) Doc() *Comment {
 
 // Literal represents intLit,floatLit,strLit or boolLit
 type Literal struct {
-	Position Position
+	Position scanner.Position
 	Source   string
 	IsString bool
 }
@@ -157,7 +160,8 @@ func (l Literal) String() string {
 
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
-	l.Source, l.IsString = p.s.scanLiteral()
+	pos, _, lit := p.next()
+	l.Position, l.Source, l.IsString = pos, lit, isString(lit)
 	return nil
 }
 
@@ -171,9 +175,10 @@ type NamedLiteral struct {
 func (o *Option) parseAggregate(p *Parser) error {
 	o.AggregatedConstants = []*NamedLiteral{}
 	for {
-		pos, tok, lit := p.scanIgnoreWhitespace()
+		pos, tok, lit := p.next()
 		if tRIGHTSQUARE == tok {
-			p.unscan()
+			// TODO
+			// p.unscan()
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
 			return nil
 		}
@@ -193,7 +198,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 			return p.unexpected(lit, "option aggregate key", o)
 		}
 		key := lit
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		if tCOLON != tok {
 			return p.unexpected(lit, "option aggregate key colon :", o)
 		}

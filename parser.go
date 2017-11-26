@@ -24,26 +24,28 @@
 package proto
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"runtime"
+	"strconv"
+	"text/scanner"
 )
+
+var startPosition = scanner.Position{Line: 1, Column: 1}
 
 // Parser represents a parser.
 type Parser struct {
-	s   *scanner
-	buf struct {
-		pos Position // location where last read token started
-		tok token    // last read token
-		lit string   // last read literal
-		n   int      // buffer size (max=1)
-	}
-	debug bool
+	debug   bool
+	scanner *scanner.Scanner
 }
 
 // NewParser returns a new instance of Parser.
 func NewParser(r io.Reader) *Parser {
-	return &Parser{s: newScanner(r)}
+	s := new(scanner.Scanner)
+	s.Init(r)
+	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments
+	return &Parser{scanner: s}
 }
 
 // Parse parses a proto definition.
@@ -52,35 +54,15 @@ func (p *Parser) Parse() (*Proto, error) {
 	return proto, proto.parse(p)
 }
 
-// scan returns the next token from the underlying scanner.
-// If a token has been unscanned then read that instead.
-func (p *Parser) scan() (pos Position, tok token, lit string) {
-	// If we have a token on the buffer, then return it.
-	if p.buf.n != 0 {
-		p.buf.n = 0
-		return p.buf.pos, p.buf.tok, p.buf.lit
+// Next returns the next token using the scanner.
+func (p *Parser) next() (pos scanner.Position, tok token, lit string) {
+	ch := p.scanner.Scan()
+	if ch == scanner.EOF {
+		return p.scanner.Position, tEOF, ""
 	}
-
-	// Otherwise read the next token from the scanner.
-	pos, tok, lit = p.s.scan()
-
-	// Save it to the buffer in case we unscan later.
-	p.buf.pos, p.buf.tok, p.buf.lit = pos, tok, lit
-
-	return
+	lit = p.scanner.TokenText()
+	return p.scanner.Position, asToken(lit), lit
 }
-
-// scanIgnoreWhitespace scans the next non-whitespace token.
-func (p *Parser) scanIgnoreWhitespace() (pos Position, tok token, lit string) {
-	pos, tok, lit = p.scan()
-	if tok == tWS {
-		pos, tok, lit = p.scan()
-	}
-	return
-}
-
-// unscan pushes the previously read token back onto the buffer.
-func (p *Parser) unscan() { p.buf.n = 1 }
 
 func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 	debug := ""
@@ -88,5 +70,27 @@ func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 		_, file, line, _ := runtime.Caller(1)
 		debug = fmt.Sprintf(" at %s:%d (with %#v)", file, line, obj)
 	}
-	return fmt.Errorf("found %q on %v, expected [%s]%s", found, p.s.pos, expected, debug)
+	return fmt.Errorf("found %q on %v, expected [%s]%s", found, p.scanner.Position, expected, debug)
+}
+
+func (p *Parser) nextInteger() (i int, err error) {
+	_, tok, lit := p.next()
+	if tok != tIDENT {
+		return -1, errors.New("non integer") // TODO
+	}
+	i, err = strconv.Atoi(lit)
+	return
+}
+
+func (p *Parser) peekNonWhitespace() rune {
+	r := p.scanner.Peek()
+	if r == scanner.EOF {
+		return r
+	}
+	if isWhitespace(r) {
+		// consume it
+		p.scanner.Next()
+		return p.peekNonWhitespace()
+	}
+	return r
 }

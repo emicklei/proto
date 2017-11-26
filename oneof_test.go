@@ -32,7 +32,7 @@ func TestOneof(t *testing.T) {
     SubMessage sub_message = 9 [options=none];
 }`
 	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume first token
+	p.next() // consume first token
 	o := new(Oneof)
 	err := o.parse(p)
 	if err != nil {

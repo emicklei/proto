@@ -29,7 +29,7 @@ func TestField(t *testing.T) {
 	proto := `repeated foo.bar lots =1 [option1=a, option2=b, option3="happy"];`
 	p := newParserOn(proto)
 	f := newNormalField()
-	err := f.parse(p)
+	err := f.parse(p, typeUnknown)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestField(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(f.Options), 3; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[0].Name, "option1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -69,7 +69,7 @@ func TestFieldSimple(t *testing.T) {
 	proto := `string optional_string_piece = 24 [ctype=STRING_PIECE];`
 	p := newParserOn(proto)
 	f := newNormalField()
-	err := f.parse(p)
+	err := f.parse(p, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestFieldSyntaxErrors(t *testing.T) {
 		`string lots === 1;`,
 	} {
 		f := newNormalField()
-		if f.parse(newParserOn(each)) == nil {
+		if f.parse(newParserOn(each), typeUnknown) == nil {
 			t.Errorf("uncaught syntax error in test case %d, %#v", i, f)
 		}
 	}
@@ -131,7 +131,7 @@ func TestOptionalWithOption(t *testing.T) {
 	proto := `optional int32 default_int32    = 61 [default =  41    ];`
 	p := newParserOn(proto)
 	f := newNormalField()
-	err := f.parse(p)
+	err := f.parse(p, typeUnknown)
 	if err != nil {
 		t.Fatal(err)
 	}

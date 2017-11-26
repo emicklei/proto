@@ -28,7 +28,7 @@ import "testing"
 func TestSyntax(t *testing.T) {
 	proto := `syntax = "proto";`
 	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume first token
+	p.next() // consume first token
 	s := new(Syntax)
 	err := s.parse(p)
 	if err != nil {

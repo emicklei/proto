@@ -44,7 +44,7 @@ func TestMessage(t *testing.T) {
 		option  (my_option).a  =  true;
 	}`
 	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume first token
+	p.next() // consume first token
 	m := new(Message)
 	err := m.parse(p)
 	if err != nil {
@@ -53,16 +53,19 @@ func TestMessage(t *testing.T) {
 	if got, want := m.Name, "Out"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := m.Position.String(), "2:3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	if got, want := len(m.Elements), 6; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[0].(*NormalField).Position.Line, 4; got != want {
+	if got, want := m.Elements[0].(*NormalField).Position.String(), "4:3"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[0].(*NormalField).Comment.Position.Line, 3; got != want {
+	if got, want := m.Elements[0].(*NormalField).Comment.Position.String(), "3:3"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Elements[3].(*Message).Position.Line, 12; got != want {
+	if got, want := m.Elements[3].(*Message).Position.String(), "12:3"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).Position.Line, 13; got != want {

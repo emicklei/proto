@@ -60,19 +60,26 @@ func newParserOn(def string) *Parser {
 	return p
 }
 
-// TEMPORARY tests
 func TestScanIgnoreWhitespace_Digits(t *testing.T) {
 	p := newParserOn("1234")
-	_, _, lit := p.scanIgnoreWhitespace()
+	pos, _, lit := p.next()
 	if got, want := lit, "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	// pos right after "4"
+	if got, want := pos.String(), "1:5"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestScanIgnoreWhitespace_Minus(t *testing.T) {
 	p := newParserOn("-1234")
-	_, _, lit := p.scanIgnoreWhitespace()
+	pos, _, lit := p.next()
 	if got, want := lit, "-"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	// pos right after "-"
+	if got, want := pos.String(), "1:2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

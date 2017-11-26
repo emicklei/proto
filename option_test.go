@@ -176,10 +176,10 @@ message Bar {
 	if got, want := o.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := o.Comment.Position.Line, 2; got != want {
+	if got, want := o.Comment.Position.String(), "2:1"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := f.Position.Line, 5; got != want {
+	if got, want := f.Position.String(), "5:3"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := ac[0].Position.Line, 6; got != want {

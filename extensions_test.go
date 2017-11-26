@@ -31,7 +31,7 @@ func TestExtensions(t *testing.T) {
 		extensions 4, 20 to max; // max
 	}`
 	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume extensions
+	p.next() // consume extensions
 	m := new(Message)
 	err := m.parse(p)
 	if err != nil {

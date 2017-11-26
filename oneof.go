@@ -23,11 +23,14 @@
 
 package proto
 
-import "strconv"
+import (
+	"strconv"
+	"text/scanner"
+)
 
 // Oneof is a field alternate.
 type Oneof struct {
-	Position Position
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
@@ -53,22 +56,22 @@ func (o *Oneof) takeLastComment() (last *Comment) {
 // parse expects:
 // oneofName "{" { oneofField | emptyStatement } "}"
 func (o *Oneof) parse(p *Parser) error {
-	pos, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "oneof identifier", o)
 		}
 	}
 	o.Name = lit
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "oneof opening {", o)
 	}
 	for {
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(o.elements(), lit, p.s.pos); com != nil { // not merged?
+			if com := mergeOrReturnComment(o.elements(), lit, pos); com != nil { // not merged?
 				o.Elements = append(o.Elements, com)
 			}
 		case tIDENT:

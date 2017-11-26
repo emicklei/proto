@@ -23,9 +23,15 @@
 
 package proto
 
+import (
+	"fmt"
+	"log"
+	"text/scanner"
+)
+
 // Message consists of a message name and a message body.
 type Message struct {
-	Position Position
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	IsExtend bool
@@ -41,14 +47,15 @@ func (m *Message) groupName() string {
 
 // parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
-	_, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, m.groupName()+" identifier", m)
 		}
 	}
 	m.Name = lit
-	_, tok, lit = p.scanIgnoreWhitespace()
+	m.Position = pos
+	_, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, m.groupName()+" opening {", m)
 	}
@@ -58,18 +65,18 @@ func (m *Message) parse(p *Parser) error {
 // parseMessageBody parses elements after {. It consumes the closing }
 func parseMessageBody(p *Parser, c elementContainer) error {
 	var (
-		pos Position
+		pos scanner.Position
 		tok token
 		lit string
 	)
 	for {
-		pos, tok, lit = p.scanIgnoreWhitespace()
-		switch tok {
-		case tCOMMENT:
+		pos, tok, lit = p.next()
+		switch {
+		case isComment(lit):
 			if com := mergeOrReturnComment(c.elements(), lit, pos); com != nil { // not merged?
 				c.addElement(com)
 			}
-		case tENUM:
+		case tENUM == tok:
 			e := new(Enum)
 			e.Position = pos
 			e.Comment = c.takeLastComment()
@@ -77,7 +84,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(e)
-		case tMESSAGE:
+		case tMESSAGE == tok:
 			msg := new(Message)
 			msg.Position = pos
 			msg.Comment = c.takeLastComment()
@@ -85,7 +92,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(msg)
-		case tOPTION:
+		case tOPTION == tok:
 			o := new(Option)
 			o.Position = pos
 			o.Comment = c.takeLastComment()
@@ -93,7 +100,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(o)
-		case tONEOF:
+		case tONEOF == tok:
 			o := new(Oneof)
 			o.Position = pos
 			o.Comment = c.takeLastComment()
@@ -101,7 +108,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(o)
-		case tMAP:
+		case tMAP == tok:
 			f := newMapField()
 			f.Position = pos
 			f.Comment = c.takeLastComment()
@@ -109,7 +116,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(f)
-		case tRESERVED:
+		case tRESERVED == tok:
 			r := new(Reserved)
 			r.Position = pos
 			r.Comment = c.takeLastComment()
@@ -118,10 +125,10 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 			c.addElement(r)
 		// BEGIN proto2
-		case tOPTIONAL, tREPEATED, tREQUIRED:
+		case tOPTIONAL == tok || tREPEATED == tok || tREQUIRED == tok:
 			// look ahead
 			prevTok := tok
-			_, tok, lit = p.scanIgnoreWhitespace()
+			pos, tok, lit = p.next()
 			if tGROUP == tok {
 				g := new(Group)
 				g.Position = pos
@@ -133,19 +140,19 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				c.addElement(g)
 			} else {
 				// not a group, will be tFIELD
-				p.unscan()
 				f := newNormalField()
+				f.Type = lit
 				f.Position = pos
 				f.Comment = c.takeLastComment()
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
 				f.Required = prevTok == tREQUIRED
-				if err := f.parse(p); err != nil {
+				if err := f.parse(p, !typeUnknown); err != nil {
 					return err
 				}
 				c.addElement(f)
 			}
-		case tGROUP:
+		case tGROUP == tok:
 			g := new(Group)
 			g.Position = pos
 			g.Comment = c.takeLastComment()
@@ -153,7 +160,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(g)
-		case tEXTENSIONS:
+		case tEXTENSIONS == tok:
 			e := new(Extensions)
 			e.Position = pos
 			e.Comment = c.takeLastComment()
@@ -161,7 +168,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				return err
 			}
 			c.addElement(e)
-		case tEXTEND:
+		case tEXTEND == tok:
 			e := new(Message)
 			e.Position = pos
 			e.Comment = c.takeLastComment()
@@ -171,18 +178,17 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			}
 			c.addElement(e)
 		// END proto2 only
-		case tRIGHTCURLY, tEOF:
+		case tRIGHTCURLY == tok || tEOF == tok:
 			goto done
-		case tSEMICOLON:
+		case tSEMICOLON == tok:
 			maybeScanInlineComment(p, c)
 			// continue
 		default:
 			// tFIELD
-			p.unscan()
 			f := newNormalField()
 			f.Position = pos
 			f.Comment = c.takeLastComment()
-			if err := f.parse(p); err != nil {
+			if err := f.parse(p, typeUnknown); err != nil {
 				return err
 			}
 			c.addElement(f)
@@ -202,6 +208,7 @@ func (m *Message) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (m *Message) addElement(v Visitee) {
+	log.Printf("adding %v to %v", v, m) // TODO
 	m.Elements = append(m.Elements, v)
 }
 
@@ -219,3 +226,5 @@ func (m *Message) takeLastComment() (last *Comment) {
 func (m *Message) Doc() *Comment {
 	return m.Comment
 }
+
+func (m *Message) String() string { return fmt.Sprintf("<message %s>", m.Name) }

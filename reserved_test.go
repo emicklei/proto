@@ -28,7 +28,7 @@ import "testing"
 func TestReservedRanges(t *testing.T) {
 	r := new(Reserved)
 	p := newParserOn(`reserved 2, 15, 9 to 11;`)
-	_, tok, _ := p.scanIgnoreWhitespace()
+	_, tok, _ := p.next()
 	if tRESERVED != tok {
 		t.Fail()
 	}
@@ -47,7 +47,7 @@ func TestReservedRanges(t *testing.T) {
 func TestReservedFieldNames(t *testing.T) {
 	r := new(Reserved)
 	p := newParserOn(`reserved "foo", "bar";`)
-	_, _, _ = p.scanIgnoreWhitespace()
+	_, _, _ = p.next()
 	err := r.parse(p)
 	if err != nil {
 		t.Fatal(err)

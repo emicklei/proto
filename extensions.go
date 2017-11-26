@@ -23,10 +23,12 @@
 
 package proto
 
+import "text/scanner"
+
 // Extensions declare that a range of field numbers in a message are available for third-party extensions.
 // proto2 only
 type Extensions struct {
-	Position      Position
+	Position      scanner.Position
 	Comment       *Comment
 	Ranges        []Range
 	InlineComment *Comment

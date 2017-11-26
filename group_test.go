@@ -34,13 +34,14 @@ func TestGroup(t *testing.T) {
         }
     }`
 	p := newParserOn(oto)
-	p.scanIgnoreWhitespace() // consume first token
+	p.next() // consume first token
 	m := new(Message)
 	err := m.parse(p)
 	if err != nil {
 		t.Error(err)
 	}
 	if got, want := len(m.Elements), 1; got != want {
+		t.Logf("%#v", m.Elements)
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	g := m.Elements[0].(*Group)

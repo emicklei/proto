@@ -26,11 +26,12 @@ package proto
 import (
 	"bytes"
 	"io"
+	"text/scanner"
 )
 
 // Service defines a set of RPC calls.
 type Service struct {
-	Position Position
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
@@ -65,22 +66,22 @@ func (s *Service) takeLastComment() (last *Comment) {
 
 // parse continues after reading "service"
 func (s *Service) parse(p *Parser) error {
-	pos, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "service identifier", s)
 		}
 	}
 	s.Name = lit
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "service opening {", s)
 	}
 	for {
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(s.Elements, lit, p.s.pos); com != nil { // not merged?
+			if com := mergeOrReturnComment(s.Elements, lit, pos); com != nil { // not merged?
 				s.Elements = append(s.Elements, com)
 			}
 		case tRPC:
@@ -106,7 +107,7 @@ done:
 
 // RPC represents an rpc entry in a message.
 type RPC struct {
-	Position       Position
+	Position       scanner.Position
 	Comment        *Comment
 	Name           string
 	RequestType    string
@@ -179,58 +180,58 @@ func (r *RPC) columns() (cols []aligned) {
 
 // parse continues after reading "rpc"
 func (r *RPC) parse(p *Parser) error {
-	pos, tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc method", r)
 	}
 	r.Name = lit
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
-	if iSTREAM == lit {
+	pos, tok, lit = p.next()
+	if tSTREAM == tok {
 		r.StreamsRequest = true
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | request type", r)
 	}
 	r.RequestType = lit
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tRIGHTPAREN {
 		return p.unexpected(lit, "rpc type closing )", r)
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tRETURNS {
 		return p.unexpected(lit, "rpc returns", r)
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
-	if iSTREAM == lit {
+	pos, tok, lit = p.next()
+	if tSTREAM == tok {
 		r.StreamsReturns = true
-		pos, tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | returns type", r)
 	}
 	r.ReturnsType = lit
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tRIGHTPAREN {
 		return p.unexpected(lit, "rpc type closing )", r)
 	}
-	pos, tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tSEMICOLON == tok {
-		p.s.unread(';') // allow for inline comment parsing
+		// TODO p.s.unread(';') // allow for inline comment parsing
 		return nil
 	}
 	if tLEFTCURLY == tok {
 		// parse options
 		for {
-			pos, tok, lit = p.scanIgnoreWhitespace()
+			pos, tok, lit = p.next()
 			if tRIGHTCURLY == tok {
 				break
 			}

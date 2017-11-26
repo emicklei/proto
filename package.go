@@ -23,9 +23,11 @@
 
 package proto
 
+import "text/scanner"
+
 // Package specifies the namespace for all proto elements.
 type Package struct {
-	Position      Position
+	Position      scanner.Position
 	Comment       *Comment
 	Name          string
 	InlineComment *Comment
@@ -37,7 +39,7 @@ func (p *Package) Doc() *Comment {
 }
 
 func (p *Package) parse(pr *Parser) error {
-	_, tok, lit := pr.scanIgnoreWhitespace()
+	_, tok, lit := pr.next()
 	if tIDENT != tok {
 		if !isKeyword(tok) {
 			return pr.unexpected(lit, "package identifier", p)

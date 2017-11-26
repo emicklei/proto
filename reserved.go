@@ -23,9 +23,11 @@
 
 package proto
 
+import "text/scanner"
+
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
-	Position      Position
+	Position      scanner.Position
 	Comment       *Comment
 	Ranges        []Range
 	FieldNames    []string
@@ -44,7 +46,7 @@ func (r *Reserved) Accept(v Visitor) {
 
 func (r *Reserved) parse(p *Parser) error {
 	for {
-		_, tok, lit := p.scanIgnoreWhitespace()
+		_, tok, lit := p.next()
 		if len(lit) == 0 {
 			return p.unexpected(lit, "reserved string or integer", r)
 		}
@@ -52,7 +54,8 @@ func (r *Reserved) parse(p *Parser) error {
 		ch := []rune(lit)[0]
 		if isDigit(ch) {
 			// use unread here because it could be start of ranges
-			p.s.unread(ch)
+			// TODO
+			// p.s.unread(ch)
 			list, err := parseRanges(p, r)
 			if err != nil {
 				return err
@@ -62,16 +65,17 @@ func (r *Reserved) parse(p *Parser) error {
 		}
 		if tQUOTE == tok || tSINGLEQUOTE == tok {
 			// use unread here because scanLiteral does not look at buf
-			p.s.unread(ch)
-			field, isString := p.s.scanLiteral()
-			if !isString {
+			// TODO p.s.unread(ch)
+			//field, isString := p.s.scanLiteral()
+			_, _, lit := p.next()
+			if !isString(lit) {
 				return p.unexpected(lit, "reserved string", r)
 			}
-			r.FieldNames = append(r.FieldNames, field)
+			r.FieldNames = append(r.FieldNames, lit)
 			continue
 		}
 		if tSEMICOLON == tok {
-			p.unscan()
+			// TODO p.unscan()
 			break
 		}
 	}
