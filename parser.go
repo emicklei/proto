@@ -38,6 +38,14 @@ var startPosition = scanner.Position{Line: 1, Column: 1}
 type Parser struct {
 	debug   bool
 	scanner *scanner.Scanner
+	buf     *nextValues
+}
+
+// nextValues is to capture the result of next()
+type nextValues struct {
+	pos scanner.Position
+	tok token
+	lit string
 }
 
 // NewParser returns a new instance of Parser.
@@ -48,20 +56,36 @@ func NewParser(r io.Reader) *Parser {
 	return &Parser{scanner: s}
 }
 
+// func isIdentRune(ch rune, i int) bool {
+// 	// adds the dot to regular Go identifiers
+// 	return ch == '.' || ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
+// }
+
 // Parse parses a proto definition.
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
 	return proto, proto.parse(p)
 }
 
-// Next returns the next token using the scanner.
+// next returns the next token using the scanner or drain the buffer.
 func (p *Parser) next() (pos scanner.Position, tok token, lit string) {
+	if p.buf != nil {
+		// consume buf
+		vals := *p.buf
+		p.buf = nil
+		return vals.pos, vals.tok, vals.lit
+	}
 	ch := p.scanner.Scan()
 	if ch == scanner.EOF {
 		return p.scanner.Position, tEOF, ""
 	}
 	lit = p.scanner.TokenText()
 	return p.scanner.Position, asToken(lit), lit
+}
+
+// nextPut sets the buffer
+func (p *Parser) nextPut(pos scanner.Position, tok token, lit string) {
+	p.buf = &nextValues{pos, tok, lit}
 }
 
 func (p *Parser) unexpected(found, expected string, obj interface{}) error {
@@ -80,6 +104,31 @@ func (p *Parser) nextInteger() (i int, err error) {
 	}
 	i, err = strconv.Atoi(lit)
 	return
+}
+
+// TODO
+func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) {
+	pos, tok, lit = p.next()
+	if tIDENT != tok {
+		return
+	}
+	startPos := pos
+	fullLit := lit
+	// see if identifier is namespaced
+	for {
+		r := p.scanner.Peek()
+		if '.' != r {
+			break
+		}
+		p.next() // consume dot
+		pos, tok, lit := p.next()
+		if tIDENT != tok {
+			p.nextPut(pos, tok, lit)
+			break
+		}
+		fullLit = fmt.Sprintf("%s.%s", fullLit, lit)
+	}
+	return startPos, tIDENT, fullLit
 }
 
 func (p *Parser) peekNonWhitespace() rune {

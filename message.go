@@ -140,6 +140,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				c.addElement(g)
 			} else {
 				// not a group, will be tFIELD
+				p.nextPut(pos, tok, lit)
 				f := newNormalField()
 				f.Type = lit
 				f.Position = pos
@@ -147,7 +148,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
 				f.Required = prevTok == tREQUIRED
-				if err := f.parse(p, !typeUnknown); err != nil {
+				if err := f.parse(p); err != nil {
 					return err
 				}
 				c.addElement(f)
@@ -185,10 +186,11 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			// continue
 		default:
 			// tFIELD
+			p.nextPut(pos, tok, lit)
 			f := newNormalField()
 			f.Position = pos
 			f.Comment = c.takeLastComment()
-			if err := f.parse(p, typeUnknown); err != nil {
+			if err := f.parse(p); err != nil {
 				return err
 			}
 			c.addElement(f)

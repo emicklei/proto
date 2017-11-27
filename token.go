@@ -142,6 +142,10 @@ func asToken(literal string) token {
 		return tLESS
 	case ">":
 		return tGREATER
+	case ",":
+		return tCOMMA
+	case ".":
+		return tDOT
 	// words
 	case "syntax":
 		return tSYNTAX

@@ -96,23 +96,18 @@ func (f *NormalField) columns() (cols []aligned) {
 	return
 }
 
-var typeUnknown = false
-
 // parse expects:
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
-func (f *NormalField) parse(p *Parser, typeKnown bool) error {
-	if typeKnown {
-		return parseFieldAfterType(f.Field, p)
-	}
+func (f *NormalField) parse(p *Parser) error {
 	for {
 		_, tok, lit := p.next()
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
-			return f.parse(p, typeUnknown)
+			return f.parse(p)
 		case tOPTIONAL: // proto2
 			f.Optional = true
-			return f.parse(p, typeUnknown)
+			return f.parse(p)
 		case tIDENT:
 			f.Type = lit
 			return parseFieldAfterType(f.Field, p)
@@ -232,14 +227,14 @@ func (f *MapField) parse(p *Parser) error {
 	if tCOMMA != tok {
 		return p.unexpected(lit, "map type separator ,", f)
 	}
-	_, tok, lit = p.next()
+	_, tok, lit = p.nextIdentifier()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map valueType identifier", f)
 	}
 	f.Type = lit
 	_, tok, lit = p.next()
 	if tGREATER != tok {
-		return p.unexpected(lit, "mak valueType >", f)
+		return p.unexpected(lit, "map valueType >", f)
 	}
 	return parseFieldAfterType(f.Field, p)
 }
