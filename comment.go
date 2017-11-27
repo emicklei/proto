@@ -49,7 +49,7 @@ func newComment(pos scanner.Position, lit string) *Comment {
 		}
 	} else {
 		if strings.HasPrefix(lit, "/") {
-			extraSlash = true
+			extraSlash = strings.HasPrefix(lit, "///")
 			nonEmpty = append(nonEmpty, strings.TrimLeft(lit, "/"))
 		} else {
 			nonEmpty = append(nonEmpty, lit)

@@ -33,6 +33,7 @@ enum EnumAllowingAlias {
   UNKNOWN = 0;
   STARTED = 1;
   RUNNING = 2 [(custom_option) = "hello world"];
+  NEG = -42;
 }`
 	p := newParserOn(proto)
 	pr, err := p.Parse()
@@ -43,7 +44,7 @@ enum EnumAllowingAlias {
 	if got, want := len(enums), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(enums[0].Elements), 4; got != want {
+	if got, want := len(enums[0].Elements), 5; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := enums[0].Comment != nil, true; got != want {
@@ -74,5 +75,9 @@ enum EnumAllowingAlias {
 	}
 	if got, want := ef3.Position.Line, 7; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	ef4 := enums[0].Elements[4].(*EnumField)
+	if got, want := ef4.Integer, -42; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

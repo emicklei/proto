@@ -96,21 +96,21 @@ func (o *Option) parse(p *Parser) error {
 		o.Name = lit
 	}
 	pos, tok, lit = p.next()
-	// if tDOT == tok {
-	// 	// extend identifier
-	// 	pos, tok, lit = p.nextIdentifier()
-	// 	if tok != tIDENT {
-	// 		return p.unexpected(lit, "option postfix identifier", o)
-	// 	}
-	// 	o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
-	// 	pos, tok, lit = p.next()
-	// }
+	if tDOT == tok {
+		// extend identifier
+		pos, tok, lit = p.nextIdentifier()
+		if tok != tIDENT {
+			return p.unexpected(lit, "option postfix identifier", o)
+		}
+		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
+		pos, tok, lit = p.next()
+	}
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
 	}
 	r := p.peekNonWhitespace()
 	if '{' == r {
-		p.next()
+		p.next() // consume {
 		return o.parseAggregate(p)
 	}
 	// non aggregate

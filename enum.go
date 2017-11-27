@@ -96,11 +96,11 @@ func (e *Enum) parse(p *Parser) error {
 		case tSEMICOLON:
 			maybeScanInlineComment(p, e)
 		default:
+			p.nextPut(pos, tok, lit)
 			f := new(EnumField)
-			f.Name = lit
 			f.Position = pos
 			f.Comment = e.takeLastComment()
-			err := f.parse(p, true)
+			err := f.parse(p)
 			if err != nil {
 				return err
 			}
@@ -152,16 +152,14 @@ func (f EnumField) columns() (cols []aligned) {
 	return
 }
 
-func (f *EnumField) parse(p *Parser, idKnown bool) error {
-	if !idKnown {
-		_, tok, lit := p.next()
-		if tok != tIDENT {
-			if !isKeyword(tok) {
-				return p.unexpected(lit, "enum field identifier", f)
-			}
+func (f *EnumField) parse(p *Parser) error {
+	_, tok, lit := p.nextIdentifier()
+	if tok != tIDENT {
+		if !isKeyword(tok) {
+			return p.unexpected(lit, "enum field identifier", f)
 		}
-		f.Name = lit
 	}
+	f.Name = lit
 	pos, tok, lit := p.next()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "enum field =", f)
@@ -187,8 +185,7 @@ func (f *EnumField) parse(p *Parser, idKnown bool) error {
 		}
 	}
 	if tSEMICOLON == tok {
-		// TODO
-		//p.unscan() // put back this token for scanning inline comment
+		p.nextPut(pos, tok, lit) // put back this token for scanning inline comment
 	}
 	return nil
 }

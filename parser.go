@@ -36,9 +36,10 @@ var startPosition = scanner.Position{Line: 1, Column: 1}
 
 // Parser represents a parser.
 type Parser struct {
-	debug   bool
-	scanner *scanner.Scanner
-	buf     *nextValues
+	debug        bool
+	scanner      *scanner.Scanner
+	buf          *nextValues
+	scannerError error
 }
 
 // nextValues is to capture the result of next()
@@ -53,18 +54,30 @@ func NewParser(r io.Reader) *Parser {
 	s := new(scanner.Scanner)
 	s.Init(r)
 	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments
-	return &Parser{scanner: s}
+	p := &Parser{scanner: s}
+	s.Error = p.handleScanError
+	return p
 }
 
-// func isIdentRune(ch rune, i int) bool {
-// 	// adds the dot to regular Go identifiers
-// 	return ch == '.' || ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
-// }
+// handleScanError is called from the underlying Scanner
+func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
+	p.scannerError = fmt.Errorf("go scanner error at %v = %v", s.Position, msg)
+}
 
-// Parse parses a proto definition.
+// Parse parses a proto definition. May return a parse or scanner error.
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
-	return proto, proto.parse(p)
+	parseError := proto.parse(p)
+	// see if it was a scanner error
+	if p.scannerError != nil {
+		return proto, p.scannerError
+	}
+	return proto, parseError
+}
+
+// Filename is for reporting. Optional.
+func (p *Parser) Filename(f string) {
+	p.scanner.Filename = f
 }
 
 // next returns the next token using the scanner or drain the buffer.
@@ -99,8 +112,12 @@ func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 
 func (p *Parser) nextInteger() (i int, err error) {
 	_, tok, lit := p.next()
+	if "-" == lit {
+		i, err = p.nextInteger()
+		return i * -1, err
+	}
 	if tok != tIDENT {
-		return -1, errors.New("non integer") // TODO
+		return 0, errors.New("non integer")
 	}
 	i, err = strconv.Atoi(lit)
 	return
