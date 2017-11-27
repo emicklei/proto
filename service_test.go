@@ -39,7 +39,7 @@ func TestService(t *testing.T) {
 	if got, want := len(srv.Elements), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := srv.Position.String(), "1:1"; got != want {
+	if got, want := srv.Position.String(), "<input>:1:1"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc1 := srv.Elements[0].(*RPC)

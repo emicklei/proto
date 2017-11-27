@@ -161,7 +161,12 @@ func (l Literal) String() string {
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	pos, _, lit := p.next()
-	l.Position, l.Source, l.IsString = pos, lit, isString(lit)
+	source := lit
+	isString := isString(lit)
+	if isString {
+		source = unQuote(source)
+	}
+	l.Position, l.Source, l.IsString = pos, source, isString
 	return nil
 }
 
@@ -177,8 +182,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 	for {
 		pos, tok, lit := p.next()
 		if tRIGHTSQUARE == tok {
-			// TODO
-			// p.unscan()
+			p.nextPut(pos, tok, lit)
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
 			return nil
 		}

@@ -25,7 +25,6 @@ package proto
 
 import (
 	"fmt"
-	"log"
 	"text/scanner"
 )
 
@@ -47,14 +46,13 @@ func (m *Message) groupName() string {
 
 // parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
-	pos, tok, lit := p.next()
+	_, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, m.groupName()+" identifier", m)
 		}
 	}
 	m.Name = lit
-	m.Position = pos
 	_, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, m.groupName()+" opening {", m)
@@ -210,7 +208,6 @@ func (m *Message) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (m *Message) addElement(v Visitee) {
-	log.Printf("adding %v to %v", v, m) // TODO
 	m.Elements = append(m.Elements, v)
 }
 

@@ -38,7 +38,7 @@ func TestExtensions(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(m.Elements) != 1 {
-		t.Fatal("1 extension expected, got", len(m.Elements))
+		t.Fatal("1 elements expected, got", len(m.Elements))
 	}
 	f := m.Elements[0].(*Extensions)
 	if got, want := len(f.Ranges), 2; got != want {

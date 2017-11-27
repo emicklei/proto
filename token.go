@@ -113,6 +113,10 @@ func isComment(lit string) bool {
 	return strings.HasPrefix(lit, "//") || strings.HasPrefix(lit, "/*")
 }
 
+func unQuote(lit string) string {
+	return strings.Trim(lit, "\"'")
+}
+
 func asToken(literal string) token {
 	switch literal {
 	// delimiters
@@ -192,6 +196,10 @@ func asToken(literal string) token {
 	case "required":
 		return tREQUIRED
 	default:
+		// special cases
+		if isComment(literal) {
+			return tCOMMENT
+		}
 		return tIDENT
 	}
 }

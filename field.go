@@ -25,7 +25,6 @@ package proto
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"text/scanner"
 )
@@ -123,7 +122,6 @@ done:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseFieldAfterType(f *Field, p *Parser) error {
 	pos, tok, lit := p.next()
-	log.Println("parseFieldAfterType", f.Type, lit)
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "field identifier", f)

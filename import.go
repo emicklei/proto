@@ -46,11 +46,8 @@ func (i *Import) parse(p *Parser) error {
 	case tPUBLIC:
 		i.Kind = lit
 		return i.parse(p)
-	// TODO
-	// case tQUOTE:
-	// 	i.Filename = p.s.scanUntil('"')
-	// case tSINGLEQUOTE:
-	// 	i.Filename = p.s.scanUntil('\'')
+	case tIDENT:
+		i.Filename = unQuote(lit)
 	default:
 		return p.unexpected(lit, "import classifier weak|public|quoted", i)
 	}

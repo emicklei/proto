@@ -23,7 +23,9 @@
 
 package proto
 
-import "text/scanner"
+import (
+	"text/scanner"
+)
 
 // Syntax should have value "proto"
 type Syntax struct {
@@ -41,7 +43,7 @@ func (s *Syntax) parse(p *Parser) error {
 	if !isString(lit) {
 		return p.unexpected(lit, "syntax string constant", s)
 	}
-	s.Value = lit
+	s.Value = unQuote(lit)
 	return nil
 }
 

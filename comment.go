@@ -152,7 +152,9 @@ func mergeOrReturnComment(elements []Visitee, lit string, pos scanner.Position) 
 	// do not merge c-style comments +
 	// last comment line was on previous line
 	if esize := len(elements); esize > 0 {
-		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && pos.Line <= last.Position.Line+len(last.Lines) { // less than because last line of file could be inline comment
+		if last, ok := elements[esize-1].(*Comment); ok &&
+			!last.Cstyle &&
+			pos.Line <= last.Position.Line+len(last.Lines) { // less than because last line of file could be inline comment
 			last.Merge(com)
 			// mark as merged
 			com = nil
