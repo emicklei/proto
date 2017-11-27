@@ -115,24 +115,23 @@ type commentInliner interface {
 }
 
 // maybeScanInlineComment tries to scan comment on the current line ; if present then set it for the last element added.
-func maybeScanInlineComment(p *Parser, c elementContainer) {}
-
-// 	currentPos := p.s.pos
-// 	// see if there is an inline Comment
-// 	pos, lit := p.Next()
-// 	esize := len(c.elements())
-// 	// seen comment and on same line and elements have been added
-// 	if tCOMMENT == tok && p.s.pos.Line <= currentPos.Line+1 && esize > 0 {
-// 		// if the last added element can have an inline comment then set it
-// 		last := c.elements()[esize-1]
-// 		if inliner, ok := last.(commentInliner); ok {
-// 			// TODO skip multiline?
-// 			inliner.inlineComment(newComment(pos, lit))
-// 		}
-// 	} else {
-// 		p.unscan()
-// 	}
-// }
+func maybeScanInlineComment(p *Parser, c elementContainer) {
+	currentPos := p.scanner.Position
+	// see if there is an inline Comment
+	pos, tok, lit := p.next()
+	esize := len(c.elements())
+	// seen comment and on same line and elements have been added
+	if tCOMMENT == tok && pos.Line == currentPos.Line && esize > 0 {
+		// if the last added element can have an inline comment then set it
+		last := c.elements()[esize-1]
+		if inliner, ok := last.(commentInliner); ok {
+			// TODO skip multiline?
+			inliner.inlineComment(newComment(pos, lit))
+		}
+	} else {
+		p.nextPut(pos, tok, lit)
+	}
+}
 
 // takeLastComment removes and returns the last element of the list if it is a Comment.
 func takeLastComment(list []Visitee) (*Comment, []Visitee) {

@@ -49,7 +49,7 @@ func (r Range) String() string {
 func parseRanges(p *Parser, n Visitee) (list []Range, err error) {
 	seenTo := false
 	for {
-		_, _, lit := p.next()
+		pos, tok, lit := p.next()
 		if isString(lit) {
 			return list, p.unexpected(lit, "integer, <to> <max>", n)
 		}
@@ -58,8 +58,7 @@ func parseRanges(p *Parser, n Visitee) (list []Range, err error) {
 		case "to":
 			seenTo = true
 		case ";":
-			// TODO
-			// p.s.unread(';') // allow for inline comment parsing
+			p.nextPut(pos, tok, lit) // allow for inline comment parsing
 			goto done
 		case "max":
 			if !seenTo {

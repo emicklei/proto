@@ -31,14 +31,14 @@ func TestExtensions(t *testing.T) {
 		extensions 4, 20 to max; // max
 	}`
 	p := newParserOn(proto)
-	p.next() // consume extensions
+	p.next() // consume message
 	m := new(Message)
 	err := m.parse(p)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(m.Elements) != 1 {
-		t.Fatal("1 elements expected, got", len(m.Elements))
+		t.Fatal("1 elements expected, got", len(m.Elements), m.Elements)
 	}
 	f := m.Elements[0].(*Extensions)
 	if got, want := len(f.Ranges), 2; got != want {
