@@ -46,7 +46,7 @@ func (m *Message) groupName() string {
 
 // parse expects ident { messageBody
 func (m *Message) parse(p *Parser) error {
-	_, tok, lit := p.next()
+	_, tok, lit := p.nextIdentifier()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, m.groupName()+" identifier", m)

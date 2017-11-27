@@ -99,7 +99,7 @@ func (f *NormalField) columns() (cols []aligned) {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		_, tok, lit := p.next()
+		_, tok, lit := p.nextIdentifier()
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true

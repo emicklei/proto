@@ -73,9 +73,9 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 // parse reads an Option body
 // ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
-	pos, tok, lit := p.next()
+	pos, tok, lit := p.nextIdentifier()
 	if tLEFTPAREN == tok {
-		pos, tok, lit = p.next()
+		pos, tok, lit = p.nextIdentifier()
 		if tok != tIDENT {
 			if !isKeyword(tok) {
 				return p.unexpected(lit, "option full identifier", o)
@@ -96,15 +96,15 @@ func (o *Option) parse(p *Parser) error {
 		o.Name = lit
 	}
 	pos, tok, lit = p.next()
-	if tDOT == tok {
-		// extend identifier
-		pos, tok, lit = p.next()
-		if tok != tIDENT {
-			return p.unexpected(lit, "option postfix identifier", o)
-		}
-		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
-		pos, tok, lit = p.next()
-	}
+	// if tDOT == tok {
+	// 	// extend identifier
+	// 	pos, tok, lit = p.nextIdentifier()
+	// 	if tok != tIDENT {
+	// 		return p.unexpected(lit, "option postfix identifier", o)
+	// 	}
+	// 	o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
+	// 	pos, tok, lit = p.next()
+	// }
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option constant =", o)
 	}
@@ -161,6 +161,15 @@ func (l Literal) String() string {
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	pos, _, lit := p.next()
+	if "-" == lit {
+		// negative number
+		if err := l.parse(p); err != nil {
+			return err
+		}
+		// modify source and position
+		l.Position, l.Source = pos, "-"+l.Source
+		return nil
+	}
 	source := lit
 	isString := isString(lit)
 	if isString {

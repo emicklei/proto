@@ -53,9 +53,6 @@ func TestMessage(t *testing.T) {
 	if got, want := m.Name, "Out"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := m.Position.String(), "<input>:2:3"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
 	if got, want := len(m.Elements), 6; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
