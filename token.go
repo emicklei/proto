@@ -96,7 +96,7 @@ func isKeyword(tok token) bool {
 	return keywordsStart < tok && tok < keywordsEnd
 }
 
-// TODO
+// isWhitespace checks for space,tab and newline
 func isWhitespace(r rune) bool {
 	return r == ' ' || r == '\t' || r == '\n'
 }
@@ -104,9 +104,12 @@ func isWhitespace(r rune) bool {
 // isDigit returns true if the rune is a digit.
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
-// TODO
+// isString checks if the literal is quoted (single or double).
 func isString(lit string) bool {
-	return strings.HasPrefix(lit, "\"") || strings.HasPrefix(lit, "'")
+	return (strings.HasPrefix(lit, "\"") &&
+		strings.HasSuffix(lit, "\"")) ||
+		(strings.HasPrefix(lit, "'") &&
+			strings.HasSuffix(lit, "'"))
 }
 
 func isComment(lit string) bool {

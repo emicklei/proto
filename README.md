@@ -6,7 +6,7 @@
 
 Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
 
-This repository also includes 2 commands. The `protofmt` tool is for formatting .proto files and the `proto2xsd` tool is for generating XSD files from .proto version 3 files.
+This repository also includes 3 commands. The `protofmt` tool is for formatting .proto files. The `proto2xsd` tool is for generating XSD files from .proto version 3 files. The `proto2gql` tool is for generating the GraphQL Schema.
 
 ### usage as package
 

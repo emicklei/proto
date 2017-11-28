@@ -24,6 +24,7 @@
 package proto
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -36,10 +37,10 @@ var startPosition = scanner.Position{Line: 1, Column: 1}
 
 // Parser represents a parser.
 type Parser struct {
-	debug        bool
-	scanner      *scanner.Scanner
-	buf          *nextValues
-	scannerError error
+	debug         bool
+	scanner       *scanner.Scanner
+	buf           *nextValues
+	scannerErrors []error
 }
 
 // nextValues is to capture the result of next()
@@ -61,7 +62,8 @@ func NewParser(r io.Reader) *Parser {
 
 // handleScanError is called from the underlying Scanner
 func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
-	p.scannerError = fmt.Errorf("go scanner error at %v = %v", s.Position, msg)
+	p.scannerErrors = append(p.scannerErrors,
+		fmt.Errorf("go scanner error at %v = %v", s.Position, msg))
 }
 
 // Parse parses a proto definition. May return a parse or scanner error.
@@ -69,8 +71,12 @@ func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
 	parseError := proto.parse(p)
 	// see if it was a scanner error
-	if p.scannerError != nil {
-		return proto, p.scannerError
+	if len(p.scannerErrors) > 0 {
+		buf := new(bytes.Buffer)
+		for _, each := range p.scannerErrors {
+			fmt.Fprintln(buf, each)
+		}
+		return proto, errors.New(buf.String())
 	}
 	return proto, parseError
 }
@@ -123,7 +129,7 @@ func (p *Parser) nextInteger() (i int, err error) {
 	return
 }
 
-// TODO
+// nextIdentifier consumes tokens which may have one or more dot separators (namespaced idents).
 func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) {
 	pos, tok, lit = p.next()
 	if tIDENT != tok {

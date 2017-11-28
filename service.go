@@ -225,7 +225,7 @@ func (r *RPC) parse(p *Parser) error {
 	}
 	pos, tok, lit = p.next()
 	if tSEMICOLON == tok {
-		// TODO p.s.unread(';') // allow for inline comment parsing
+		p.nextPut(pos, tok, lit) // allow for inline comment parsing
 		return nil
 	}
 	if tLEFTCURLY == tok {
