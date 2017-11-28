@@ -39,7 +39,7 @@ func (p *Package) Doc() *Comment {
 }
 
 func (p *Package) parse(pr *Parser) error {
-	_, tok, lit := pr.next()
+	_, tok, lit := pr.nextIdentifier()
 	if tIDENT != tok {
 		if !isKeyword(tok) {
 			return pr.unexpected(lit, "package identifier", p)
