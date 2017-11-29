@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 	"io/ioutil"
-	"path"
+	"path/filepath"
 )
 
 type FileWriter struct {
@@ -14,7 +14,7 @@ type FileWriter struct {
 }
 
 func NewFileWriter(filename string, openTag, closeTag string) (*FileWriter, error) {
-	file, err := ioutil.TempFile(os.TempDir(), "proto2gql")
+	file, err := ioutil.TempFile(filepath.Dir(filename), "proto2gql")
 
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (fw *FileWriter) Save() error {
 		return err
 	}
 
-	if err := os.MkdirAll(path.Dir(fw.filename), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(fw.filename), os.ModePerm); err != nil {
 		return err
 	}
 
