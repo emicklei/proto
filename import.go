@@ -23,10 +23,14 @@
 
 package proto
 
-import "fmt"
+import (
+	"fmt"
+	"text/scanner"
+)
 
 // Import holds a filename to another .proto definition.
 type Import struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Filename      string
 	Kind          string // weak, public, <empty>
@@ -34,7 +38,7 @@ type Import struct {
 }
 
 func (i *Import) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.next()
 	switch tok {
 	case tWEAK:
 		i.Kind = lit
@@ -42,10 +46,8 @@ func (i *Import) parse(p *Parser) error {
 	case tPUBLIC:
 		i.Kind = lit
 		return i.parse(p)
-	case tQUOTE:
-		i.Filename = p.s.scanUntil('"')
-	case tSINGLEQUOTE:
-		i.Filename = p.s.scanUntil('\'')
+	case tIDENT:
+		i.Filename = unQuote(lit)
 	default:
 		return p.unexpected(lit, "import classifier weak|public|quoted", i)
 	}

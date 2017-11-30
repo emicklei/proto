@@ -23,10 +23,14 @@
 
 package proto
 
-import "strconv"
+import (
+	"strconv"
+	"text/scanner"
+)
 
 // Oneof is a field alternate.
 type Oneof struct {
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
@@ -52,26 +56,27 @@ func (o *Oneof) takeLastComment() (last *Comment) {
 // parse expects:
 // oneofName "{" { oneofField | emptyStatement } "}"
 func (o *Oneof) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "oneof identifier", o)
 		}
 	}
 	o.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "oneof opening {", o)
 	}
 	for {
-		tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(o.elements(), lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(o.elements(), lit, pos); com != nil { // not merged?
 				o.Elements = append(o.Elements, com)
 			}
 		case tIDENT:
 			f := newOneOfField()
+			f.Position = pos
 			f.Comment, o.Elements = takeLastComment(o.elements())
 			f.Type = lit
 			if err := parseFieldAfterType(f.Field, p); err != nil {
@@ -80,6 +85,7 @@ func (o *Oneof) parse(p *Parser) error {
 			o.Elements = append(o.Elements, f)
 		case tGROUP:
 			g := new(Group)
+			g.Position = pos
 			g.Comment, o.Elements = takeLastComment(o.elements())
 			if err := g.parse(p); err != nil {
 				return err

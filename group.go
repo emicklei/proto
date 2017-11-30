@@ -23,9 +23,15 @@
 
 package proto
 
+import (
+	"fmt"
+	"text/scanner"
+)
+
 // Group represents a (proto2 only) group.
 // https://developers.google.com/protocol-buffers/docs/reference/proto2-spec#group_field
 type Group struct {
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	Optional bool
@@ -63,26 +69,27 @@ func (g *Group) takeLastComment() (last *Comment) {
 // parse expects:
 // groupName "=" fieldNumber { messageBody }
 func (g *Group) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "group name", g)
 		}
 	}
 	g.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "group =", g)
 	}
-	i, err := p.s.scanInteger()
+	i, err := p.nextInteger()
 	if err != nil {
 		return p.unexpected(lit, "group sequence number", g)
 	}
 	g.Sequence = i
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "group opening {", g)
 	}
-	parseMessageBody(p, g)
-	return nil
+	return parseMessageBody(p, g)
 }
+
+func (g *Group) String() string { return fmt.Sprintf("<group %s>", g.Name) }

@@ -23,10 +23,14 @@
 
 package proto
 
-import "strconv"
+import (
+	"strconv"
+	"text/scanner"
+)
 
 // Enum definition consists of a name and an enum body.
 type Enum struct {
+	Position scanner.Position
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
@@ -60,26 +64,27 @@ func (e *Enum) takeLastComment() (last *Comment) {
 }
 
 func (e *Enum) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "enum identifier", e)
 		}
 	}
 	e.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "enum opening {", e)
 	}
 	for {
-		tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		switch tok {
 		case tCOMMENT:
-			if com := mergeOrReturnComment(e.elements(), lit, p.s.line); com != nil { // not merged?
+			if com := mergeOrReturnComment(e.elements(), lit, pos); com != nil { // not merged?
 				e.Elements = append(e.Elements, com)
 			}
 		case tOPTION:
 			v := new(Option)
+			v.Position = pos
 			v.Comment = e.takeLastComment()
 			err := v.parse(p)
 			if err != nil {
@@ -91,8 +96,9 @@ func (e *Enum) parse(p *Parser) error {
 		case tSEMICOLON:
 			maybeScanInlineComment(p, e)
 		default:
-			p.unscan()
+			p.nextPut(pos, tok, lit)
 			f := new(EnumField)
+			f.Position = pos
 			f.Comment = e.takeLastComment()
 			err := f.parse(p)
 			if err != nil {
@@ -110,6 +116,7 @@ done:
 
 // EnumField is part of the body of an Enum.
 type EnumField struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Name          string
 	Integer       int
@@ -146,38 +153,39 @@ func (f EnumField) columns() (cols []aligned) {
 }
 
 func (f *EnumField) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.nextIdentifier()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "enum field identifier", f)
 		}
 	}
 	f.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "enum field =", f)
 	}
-	i, err := p.s.scanInteger()
+	i, err := p.nextInteger()
 	if err != nil {
 		return p.unexpected(lit, "enum field integer", f)
 	}
 	f.Integer = i
-	tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok == tLEFTSQUARE {
 		o := new(Option)
+		o.Position = pos
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
 			return err
 		}
 		f.ValueOption = o
-		tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		if tok != tRIGHTSQUARE {
 			return p.unexpected(lit, "option closing ]", f)
 		}
 	}
 	if tSEMICOLON == tok {
-		p.unscan() // put back this token for scanning inline comment
+		p.nextPut(pos, tok, lit) // put back this token for scanning inline comment
 	}
 	return nil
 }

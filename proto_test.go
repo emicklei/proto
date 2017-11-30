@@ -51,6 +51,7 @@ func parseFormattedParsed(t *testing.T, filename string) {
 	defer f.Close()
 	// parse it
 	p := NewParser(f)
+	p.Filename(filename)
 	def, err := p.Parse()
 	if err != nil {
 		t.Fatal(filename, err)

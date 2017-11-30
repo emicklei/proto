@@ -23,9 +23,15 @@
 
 package proto
 
+import (
+	"fmt"
+	"text/scanner"
+)
+
 // Extensions declare that a range of field numbers in a message are available for third-party extensions.
 // proto2 only
 type Extensions struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Ranges        []Range
 	InlineComment *Comment
@@ -50,3 +56,5 @@ func (e *Extensions) parse(p *Parser) error {
 	e.Ranges = list
 	return nil
 }
+
+func (e *Extensions) String() string { return fmt.Sprintf("<extensions %v>", e.Ranges) }

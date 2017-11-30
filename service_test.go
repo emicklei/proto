@@ -29,7 +29,7 @@ func TestService(t *testing.T) {
 	proto := `service AccountService {
 		// comment
 		rpc CreateAccount (CreateAccount) returns (ServiceFault);
-		rpc GetAccounts   (stream Int64)  returns (Account);	
+		rpc GetAccounts   (stream Int64)  returns (Account);
 	}`
 	pr, err := newParserOn(proto).Parse()
 	if err != nil {
@@ -39,11 +39,17 @@ func TestService(t *testing.T) {
 	if got, want := len(srv.Elements), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	if got, want := srv.Position.String(), "<input>:1:1"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 	rpc1 := srv.Elements[0].(*RPC)
 	if got, want := rpc1.Name, "CreateAccount"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := rpc1.Doc().Message(), " comment"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := rpc1.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc2 := srv.Elements[1].(*RPC)
@@ -57,9 +63,9 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 		// CreateAccount
 		rpc CreateAccount (CreateAccount) returns (ServiceFault){
 			option (test_ident) = {
-				test: "test" 
+				test: "test"
 				test2:"test2"
-			};			
+			};
 		}
 	}`
 	pr, err := newParserOn(proto).Parse()

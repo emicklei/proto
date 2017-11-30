@@ -33,8 +33,8 @@ func TestParseComment(t *testing.T) {
     // first
 	// second
 
-    /* 
-	ctyle 
+    /*
+	ctyle
 	multi
 	line
     */
@@ -60,19 +60,30 @@ func newParserOn(def string) *Parser {
 	return p
 }
 
-// TEMPORARY tests
 func TestScanIgnoreWhitespace_Digits(t *testing.T) {
-	p := newParserOn("1234")
-	_, lit := p.scanIgnoreWhitespace()
-	if got, want := lit, "1"; got != want {
+	p := newParserOn(" 1234 ")
+	_, _, lit := p.next()
+	if got, want := lit, "1234"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestScanIgnoreWhitespace_Minus(t *testing.T) {
-	p := newParserOn("-1234")
-	_, lit := p.scanIgnoreWhitespace()
+	p := newParserOn(" -1234")
+	_, _, lit := p.next()
 	if got, want := lit, "-"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestNextIdentifier(t *testing.T) {
+	ident := " aap.noot.mies "
+	p := newParserOn(ident)
+	_, tok, lit := p.nextIdentifier()
+	if got, want := tok, tIDENT; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := lit, strings.TrimSpace(ident); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

@@ -43,7 +43,7 @@ func TestField(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(f.Options), 3; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[0].Name, "option1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)

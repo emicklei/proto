@@ -23,6 +23,10 @@
 
 package proto
 
+import (
+	"strings"
+)
+
 // token represents a lexical token.
 type token int
 
@@ -72,6 +76,7 @@ const (
 	tMAP
 	tRESERVED
 	tENUM
+	tSTREAM
 
 	// BEGIN proto2
 	tOPTIONAL
@@ -86,12 +91,118 @@ const (
 // typeTokens exists for future validation
 const typeTokens = "double float int32 int64 uint32 uint64 sint32 sint64 fixed32 sfixed32 sfixed64 bool string bytes"
 
-// context dependent reserved words
-const (
-	iSTREAM = "stream"
-)
-
 // isKeyword returns if tok is in the keywords range
 func isKeyword(tok token) bool {
 	return keywordsStart < tok && tok < keywordsEnd
+}
+
+// isWhitespace checks for space,tab and newline
+func isWhitespace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n'
+}
+
+// isDigit returns true if the rune is a digit.
+func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
+
+// isString checks if the literal is quoted (single or double).
+func isString(lit string) bool {
+	return (strings.HasPrefix(lit, "\"") &&
+		strings.HasSuffix(lit, "\"")) ||
+		(strings.HasPrefix(lit, "'") &&
+			strings.HasSuffix(lit, "'"))
+}
+
+func isComment(lit string) bool {
+	return strings.HasPrefix(lit, "//") || strings.HasPrefix(lit, "/*")
+}
+
+func unQuote(lit string) string {
+	return strings.Trim(lit, "\"'")
+}
+
+func asToken(literal string) token {
+	switch literal {
+	// delimiters
+	case ";":
+		return tSEMICOLON
+	case ":":
+		return tCOLON
+	case "=":
+		return tEQUALS
+	case "\"":
+		return tQUOTE
+	case "'":
+		return tSINGLEQUOTE
+	case "(":
+		return tLEFTPAREN
+	case ")":
+		return tRIGHTPAREN
+	case "{":
+		return tLEFTCURLY
+	case "}":
+		return tRIGHTCURLY
+	case "[":
+		return tLEFTSQUARE
+	case "]":
+		return tRIGHTSQUARE
+	case "<":
+		return tLESS
+	case ">":
+		return tGREATER
+	case ",":
+		return tCOMMA
+	case ".":
+		return tDOT
+	// words
+	case "syntax":
+		return tSYNTAX
+	case "service":
+		return tSERVICE
+	case "rpc":
+		return tRPC
+	case "returns":
+		return tRETURNS
+	case "option":
+		return tOPTION
+	case "message":
+		return tMESSAGE
+	case "import":
+		return tIMPORT
+	case "package":
+		return tPACKAGE
+	case "oneof":
+		return tONEOF
+	// special fields
+	case "map":
+		return tMAP
+	case "reserved":
+		return tRESERVED
+	case "enum":
+		return tENUM
+	case "repeated":
+		return tREPEATED
+	case "weak":
+		return tWEAK
+	case "public":
+		return tPUBLIC
+	case "stream":
+		return tSTREAM
+	// proto2
+	case "optional":
+		return tOPTIONAL
+	case "group":
+		return tGROUP
+	case "extensions":
+		return tEXTENSIONS
+	case "extend":
+		return tEXTEND
+	case "required":
+		return tREQUIRED
+	default:
+		// special cases
+		if isComment(literal) {
+			return tCOMMENT
+		}
+		return tIDENT
+	}
 }

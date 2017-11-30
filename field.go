@@ -23,10 +23,15 @@
 
 package proto
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+	"text/scanner"
+)
 
 // Field is an abstract message field.
 type Field struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Name          string
 	Type          string
@@ -94,7 +99,7 @@ func (f *NormalField) columns() (cols []aligned) {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		_, tok, lit := p.nextIdentifier()
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
@@ -116,31 +121,31 @@ done:
 // parseFieldAfterType expects:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseFieldAfterType(f *Field, p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "field identifier", f)
 		}
 	}
 	f.Name = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tok != tEQUALS {
 		return p.unexpected(lit, "field =", f)
 	}
-	i, err := p.s.scanInteger()
+	i, err := p.nextInteger()
 	if err != nil {
 		return p.unexpected(lit, "field sequence number", f)
 	}
 	f.Sequence = i
 	// see if there are options
-	tok, lit = p.scanIgnoreWhitespace()
+	pos, tok, lit = p.next()
 	if tLEFTSQUARE != tok {
-		p.unscan()
 		return nil
 	}
 	// consume options
 	for {
 		o := new(Option)
+		o.Position = pos
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
@@ -148,7 +153,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 		}
 		f.Options = append(f.Options, o)
 
-		tok, lit = p.scanIgnoreWhitespace()
+		pos, tok, lit = p.next()
 		if tRIGHTSQUARE == tok {
 			break
 		}
@@ -158,6 +163,8 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	}
 	return nil
 }
+
+func (n *NormalField) String() string { return fmt.Sprintf("<field %s=%d>", n.Name, n.Sequence) }
 
 // MapField represents a map entry in a message.
 type MapField struct {
@@ -205,27 +212,27 @@ func (f *MapField) columns() (cols []aligned) {
 // keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
 //           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 func (f *MapField) parse(p *Parser) error {
-	tok, lit := p.scanIgnoreWhitespace()
+	_, tok, lit := p.next()
 	if tLESS != tok {
 		return p.unexpected(lit, "map keyType <", f)
 	}
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map identifier", f)
 	}
 	f.KeyType = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tCOMMA != tok {
 		return p.unexpected(lit, "map type separator ,", f)
 	}
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.nextIdentifier()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map valueType identifier", f)
 	}
 	f.Type = lit
-	tok, lit = p.scanIgnoreWhitespace()
+	_, tok, lit = p.next()
 	if tGREATER != tok {
-		return p.unexpected(lit, "mak valueType >", f)
+		return p.unexpected(lit, "map valueType >", f)
 	}
 	return parseFieldAfterType(f.Field, p)
 }

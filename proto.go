@@ -48,65 +48,73 @@ func (proto *Proto) takeLastComment() (last *Comment) {
 // parse parsers a complete .proto definition source.
 func (proto *Proto) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
-		switch tok {
-		case tCOMMENT:
-			if com := mergeOrReturnComment(proto.Elements, lit, p.s.line); com != nil { // not merged?
+		pos, tok, lit := p.next()
+		switch {
+		case isComment(lit):
+			if com := mergeOrReturnComment(proto.Elements, lit, pos); com != nil { // not merged?
 				proto.Elements = append(proto.Elements, com)
 			}
-		case tOPTION:
+		case tOPTION == tok:
 			o := new(Option)
+			o.Position = pos
 			o.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := o.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, o)
-		case tSYNTAX:
+		case tSYNTAX == tok:
 			s := new(Syntax)
+			s.Position = pos
 			s.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := s.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, s)
-		case tIMPORT:
+		case tIMPORT == tok:
 			im := new(Import)
+			im.Position = pos
 			im.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := im.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, im)
-		case tENUM:
+		case tENUM == tok:
 			enum := new(Enum)
+			enum.Position = pos
 			enum.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := enum.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, enum)
-		case tSERVICE:
+		case tSERVICE == tok:
 			service := new(Service)
+			service.Position = pos
 			service.Comment, proto.Elements = takeLastComment(proto.Elements)
 			err := service.parse(p)
 			if err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, service)
-		case tPACKAGE:
+		case tPACKAGE == tok:
 			pkg := new(Package)
+			pkg.Position = pos
 			pkg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := pkg.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, pkg)
-		case tMESSAGE:
+		case tMESSAGE == tok:
 			msg := new(Message)
+			msg.Position = pos
 			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			if err := msg.parse(p); err != nil {
 				return err
 			}
 			proto.Elements = append(proto.Elements, msg)
 		// BEGIN proto2
-		case tEXTEND:
+		case tEXTEND == tok:
 			msg := new(Message)
+			msg.Position = pos
 			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
 			msg.IsExtend = true
 			if err := msg.parse(p); err != nil {
@@ -114,10 +122,10 @@ func (proto *Proto) parse(p *Parser) error {
 			}
 			proto.Elements = append(proto.Elements, msg)
 		// END proto2
-		case tSEMICOLON:
+		case tSEMICOLON == tok:
 			maybeScanInlineComment(p, proto)
 			// continue
-		case tEOF:
+		case tEOF == tok:
 			goto done
 		default:
 			return p.unexpected(lit, ".proto element {comment|option|import|syntax|enum|service|package|message}", p)

@@ -28,7 +28,7 @@ import "testing"
 func TestParseRanges(t *testing.T) {
 	r := new(Reserved)
 	p := newParserOn(`reserved 2, 15, 9 to 11;`)
-	_, _ = p.scanIgnoreWhitespace()
+	_, _, _ = p.next()
 	ranges, err := parseRanges(p, r)
 	if err != nil {
 		t.Fatal(err)
@@ -41,7 +41,7 @@ func TestParseRanges(t *testing.T) {
 func TestParseRangesMax(t *testing.T) {
 	r := new(Extensions)
 	p := newParserOn(`extensions 3 to max;`)
-	_, _ = p.scanIgnoreWhitespace()
+	_, _, _ = p.next()
 	ranges, err := parseRanges(p, r)
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +54,7 @@ func TestParseRangesMax(t *testing.T) {
 func TestParseRangesMultiToMax(t *testing.T) {
 	r := new(Extensions)
 	p := newParserOn(`extensions 1,2 to 5,6 to 9,10 to max;`)
-	_, _ = p.scanIgnoreWhitespace()
+	_, _, _ = p.next()
 	ranges, err := parseRanges(p, r)
 	if err != nil {
 		t.Fatal(err)

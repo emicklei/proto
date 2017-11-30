@@ -23,18 +23,22 @@
 
 package proto
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"text/scanner"
+)
 
 // Comment holds a message.
 type Comment struct {
-	lineNumber int
+	Position   scanner.Position
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
 	ExtraSlash bool
 }
 
 // newComment returns a comment.
-func newComment(lit string) *Comment {
+func newComment(pos scanner.Position, lit string) *Comment {
 	nonEmpty := []string{}
 	extraSlash := false
 	lines := strings.Split(lit, "\n")
@@ -45,13 +49,13 @@ func newComment(lit string) *Comment {
 		}
 	} else {
 		if strings.HasPrefix(lit, "/") {
-			extraSlash = true
+			extraSlash = strings.HasPrefix(lit, "///")
 			nonEmpty = append(nonEmpty, strings.TrimLeft(lit, "/"))
 		} else {
 			nonEmpty = append(nonEmpty, lit)
 		}
 	}
-	return &Comment{Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
+	return &Comment{Position: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
 // columns is part of columnsPrintable
@@ -112,20 +116,20 @@ type commentInliner interface {
 
 // maybeScanInlineComment tries to scan comment on the current line ; if present then set it for the last element added.
 func maybeScanInlineComment(p *Parser, c elementContainer) {
-	currentLine := p.s.line
+	currentPos := p.scanner.Position
 	// see if there is an inline Comment
-	tok, lit := p.scanIgnoreWhitespace()
+	pos, tok, lit := p.next()
 	esize := len(c.elements())
 	// seen comment and on same line and elements have been added
-	if tCOMMENT == tok && p.s.line <= currentLine+1 && esize > 0 {
+	if tCOMMENT == tok && pos.Line == currentPos.Line && esize > 0 {
 		// if the last added element can have an inline comment then set it
 		last := c.elements()[esize-1]
 		if inliner, ok := last.(commentInliner); ok {
 			// TODO skip multiline?
-			inliner.inlineComment(newComment(lit))
+			inliner.inlineComment(newComment(pos, lit))
 		}
 	} else {
-		p.unscan()
+		p.nextPut(pos, tok, lit)
 	}
 }
 
@@ -141,14 +145,15 @@ func takeLastComment(list []Visitee) (*Comment, []Visitee) {
 }
 
 // mergeOrReturnComment creates a new comment and tries to merge it with the last element (if is a comment and is on the next line).
-func mergeOrReturnComment(elements []Visitee, lit string, lineNumber int) *Comment {
-	com := newComment(lit)
-	com.lineNumber = lineNumber
+func mergeOrReturnComment(elements []Visitee, lit string, pos scanner.Position) *Comment {
+	com := newComment(pos, lit)
 	// last element must be a comment to merge +
 	// do not merge c-style comments +
 	// last comment line was on previous line
 	if esize := len(elements); esize > 0 {
-		if last, ok := elements[esize-1].(*Comment); ok && !last.Cstyle && lineNumber <= last.lineNumber+len(last.Lines) { // less than because last line of file could be inline comment
+		if last, ok := elements[esize-1].(*Comment); ok &&
+			!last.Cstyle &&
+			pos.Line <= last.Position.Line+len(last.Lines) { // less than because last line of file could be inline comment
 			last.Merge(com)
 			// mark as merged
 			com = nil
@@ -156,3 +161,5 @@ func mergeOrReturnComment(elements []Visitee, lit string, lineNumber int) *Comme
 	}
 	return com
 }
+
+func (c *Comment) String() string { return fmt.Sprintf("<comment %s>", c.Message()) }

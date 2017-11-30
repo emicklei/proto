@@ -23,8 +23,11 @@
 
 package proto
 
+import "text/scanner"
+
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Ranges        []Range
 	FieldNames    []string
@@ -43,7 +46,7 @@ func (r *Reserved) Accept(v Visitor) {
 
 func (r *Reserved) parse(p *Parser) error {
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		pos, tok, lit := p.next()
 		if len(lit) == 0 {
 			return p.unexpected(lit, "reserved string or integer", r)
 		}
@@ -51,7 +54,7 @@ func (r *Reserved) parse(p *Parser) error {
 		ch := []rune(lit)[0]
 		if isDigit(ch) {
 			// use unread here because it could be start of ranges
-			p.s.unread(ch)
+			p.nextPut(pos, tok, lit)
 			list, err := parseRanges(p, r)
 			if err != nil {
 				return err
@@ -59,18 +62,12 @@ func (r *Reserved) parse(p *Parser) error {
 			r.Ranges = list
 			continue
 		}
-		if tQUOTE == tok || tSINGLEQUOTE == tok {
-			// use unread here because scanLiteral does not look at buf
-			p.s.unread(ch)
-			field, isString := p.s.scanLiteral()
-			if !isString {
-				return p.unexpected(lit, "reserved string", r)
-			}
-			r.FieldNames = append(r.FieldNames, field)
+		if isString(lit) {
+			r.FieldNames = append(r.FieldNames, unQuote(lit))
 			continue
 		}
 		if tSEMICOLON == tok {
-			p.unscan()
+			p.nextPut(pos, tok, lit)
 			break
 		}
 	}

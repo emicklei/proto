@@ -32,7 +32,7 @@ func TestMessage(t *testing.T) {
 		string   id  = 1;
 		// size
 		int64   size = 2;
-		
+
 		oneof foo {
 			string     name        = 4;
 			SubMessage sub_message = 9;
@@ -44,7 +44,7 @@ func TestMessage(t *testing.T) {
 		option  (my_option).a  =  true;
 	}`
 	p := newParserOn(proto)
-	p.scanIgnoreWhitespace() // consume first token
+	p.next() // consume first token
 	m := new(Message)
 	err := m.parse(p)
 	if err != nil {
@@ -54,6 +54,18 @@ func TestMessage(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(m.Elements), 6; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[0].(*NormalField).Position.String(), "<input>:4:3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[0].(*NormalField).Comment.Position.String(), "<input>:3:3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[3].(*Message).Position.String(), "<input>:12:3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).Position.Line, 13; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

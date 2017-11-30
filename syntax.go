@@ -23,22 +23,27 @@
 
 package proto
 
+import (
+	"text/scanner"
+)
+
 // Syntax should have value "proto"
 type Syntax struct {
+	Position      scanner.Position
 	Comment       *Comment
 	Value         string
 	InlineComment *Comment
 }
 
 func (s *Syntax) parse(p *Parser) error {
-	if tok, lit := p.scanIgnoreWhitespace(); tok != tEQUALS {
+	if _, tok, lit := p.next(); tok != tEQUALS {
 		return p.unexpected(lit, "syntax =", s)
 	}
-	lit, ok := p.s.scanLiteral()
-	if !ok {
+	_, _, lit := p.next()
+	if !isString(lit) {
 		return p.unexpected(lit, "syntax string constant", s)
 	}
-	s.Value = lit
+	s.Value = unQuote(lit)
 	return nil
 }
 
