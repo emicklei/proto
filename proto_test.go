@@ -31,7 +31,6 @@ import (
 )
 
 func TestParseFormattedProto2UnitTest(t *testing.T) {
-	t.Skip() // Go scanner cannot handle \? escape sequence
 	parseFormattedParsed(t, filepath.Join("cmd", "protofmt", "unittest_proto2.proto"))
 }
 

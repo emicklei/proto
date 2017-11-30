@@ -71,4 +71,8 @@ See folder `cmd/protofmt/README.md` for more details.
 
     go get -u -v github.com/emicklei/proto
 
+#### known issues
+
+- the proto2 test file in protofmt folder contains character escape sequences that are currently not accepted by the scanner. See line 537 and 573.
+
 © 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License. Contributions welcome.
