@@ -25,7 +25,10 @@ package proto
 
 import (
 	"testing"
+	"text/scanner"
 )
+
+var startPosition = scanner.Position{Line: 1, Column: 1}
 
 func TestCreateComment(t *testing.T) {
 	c0 := newComment(startPosition, "")
