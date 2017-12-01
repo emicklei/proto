@@ -33,8 +33,6 @@ import (
 	"text/scanner"
 )
 
-var startPosition = scanner.Position{Line: 1, Column: 1}
-
 // Parser represents a parser.
 type Parser struct {
 	debug         bool
