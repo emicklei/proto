@@ -4,5 +4,6 @@ cmd/protofmt/protofmt
 cmd/proto2gql/proto2gql
 debug.test
 .idea/
+.vscode/
 bin/
 .DS_Store
