@@ -123,13 +123,14 @@ func main() {
 
 	for _, filename := range flag.Args() {
 		if err = readAndTransform(filename, transformer); err != nil {
-			fmt.Println(fmt.Sprintf("failed to transform %s file : %s", filename, err.Error()))
-
+			fmt.Println(err.Error())
 			break
 		}
 	}
 
-	err = saveWriters(writers)
+	if saveErr := saveWriters(writers); saveErr != nil && err == nil {
+		err = saveErr
+	}
 
 	if err != nil {
 		os.Exit(1)

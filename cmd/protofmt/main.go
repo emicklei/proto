@@ -47,11 +47,14 @@ func main() {
 		flag.Usage()
 		os.Exit(0)
 	}
+	exitCode := 0
 	for _, each := range flag.Args() {
 		if err := readFormatWrite(each); err != nil {
-			println(each, err.Error())
+			println(err.Error())
+			exitCode = 1
 		}
 	}
+	os.Exit(exitCode)
 }
 
 func readFormatWrite(filename string) error {
