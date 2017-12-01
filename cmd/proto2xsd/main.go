@@ -64,7 +64,7 @@ func readConvertWrite(filename string) error {
 	}
 	// buffer before write
 	buf := new(bytes.Buffer)
-	if err := convert(file, buf); err != nil {
+	if err := convert(filename, file, buf); err != nil {
 		return err
 	}
 	if *oOverwrite {
@@ -81,8 +81,9 @@ func readConvertWrite(filename string) error {
 	return nil
 }
 
-func convert(input io.Reader, output io.Writer) error {
+func convert(filename string, input io.Reader, output io.Writer) error {
 	parser := proto.NewParser(input)
+	parser.Filename(filename)
 	def, err := parser.Parse()
 	if err != nil {
 		return err

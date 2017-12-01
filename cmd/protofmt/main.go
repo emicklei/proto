@@ -62,7 +62,7 @@ func readFormatWrite(filename string) error {
 	}
 	// buffer before write
 	buf := new(bytes.Buffer)
-	if err := format(file, buf); err != nil {
+	if err := format(filename, file, buf); err != nil {
 		return err
 	}
 	if *oOverwrite {
@@ -79,8 +79,9 @@ func readFormatWrite(filename string) error {
 	return nil
 }
 
-func format(input io.Reader, output io.Writer) error {
+func format(filename string, input io.Reader, output io.Writer) error {
 	parser := proto.NewParser(input)
+	parser.Filename(filename)
 	def, err := parser.Parse()
 	if err != nil {
 		return err
