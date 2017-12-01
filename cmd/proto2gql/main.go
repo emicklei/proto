@@ -243,6 +243,7 @@ func readAndTransform(filename string, transformer *Transformer) error {
 
 	defer file.Close()
 
+	transformer.SetFilename(filename)
 	if err := transformer.Transform(file); err != nil {
 		return err
 	}

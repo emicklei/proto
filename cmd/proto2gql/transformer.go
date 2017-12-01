@@ -1,33 +1,36 @@
 package main
 
 import (
-	"github.com/emicklei/proto"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/emicklei/proto"
 )
 
 type (
 	ExternalPackage struct {
-		url string
+		url      string
 		resolved bool
 	}
 
 	Transformer struct {
-		out  io.Writer
-		imports map[string]*ExternalPackage
-		pkgAliases map[string] string
-		noPrefix bool
+		out        io.Writer
+		filename   string
+		imports    map[string]*ExternalPackage
+		pkgAliases map[string]string
+		noPrefix   bool
 	}
 )
 
-func NewTransformer(out io.Writer, opts... func (transformer *Transformer)) *Transformer {
+func NewTransformer(out io.Writer, opts ...func(transformer *Transformer)) *Transformer {
 	res := &Transformer{
 		out,
+		"",
 		make(map[string]*ExternalPackage),
 		make(map[string]string),
 		false,
-		}
+	}
 
 	for _, opt := range opts {
 		opt(res)
@@ -46,7 +49,7 @@ func (t *Transformer) Import(name string, url string) {
 	_, exists := t.imports[name]
 
 	if exists == false {
-		t.imports[name] = &ExternalPackage{ strings.TrimSpace(url), false }
+		t.imports[name] = &ExternalPackage{strings.TrimSpace(url), false}
 	}
 }
 
@@ -54,8 +57,13 @@ func (t *Transformer) SetPackageAlias(pkg, alias string) {
 	t.pkgAliases[pkg] = alias
 }
 
+func (t *Transformer) SetFilename(filename string) {
+	t.filename = filename
+}
+
 func (t *Transformer) Transform(input io.Reader) error {
 	parser := proto.NewParser(input)
+	parser.Filename(t.filename)
 
 	def, err := parser.Parse()
 
@@ -64,7 +72,7 @@ func (t *Transformer) Transform(input io.Reader) error {
 	}
 
 	visitor := NewVisitor(&Converter{
-		noPrefix: t.noPrefix,
+		noPrefix:   t.noPrefix,
 		pkgAliases: t.pkgAliases,
 	})
 
