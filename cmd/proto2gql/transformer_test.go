@@ -128,7 +128,6 @@ type ApiMyappOuterMiddleBBInner {
 }
 	`
 
-	expected = expected
 	expected = strings.TrimSpace(expected)
 	actual := strings.TrimSpace(output.String())
 

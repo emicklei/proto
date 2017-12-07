@@ -1,4 +1,7 @@
 language: go
-
 go:
   - 1.x
+install:
+  - make updatetestdeps
+script:
+  - make test
