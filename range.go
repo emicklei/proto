@@ -34,8 +34,8 @@ type Range struct {
 	Max      bool
 }
 
-// String return a single number if from = to. Returns <from> to <to> otherwise unless Max then return <from> to max.
-func (r Range) String() string {
+// SourceRepresentation return a single number if from = to. Returns <from> to <to> otherwise unless Max then return <from> to max.
+func (r Range) SourceRepresentation() string {
 	if r.Max {
 		return fmt.Sprintf("%d to max", r.From)
 	}

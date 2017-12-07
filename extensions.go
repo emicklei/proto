@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"text/scanner"
 )
 
@@ -56,5 +55,3 @@ func (e *Extensions) parse(p *Parser) error {
 	e.Ranges = list
 	return nil
 }
-
-func (e *Extensions) String() string { return fmt.Sprintf("<extensions %v>", e.Ranges) }

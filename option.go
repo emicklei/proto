@@ -65,9 +65,9 @@ func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
 	equals := alignedEquals
 	name := o.Name
 	if embedded {
-		return append(cols, leftAligned(name), equals, leftAligned(o.Constant.String())) // numbers right, strings left? TODO
+		return append(cols, leftAligned(name), equals, leftAligned(o.Constant.SourceRepresentation())) // numbers right, strings left? TODO
 	}
-	return append(cols, rightAligned(name), equals, rightAligned(o.Constant.String()))
+	return append(cols, rightAligned(name), equals, rightAligned(o.Constant.SourceRepresentation()))
 }
 
 // parse reads an Option body
@@ -145,8 +145,8 @@ type Literal struct {
 	IsString bool
 }
 
-// String returns the source (if quoted then use double quote).
-func (l Literal) String() string {
+// SourceRepresentation returns the source (if quoted then use double quote).
+func (l Literal) SourceRepresentation() string {
 	var buf bytes.Buffer
 	if l.IsString {
 		buf.WriteRune('"')

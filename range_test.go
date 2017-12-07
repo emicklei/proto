@@ -33,7 +33,7 @@ func TestParseRanges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := ranges[2].String(), "9 to 11"; got != want {
+	if got, want := ranges[2].SourceRepresentation(), "9 to 11"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -46,7 +46,7 @@ func TestParseRangesMax(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := ranges[0].String(), "3 to max"; got != want {
+	if got, want := ranges[0].SourceRepresentation(), "3 to max"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -62,7 +62,7 @@ func TestParseRangesMultiToMax(t *testing.T) {
 	if got, want := len(ranges), 4; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ranges[3].String(), "10 to max"; got != want {
+	if got, want := ranges[3].SourceRepresentation(), "10 to max"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

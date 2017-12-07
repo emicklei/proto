@@ -36,10 +36,10 @@ func TestReservedRanges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := r.Ranges[0].String(), "2"; got != want {
+	if got, want := r.Ranges[0].SourceRepresentation(), "2"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := r.Ranges[2].String(), "9 to 11"; got != want {
+	if got, want := r.Ranges[2].SourceRepresentation(), "9 to 11"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"strconv"
 	"text/scanner"
 )
@@ -163,8 +162,6 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	}
 	return nil
 }
-
-func (n *NormalField) String() string { return fmt.Sprintf("<field %s=%d>", n.Name, n.Sequence) }
 
 // MapField represents a map entry in a message.
 type MapField struct {
