@@ -107,13 +107,13 @@ func (f *Formatter) VisitOption(o *Option) {
 		f.level(1)
 		for _, each := range o.AggregatedConstants {
 			f.indent(0)
-			fmt.Fprintf(f.w, "%s: %s\n", each.Name, each.Literal.String())
+			fmt.Fprintf(f.w, "%s: %s\n", each.Name, each.Literal.SourceRepresentation())
 		}
 		f.indent(-1)
 		fmt.Fprintf(f.w, "}")
 	} else {
 		// TODO printAs groups with fixed length
-		fmt.Fprintf(f.w, o.Constant.String())
+		fmt.Fprintf(f.w, o.Constant.SourceRepresentation())
 	}
 	fmt.Fprintf(f.w, ";")
 	if o.InlineComment != nil {
@@ -177,7 +177,7 @@ func (f *Formatter) VisitReserved(r *Reserved) {
 			if i > 0 {
 				io.WriteString(f.w, ", ")
 			}
-			fmt.Fprintf(f.w, "%s", each.String())
+			fmt.Fprintf(f.w, "%s", each.SourceRepresentation())
 		}
 	} else {
 		for i, each := range r.FieldNames {
@@ -230,7 +230,7 @@ func (f *Formatter) VisitExtensions(e *Extensions) {
 		if i > 0 {
 			io.WriteString(f.w, ", ")
 		}
-		fmt.Fprintf(f.w, "%s", each.String())
+		fmt.Fprintf(f.w, "%s", each.SourceRepresentation())
 	}
 	f.endWithComment(e.InlineComment)
 }

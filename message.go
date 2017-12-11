@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"text/scanner"
 )
 
@@ -225,5 +224,3 @@ func (m *Message) takeLastComment() (last *Comment) {
 func (m *Message) Doc() *Comment {
 	return m.Comment
 }
-
-func (m *Message) String() string { return fmt.Sprintf("<message %s>", m.Name) }

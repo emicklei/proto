@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"strings"
 	"text/scanner"
 )
@@ -161,5 +160,3 @@ func mergeOrReturnComment(elements []Visitee, lit string, pos scanner.Position) 
 	}
 	return com
 }
-
-func (c *Comment) String() string { return fmt.Sprintf("<comment %s>", c.Message()) }

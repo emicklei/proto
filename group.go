@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"text/scanner"
 )
 
@@ -91,5 +90,3 @@ func (g *Group) parse(p *Parser) error {
 	}
 	return parseMessageBody(p, g)
 }
-
-func (g *Group) String() string { return fmt.Sprintf("<group %s>", g.Name) }
