@@ -137,7 +137,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	}
 	f.Sequence = i
 	// see if there are options
-	pos, tok, lit = p.next()
+	pos, tok, _ = p.next()
 	if tLEFTSQUARE != tok {
 		return nil
 	}
