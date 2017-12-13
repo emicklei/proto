@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestField(t *testing.T) {
 	proto := `repeated foo.bar lots =1 [option1=a, option2=b, option3="happy"];`
@@ -141,5 +143,26 @@ func TestOptionalWithOption(t *testing.T) {
 	}
 	if got, want := o.Constant.Source, "41"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestFieldInlineComment(t *testing.T) {
+	proto := `message Hello {
+		// comment
+		bool foo = 1; // inline comment
+	  }`
+	p := newParserOn(proto)
+	def := new(Proto)
+	err := def.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := def.Elements[0].(*Message)
+	if len(m.Elements) != 1 {
+		t.Error("expected one element", m.Elements)
+	}
+	f := m.Elements[0].(*NormalField)
+	if f.InlineComment == nil {
+		t.Error("expected inline comment")
 	}
 }

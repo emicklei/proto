@@ -139,6 +139,7 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 	// see if there are options
 	pos, tok, _ = p.next()
 	if tLEFTSQUARE != tok {
+		p.nextPut(pos, tok, lit)
 		return nil
 	}
 	// consume options
