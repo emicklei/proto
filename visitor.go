@@ -48,6 +48,7 @@ type Visitor interface {
 // Visitee is implemented by all Proto elements.
 type Visitee interface {
 	Accept(v Visitor)
+	parent(e Visitee)
 }
 
 // Documented is for types that may have an associated comment (not inlined).

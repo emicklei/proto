@@ -34,7 +34,10 @@ type Message struct {
 	Name     string
 	IsExtend bool
 	Elements []Visitee
+	Parent   Visitee
 }
+
+func (m *Message) parent(v Visitee) { m.Parent = v }
 
 func (m *Message) groupName() string {
 	if m.IsExtend {

@@ -36,7 +36,10 @@ type Group struct {
 	Optional bool
 	Sequence int
 	Elements []Visitee
+	Parent   Visitee
 }
+
+func (g *Group) parent(v Visitee) { g.Parent = v }
 
 // Accept dispatches the call to the visitor.
 func (g *Group) Accept(v Visitor) {
@@ -45,6 +48,7 @@ func (g *Group) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (g *Group) addElement(v Visitee) {
+	v.parent(g)
 	g.Elements = append(g.Elements, v)
 }
 

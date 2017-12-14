@@ -94,6 +94,9 @@ func (c *Comment) Accept(v Visitor) {
 	v.VisitComment(c)
 }
 
+// parent is part of elementContainer
+func (c *Comment) parent(Visitee) {}
+
 // Merge appends all lines from the argument comment.
 func (c *Comment) Merge(other *Comment) {
 	c.Lines = append(c.Lines, other.Lines...)
