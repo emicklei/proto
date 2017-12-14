@@ -66,7 +66,7 @@ func (s *Service) takeLastComment() (last *Comment) {
 
 // parse continues after reading "service"
 func (s *Service) parse(p *Parser) error {
-	pos, tok, lit := p.next()
+	pos, tok, lit := p.nextIdentifier()
 	if tok != tIDENT {
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "service identifier", s)
@@ -189,10 +189,10 @@ func (r *RPC) parse(p *Parser) error {
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.next()
+	pos, tok, lit = p.nextIdentifier()
 	if tSTREAM == tok {
 		r.StreamsRequest = true
-		pos, tok, lit = p.next()
+		pos, tok, lit = p.nextIdentifier()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | request type", r)
@@ -210,10 +210,10 @@ func (r *RPC) parse(p *Parser) error {
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.next()
+	pos, tok, lit = p.nextIdentifier()
 	if tSTREAM == tok {
 		r.StreamsReturns = true
-		pos, tok, lit = p.next()
+		pos, tok, lit = p.nextIdentifier()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | returns type", r)
