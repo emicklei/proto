@@ -35,6 +35,7 @@ type Field struct {
 	Name          string
 	Type          string
 	Sequence      int
+	Parent        Visitee
 	Options       []*Option
 	InlineComment *Comment
 }
@@ -43,6 +44,8 @@ type Field struct {
 func (f *Field) inlineComment(c *Comment) {
 	f.InlineComment = c
 }
+
+func (f *Field) parent(v Visitee) { f.Parent = v }
 
 // NormalField represents a field in a Message.
 type NormalField struct {

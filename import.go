@@ -35,7 +35,10 @@ type Import struct {
 	Filename      string
 	Kind          string // weak, public, <empty>
 	InlineComment *Comment
+	Parent        Visitee
 }
+
+func (i *Import) parent(v Visitee) { i.Parent = v }
 
 func (i *Import) parse(p *Parser) error {
 	_, tok, lit := p.next()

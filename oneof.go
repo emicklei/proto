@@ -34,10 +34,14 @@ type Oneof struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
+	Parent   Visitee
 }
+
+func (o *Oneof) parent(v Visitee) { o.Parent = v }
 
 // addElement is part of elementContainer
 func (o *Oneof) addElement(v Visitee) {
+	v.parent(o)
 	o.Elements = append(o.Elements, v)
 }
 
