@@ -67,6 +67,9 @@ func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
 // Parse parses a proto definition. May return a parse or scanner error.
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
+	if p.scanner.Filename != "" {
+		proto.Filename = p.scanner.Filename
+	}
 	parseError := proto.parse(p)
 	// see if it was a scanner error
 	if len(p.scannerErrors) > 0 {
