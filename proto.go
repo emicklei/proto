@@ -28,8 +28,16 @@ type Proto struct {
 	Elements []Visitee
 }
 
+// Accept dispatches the call to the visitor.
+func (proto *Proto) Accept(v Visitor) {
+	v.VisitProto(proto)
+}
+
+func (*Proto) parent(v Visitee) {}
+
 // addElement is part of elementContainer
 func (proto *Proto) addElement(v Visitee) {
+	v.parent(proto)
 	proto.Elements = append(proto.Elements, v)
 }
 

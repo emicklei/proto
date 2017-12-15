@@ -25,6 +25,7 @@ package proto
 
 // Visitor is for dispatching Proto elements.
 type Visitor interface {
+	VisitProto(p *Proto)
 	VisitMessage(m *Message)
 	VisitService(v *Service)
 	VisitSyntax(s *Syntax)
@@ -81,6 +82,7 @@ func (r *reflector) VisitRPC(rpc *RPC)               { r.name = "RPC" }
 func (r *reflector) VisitMapField(f *MapField)       { r.name = "MapField" }
 func (r *reflector) VisitGroup(g *Group)             { r.name = "Group" }
 func (r *reflector) VisitExtensions(e *Extensions)   { r.name = "Extensions" }
+func (r *reflector) VisitProto(p *Proto)             { r.name = "Proto" }
 
 // nameOfVisitee returns the short type name of a Visitee.
 func nameOfVisitee(e Visitee) string {

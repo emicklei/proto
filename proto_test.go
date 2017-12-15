@@ -98,6 +98,7 @@ func (c *counter) VisitService(v *Service) {
 	c.count++
 	c.Count(v.Elements)
 }
+func (c *counter) VisitProto(p *Proto)             {}
 func (c *counter) VisitSyntax(s *Syntax)           { c.count++ }
 func (c *counter) VisitPackage(p *Package)         { c.count++ }
 func (c *counter) VisitOption(o *Option)           { c.count++ }
