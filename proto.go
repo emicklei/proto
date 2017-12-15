@@ -25,6 +25,7 @@ package proto
 
 // Proto represents a .proto definition
 type Proto struct {
+	Filename string
 	Elements []Visitee
 }
 
