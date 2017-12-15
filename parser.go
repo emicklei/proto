@@ -68,7 +68,7 @@ func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
 func (p *Parser) Parse() (*Proto, error) {
 	proto := new(Proto)
 	if p.scanner.Filename != "" {
-		proto.Filename = ""
+		proto.Filename = p.scanner.Filename
 	}
 	parseError := proto.parse(p)
 	// see if it was a scanner error
