@@ -48,7 +48,7 @@ func (g *Group) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (g *Group) addElement(v Visitee) {
-	v.parent(g)
+	setParent(v, g)
 	g.Elements = append(g.Elements, v)
 }
 

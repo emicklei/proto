@@ -210,7 +210,7 @@ func (m *Message) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (m *Message) addElement(v Visitee) {
-	v.parent(m)
+	setParent(v, m)
 	m.Elements = append(m.Elements, v)
 }
 

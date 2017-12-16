@@ -41,7 +41,7 @@ func (o *Oneof) parent(v Visitee) { o.Parent = v }
 
 // addElement is part of elementContainer
 func (o *Oneof) addElement(v Visitee) {
-	v.parent(o)
+	setParent(v, o)
 	o.Elements = append(o.Elements, v)
 }
 
@@ -86,7 +86,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := parseFieldAfterType(f.Field, p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, f)
+			o.addElement(f)
 		case tGROUP:
 			g := new(Group)
 			g.Position = pos
@@ -94,7 +94,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := g.parse(p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, g)
+			o.addElement(g)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, o)
 			// continue

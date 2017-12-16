@@ -2,8 +2,9 @@ package main
 
 import (
 	"bytes"
-	"github.com/emicklei/proto"
 	"io"
+
+	"github.com/emicklei/proto"
 )
 
 var BUILTINS = map[string]string{
@@ -61,6 +62,8 @@ func (v *Visitor) Flush(out io.Writer) {
 		child.Flush(out)
 	}
 }
+
+func (v *Visitor) VisitProto(p *proto.Proto) {}
 
 func (v *Visitor) VisitMessage(m *proto.Message) {
 	v.buff.WriteString("\n")

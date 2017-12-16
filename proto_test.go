@@ -79,6 +79,8 @@ func parseFormattedParsed(t *testing.T, filename string) {
 		t.Errorf("[%s] got [%v] want [%v]", filename, got, want)
 	}
 	t.Log("# proto elements", afterCount)
+
+	checkParent(def, t)
 }
 
 type counter struct {

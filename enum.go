@@ -52,7 +52,7 @@ func (e *Enum) parent(p Visitee) { e.Parent = p }
 
 // addElement is part of elementContainer
 func (e *Enum) addElement(v Visitee) {
-	v.parent(e)
+	setParent(v, e)
 	e.Elements = append(e.Elements, v)
 }
 
