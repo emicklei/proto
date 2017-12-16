@@ -63,62 +63,62 @@ func (pc *parentChecker) VisitProto(p *Proto) {
 	pc.checkAll(p.Elements, p)
 }
 func (pc *parentChecker) VisitMessage(m *Message) {
-	pc.check("Message", m.Name, m.Parent)
+	pc.check("Message", m.Name, m.parent)
 	pc.checkAll(m.Elements, m)
 }
 func (pc *parentChecker) VisitService(v *Service) {
-	pc.check("Service", v.Name, v.Parent)
+	pc.check("Service", v.Name, v.parent)
 	pc.checkAll(v.Elements, v)
 }
 func (pc *parentChecker) VisitSyntax(s *Syntax) {
-	pc.check("Syntax", s.Value, s.Parent)
+	pc.check("Syntax", s.Value, s.parent)
 }
 func (pc *parentChecker) VisitPackage(p *Package) {
-	pc.check("Package", p.Name, p.Parent)
+	pc.check("Package", p.Name, p.parent)
 }
 func (pc *parentChecker) VisitOption(o *Option) {
-	pc.check("Option", o.Name, o.Parent)
+	pc.check("Option", o.Name, o.parent)
 }
 func (pc *parentChecker) VisitImport(i *Import) {
-	pc.check("Import", i.Filename, i.Parent)
+	pc.check("Import", i.Filename, i.parent)
 }
 func (pc *parentChecker) VisitNormalField(i *NormalField) {
-	pc.check("NormalField", i.Name, i.Parent)
+	pc.check("NormalField", i.Name, i.parent)
 }
 func (pc *parentChecker) VisitEnumField(i *EnumField) {
-	pc.check("EnumField", i.Name, i.Parent)
+	pc.check("EnumField", i.Name, i.parent)
 }
 func (pc *parentChecker) VisitEnum(e *Enum) {
-	pc.check("Enum", e.Name, e.Parent)
+	pc.check("Enum", e.Name, e.parent)
 	pc.checkAll(e.Elements, e)
 }
 func (pc *parentChecker) VisitComment(e *Comment) {}
 func (pc *parentChecker) VisitOneof(o *Oneof) {
-	pc.check("Oneof", o.Name, o.Parent)
+	pc.check("Oneof", o.Name, o.parent)
 	pc.checkAll(o.Elements, o)
 }
 func (pc *parentChecker) VisitOneofField(o *OneOfField) {
-	pc.check("OneOfField", o.Name, o.Parent)
+	pc.check("OneOfField", o.Name, o.parent)
 }
 func (pc *parentChecker) VisitReserved(r *Reserved) {
-	pc.check("Reserved", "", r.Parent)
+	pc.check("Reserved", "", r.parent)
 }
 func (pc *parentChecker) VisitRPC(r *RPC) {
-	pc.check("RPC", r.Name, r.Parent)
+	pc.check("RPC", r.Name, r.parent)
 	//pc.checkAll(r.Options, r)
 	for _, each := range r.Options {
 		pc.check("Option", each.Name, r)
 	}
 }
 func (pc *parentChecker) VisitMapField(f *MapField) {
-	pc.check("MapField", f.Name, f.Parent)
+	pc.check("MapField", f.Name, f.parent)
 }
 
 // proto2
 func (pc *parentChecker) VisitGroup(g *Group) {
-	pc.check("Group", g.Name, g.Parent)
+	pc.check("Group", g.Name, g.parent)
 	pc.checkAll(g.Elements, g)
 }
 func (pc *parentChecker) VisitExtensions(e *Extensions) {
-	pc.check("Extensions", "", e.Parent)
+	pc.check("Extensions", "", e.parent)
 }

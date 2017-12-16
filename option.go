@@ -38,10 +38,11 @@ type Option struct {
 	IsEmbedded          bool
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
-	Parent              Visitee
+	parent              Visitee
 }
 
-func (o *Option) parent(v Visitee) { o.Parent = v }
+// Parent returns the container Visitee
+func (o *Option) Parent() Visitee { return o.parent }
 
 // columns returns printable source tokens
 func (o *Option) columns() (cols []aligned) {

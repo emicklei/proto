@@ -35,10 +35,11 @@ type Service struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
-	Parent   Visitee
+	parent   Visitee
 }
 
-func (s *Service) parent(v Visitee) { s.Parent = v }
+// Parent returns the container Visitee
+func (s *Service) Parent() Visitee { return s.parent }
 
 // Accept dispatches the call to the visitor.
 func (s *Service) Accept(v Visitor) {
@@ -120,10 +121,11 @@ type RPC struct {
 	StreamsReturns bool
 	Options        []*Option
 	InlineComment  *Comment
-	Parent         Visitee
+	parent         Visitee
 }
 
-func (r *RPC) parent(v Visitee) { r.Parent = v }
+// Parent returns the container Visitee
+func (r *RPC) Parent() Visitee { return r.parent }
 
 // Accept dispatches the call to the visitor.
 func (r *RPC) Accept(v Visitor) {

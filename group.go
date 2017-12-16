@@ -36,10 +36,11 @@ type Group struct {
 	Optional bool
 	Sequence int
 	Elements []Visitee
-	Parent   Visitee
+	parent   Visitee
 }
 
-func (g *Group) parent(v Visitee) { g.Parent = v }
+// Parent returns the container Visitee
+func (g *Group) Parent() Visitee { return g.parent }
 
 // Accept dispatches the call to the visitor.
 func (g *Group) Accept(v Visitor) {

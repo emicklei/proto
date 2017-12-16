@@ -33,9 +33,12 @@ type Enum struct {
 	Position scanner.Position
 	Comment  *Comment
 	Name     string
-	Parent   Visitee
+	parent   Visitee
 	Elements []Visitee
 }
+
+// Parent returns the container Visitee
+func (e *Enum) Parent() Visitee { return e.parent }
 
 // Accept dispatches the call to the visitor.
 func (e *Enum) Accept(v Visitor) {
@@ -46,9 +49,6 @@ func (e *Enum) Accept(v Visitor) {
 func (e *Enum) Doc() *Comment {
 	return e.Comment
 }
-
-// parent is part of elementContainer
-func (e *Enum) parent(p Visitee) { e.Parent = p }
 
 // addElement is part of elementContainer
 func (e *Enum) addElement(v Visitee) {
@@ -127,10 +127,11 @@ type EnumField struct {
 	Integer       int
 	ValueOption   *Option
 	InlineComment *Comment
-	Parent        Visitee
+	parent        Visitee
 }
 
-func (e *EnumField) parent(v Visitee) { e.Parent = v }
+// Parent returns the container Visitee
+func (e *EnumField) Parent() Visitee { return e.parent }
 
 // Accept dispatches the call to the visitor.
 func (e *EnumField) Accept(v Visitor) {

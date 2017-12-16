@@ -33,10 +33,11 @@ type Syntax struct {
 	Comment       *Comment
 	Value         string
 	InlineComment *Comment
-	Parent        Visitee
+	parent        Visitee
 }
 
-func (s *Syntax) parent(v Visitee) { s.Parent = v }
+// Parent returns the container Visitee
+func (s *Syntax) Parent() Visitee { return s.parent }
 
 func (s *Syntax) parse(p *Parser) error {
 	if _, tok, lit := p.next(); tok != tEQUALS {
