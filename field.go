@@ -40,6 +40,9 @@ type Field struct {
 	InlineComment *Comment
 }
 
+// Parent returns the container Visitee
+func (f *Field) Parent() Visitee { return f.parent }
+
 // inlineComment is part of commentInliner.
 func (f *Field) inlineComment(c *Comment) {
 	f.InlineComment = c

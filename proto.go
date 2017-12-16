@@ -33,8 +33,6 @@ func (proto *Proto) Accept(v Visitor) {
 	v.VisitProto(proto)
 }
 
-func (*Proto) parent(v Visitee) {}
-
 // addElement is part of elementContainer
 func (proto *Proto) addElement(v Visitee) {
 	setParent(v, proto)
