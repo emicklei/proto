@@ -143,7 +143,7 @@ func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) 
 		}
 		p.next() // consume dot
 		pos, tok, lit := p.next()
-		if tIDENT != tok {
+		if tIDENT != tok && !isKeyword(tok) {
 			p.nextPut(pos, tok, lit)
 			break
 		}

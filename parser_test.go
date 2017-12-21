@@ -87,3 +87,15 @@ func TestNextIdentifier(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestNextIdentifierWithKeyword(t *testing.T) {
+	ident := " aap.rpc.mies "
+	p := newParserOn(ident)
+	_, tok, lit := p.nextIdentifier()
+	if got, want := tok, tIDENT; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := lit, strings.TrimSpace(ident); got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
