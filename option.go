@@ -38,6 +38,7 @@ type Option struct {
 	IsEmbedded          bool
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
+	Parent              Visitee
 }
 
 // columns returns printable source tokens

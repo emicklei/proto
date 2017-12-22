@@ -31,6 +31,7 @@ type Package struct {
 	Comment       *Comment
 	Name          string
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // Doc is part of Documented

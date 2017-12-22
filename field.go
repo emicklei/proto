@@ -35,6 +35,7 @@ type Field struct {
 	Name          string
 	Type          string
 	Sequence      int
+	Parent        Visitee
 	Options       []*Option
 	InlineComment *Comment
 }

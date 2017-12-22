@@ -32,6 +32,7 @@ type Reserved struct {
 	Ranges        []Range
 	FieldNames    []string
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // inlineComment is part of commentInliner.

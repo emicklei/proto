@@ -34,6 +34,7 @@ type Message struct {
 	Name     string
 	IsExtend bool
 	Elements []Visitee
+	Parent   Visitee
 }
 
 func (m *Message) groupName() string {
@@ -207,6 +208,7 @@ func (m *Message) Accept(v Visitor) {
 
 // addElement is part of elementContainer
 func (m *Message) addElement(v Visitee) {
+	setParent(v, m)
 	m.Elements = append(m.Elements, v)
 }
 

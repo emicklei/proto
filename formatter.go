@@ -49,6 +49,8 @@ func (f *Formatter) Format(p *Proto) {
 	}
 }
 
+func (f *Formatter) VisitProto(*Proto) {}
+
 // VisitComment formats a Comment and writes a newline.
 func (f *Formatter) VisitComment(c *Comment) {
 	f.printComment(c)

@@ -35,6 +35,7 @@ type Service struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
+	Parent   Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -49,6 +50,7 @@ func (s *Service) Doc() *Comment {
 
 // addElement is part of elementContainer
 func (s *Service) addElement(v Visitee) {
+	setParent(v, s)
 	s.Elements = append(s.Elements, v)
 }
 
@@ -92,7 +94,7 @@ func (s *Service) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			s.Elements = append(s.Elements, rpc)
+			s.addElement(rpc)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, s)
 		case tRIGHTCURLY:
@@ -116,6 +118,7 @@ type RPC struct {
 	StreamsReturns bool
 	Options        []*Option
 	InlineComment  *Comment
+	Parent         Visitee
 }
 
 // Accept dispatches the call to the visitor.
