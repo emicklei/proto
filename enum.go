@@ -33,12 +33,9 @@ type Enum struct {
 	Position scanner.Position
 	Comment  *Comment
 	Name     string
-	parent   Visitee
+	Parent   Visitee
 	Elements []Visitee
 }
-
-// Parent returns the container Visitee
-func (e *Enum) Parent() Visitee { return e.parent }
 
 // Accept dispatches the call to the visitor.
 func (e *Enum) Accept(v Visitor) {
@@ -127,11 +124,8 @@ type EnumField struct {
 	Integer       int
 	ValueOption   *Option
 	InlineComment *Comment
-	parent        Visitee
+	Parent        Visitee
 }
-
-// Parent returns the container Visitee
-func (e *EnumField) Parent() Visitee { return e.parent }
 
 // Accept dispatches the call to the visitor.
 func (e *EnumField) Accept(v Visitor) {

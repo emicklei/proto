@@ -32,11 +32,8 @@ type Reserved struct {
 	Ranges        []Range
 	FieldNames    []string
 	InlineComment *Comment
-	parent        Visitee
+	Parent        Visitee
 }
-
-// Parent returns the container Visitee
-func (r *Reserved) Parent() Visitee { return r.parent }
 
 // inlineComment is part of commentInliner.
 func (r *Reserved) inlineComment(c *Comment) {

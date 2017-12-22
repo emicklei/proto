@@ -34,11 +34,8 @@ type Oneof struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
-	parent   Visitee
+	Parent   Visitee
 }
-
-// Parent returns the container Visitee
-func (o *Oneof) Parent() Visitee { return o.parent }
 
 // addElement is part of elementContainer
 func (o *Oneof) addElement(v Visitee) {

@@ -34,11 +34,8 @@ type Message struct {
 	Name     string
 	IsExtend bool
 	Elements []Visitee
-	parent   Visitee
+	Parent   Visitee
 }
-
-// Parent returns the container Visitee
-func (m *Message) Parent() Visitee { return m.parent }
 
 func (m *Message) groupName() string {
 	if m.IsExtend {
