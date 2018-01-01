@@ -98,5 +98,4 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	if got, want := opt.AggregatedConstants[1].Source, "test2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	t.Log(formatted(srv))
 }

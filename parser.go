@@ -114,7 +114,7 @@ func (p *Parser) unexpected(found, expected string, obj interface{}) error {
 		_, file, line, _ := runtime.Caller(1)
 		debug = fmt.Sprintf(" at %s:%d (with %#v)", file, line, obj)
 	}
-	return fmt.Errorf("%v: Found %q but expected [%s]%s.", p.scanner.Position, found, expected, debug)
+	return fmt.Errorf("%v: found %q but expected [%s]%s", p.scanner.Position, found, expected, debug)
 }
 
 func (p *Parser) nextInteger() (i int, err error) {
