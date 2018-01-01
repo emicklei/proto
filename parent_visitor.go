@@ -23,8 +23,6 @@
 
 package proto
 
-import "log"
-
 // ParentAwareVisitor keeps track of all the parents of each AST node
 // while visiting all the elements and options.
 type ParentAwareVisitor struct {
@@ -43,9 +41,6 @@ func (v *ParentAwareVisitor) push(parent Visitee) {
 }
 
 func (v *ParentAwareVisitor) pop() {
-	if len(v.Parents) == 0 {
-		log.Fatal("no parent to pop")
-	}
 	v.Parents = v.Parents[:len(v.Parents)-1]
 }
 
