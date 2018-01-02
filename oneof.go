@@ -67,7 +67,7 @@ func (o *Oneof) parse(p *Parser) error {
 		return p.unexpected(lit, "oneof opening {", o)
 	}
 	for {
-		pos, tok, lit = p.next()
+		pos, tok, lit = p.nextIdentifier()
 		switch tok {
 		case tCOMMENT:
 			if com := mergeOrReturnComment(o.elements(), lit, pos); com != nil { // not merged?
