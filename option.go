@@ -40,36 +40,6 @@ type Option struct {
 	InlineComment       *Comment
 }
 
-// columns returns printable source tokens
-func (o *Option) columns() (cols []aligned) {
-	if !o.IsEmbedded {
-		cols = append(cols, leftAligned("option "))
-	} else {
-		cols = append(cols, leftAligned(" ["))
-	}
-	cols = append(cols, o.keyValuePair(o.IsEmbedded)...)
-	if o.IsEmbedded {
-		cols = append(cols, leftAligned("]"))
-	}
-	if !o.IsEmbedded {
-		cols = append(cols, alignedSemicolon)
-		if o.InlineComment != nil {
-			cols = append(cols, notAligned(" //"), notAligned(o.InlineComment.Message()))
-		}
-	}
-	return
-}
-
-// keyValuePair returns key = value or "value"
-func (o *Option) keyValuePair(embedded bool) (cols []aligned) {
-	equals := alignedEquals
-	name := o.Name
-	if embedded {
-		return append(cols, leftAligned(name), equals, leftAligned(o.Constant.SourceRepresentation())) // numbers right, strings left? TODO
-	}
-	return append(cols, rightAligned(name), equals, rightAligned(o.Constant.SourceRepresentation()))
-}
-
 // parse reads an Option body
 // ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {

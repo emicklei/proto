@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"strconv"
 	"text/scanner"
 )
 
@@ -126,29 +125,4 @@ func (o *OneOfField) Accept(v Visitor) {
 // Note: although Doc() is defined on Field, it must be implemented here as well.
 func (o *OneOfField) Doc() *Comment {
 	return o.Comment
-}
-
-// columns returns printable source tokens
-func (o *OneOfField) columns() (cols []aligned) {
-	cols = append(cols,
-		rightAligned(o.Type),
-		alignedSpace,
-		leftAligned(o.Name),
-		alignedEquals,
-		rightAligned(strconv.Itoa(o.Sequence)))
-	if len(o.Options) > 0 {
-		cols = append(cols, leftAligned(" ["))
-		for i, each := range o.Options {
-			if i > 0 {
-				cols = append(cols, alignedComma)
-			}
-			cols = append(cols, each.keyValuePair(true)...)
-		}
-		cols = append(cols, leftAligned("]"))
-	}
-	cols = append(cols, alignedSemicolon)
-	if o.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(o.InlineComment.Message()))
-	}
-	return
 }

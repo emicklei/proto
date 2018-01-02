@@ -58,12 +58,3 @@ func (p *Package) Accept(v Visitor) {
 func (p *Package) inlineComment(c *Comment) {
 	p.InlineComment = c
 }
-
-// columns returns printable source tokens
-func (p *Package) columns() (cols []aligned) {
-	cols = append(cols, notAligned("package "), notAligned(p.Name), alignedSemicolon)
-	if p.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(p.InlineComment.Message()))
-	}
-	return
-}

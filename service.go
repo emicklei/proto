@@ -24,8 +24,6 @@
 package proto
 
 import (
-	"bytes"
-	"io"
 	"text/scanner"
 )
 
@@ -131,51 +129,6 @@ func (r *RPC) Doc() *Comment {
 // inlineComment is part of commentInliner.
 func (r *RPC) inlineComment(c *Comment) {
 	r.InlineComment = c
-}
-
-// columns returns printable source tokens
-func (r *RPC) columns() (cols []aligned) {
-	cols = append(cols,
-		leftAligned("rpc "),
-		leftAligned(r.Name),
-		leftAligned(" ("))
-	if r.StreamsRequest {
-		cols = append(cols, leftAligned("stream "))
-	} else {
-		cols = append(cols, alignedEmpty)
-	}
-	cols = append(cols,
-		leftAligned(r.RequestType),
-		leftAligned(") "),
-		leftAligned("returns"),
-		leftAligned(" ("))
-	if r.StreamsReturns {
-		cols = append(cols, leftAligned("stream "))
-	} else {
-		cols = append(cols, alignedEmpty)
-	}
-	cols = append(cols,
-		leftAligned(r.ReturnsType),
-		leftAligned(")"))
-	if len(r.Options) > 0 {
-		buf := new(bytes.Buffer)
-		io.WriteString(buf, " {\n")
-		f := NewFormatter(buf, "  ") // TODO get separator, now 2 spaces
-		f.level(1)
-		for _, each := range r.Options {
-			each.Accept(f)
-			io.WriteString(buf, "\n")
-		}
-		f.indent(-1)
-		io.WriteString(buf, "}")
-		cols = append(cols, notAligned(buf.String()))
-	} else {
-		cols = append(cols, alignedSemicolon)
-	}
-	if r.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(r.InlineComment.Message()))
-	}
-	return cols
 }
 
 // parse continues after reading "rpc"

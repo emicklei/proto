@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"strconv"
 	"text/scanner"
 )
 
@@ -62,36 +61,6 @@ func (f *NormalField) Accept(v Visitor) {
 // Doc is part of Documented
 func (f *NormalField) Doc() *Comment {
 	return f.Comment
-}
-
-// columns returns printable source tokens
-func (f *NormalField) columns() (cols []aligned) {
-	if f.Repeated {
-		cols = append(cols, leftAligned("repeated "))
-	} else {
-		cols = append(cols, alignedEmpty)
-	}
-	if f.Optional {
-		cols = append(cols, leftAligned("optional "))
-	} else {
-		cols = append(cols, alignedEmpty)
-	}
-	cols = append(cols, rightAligned(f.Type), alignedSpace, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Sequence)))
-	if len(f.Options) > 0 {
-		cols = append(cols, leftAligned(" ["))
-		for i, each := range f.Options {
-			if i > 0 {
-				cols = append(cols, alignedComma)
-			}
-			cols = append(cols, each.keyValuePair(true)...)
-		}
-		cols = append(cols, leftAligned("]"))
-	}
-	cols = append(cols, alignedSemicolon)
-	if f.InlineComment != nil {
-		cols = append(cols, f.InlineComment.alignedInlinePrefix(), notAligned(f.InlineComment.Message()))
-	}
-	return
 }
 
 // parse expects:
@@ -175,34 +144,6 @@ func newMapField() *MapField { return &MapField{Field: new(Field)} }
 // Accept dispatches the call to the visitor.
 func (f *MapField) Accept(v Visitor) {
 	v.VisitMapField(f)
-}
-
-// columns returns printable source tokens
-func (f *MapField) columns() (cols []aligned) {
-	cols = append(cols,
-		notAligned("map <"),
-		rightAligned(f.KeyType),
-		notAligned(","),
-		leftAligned(f.Type),
-		notAligned("> "),
-		rightAligned(f.Name),
-		alignedEquals,
-		rightAligned(strconv.Itoa(f.Sequence)))
-	if len(f.Options) > 0 {
-		cols = append(cols, leftAligned(" ["))
-		for i, each := range f.Options {
-			if i > 0 {
-				cols = append(cols, alignedComma)
-			}
-			cols = append(cols, each.keyValuePair(true)...)
-		}
-		cols = append(cols, leftAligned("]"))
-	}
-	cols = append(cols, alignedSemicolon)
-	if f.InlineComment != nil {
-		cols = append(cols, f.InlineComment.alignedInlinePrefix(), notAligned(f.InlineComment.Message()))
-	}
-	return
 }
 
 // parse expects:

@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"text/scanner"
 )
 
@@ -67,17 +66,4 @@ func (i *Import) inlineComment(c *Comment) {
 // Doc is part of Documented
 func (i *Import) Doc() *Comment {
 	return i.Comment
-}
-
-// columns returns printable source tokens
-func (i *Import) columns() (cols []aligned) {
-	cols = append(cols, leftAligned("import"), alignedSpace)
-	if len(i.Kind) > 0 {
-		cols = append(cols, leftAligned(i.Kind), alignedSpace)
-	}
-	cols = append(cols, notAligned(fmt.Sprintf("%q", i.Filename)), alignedSemicolon)
-	if i.InlineComment != nil {
-		cols = append(cols, notAligned(" //"), notAligned(i.InlineComment.Message()))
-	}
-	return
 }

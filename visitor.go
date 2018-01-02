@@ -54,35 +54,3 @@ type Visitee interface {
 type Documented interface {
 	Doc() *Comment
 }
-
-// reflector is a Visitor that can tell the short type name of a Visitee.
-type reflector struct {
-	name string
-}
-
-// sole instance of reflector
-var namer = new(reflector)
-
-func (r *reflector) VisitMessage(m *Message)         { r.name = "Message" }
-func (r *reflector) VisitService(v *Service)         { r.name = "Service" }
-func (r *reflector) VisitSyntax(s *Syntax)           { r.name = "Syntax" }
-func (r *reflector) VisitPackage(p *Package)         { r.name = "Package" }
-func (r *reflector) VisitOption(o *Option)           { r.name = "Option" }
-func (r *reflector) VisitImport(i *Import)           { r.name = "Import" }
-func (r *reflector) VisitNormalField(i *NormalField) { r.name = "NormalField" }
-func (r *reflector) VisitEnumField(i *EnumField)     { r.name = "EnumField" }
-func (r *reflector) VisitEnum(e *Enum)               { r.name = "Enum" }
-func (r *reflector) VisitComment(e *Comment)         { r.name = "Comment" }
-func (r *reflector) VisitOneof(o *Oneof)             { r.name = "Oneof" }
-func (r *reflector) VisitOneofField(o *OneOfField)   { r.name = "OneOfField" }
-func (r *reflector) VisitReserved(rs *Reserved)      { r.name = "Reserved" }
-func (r *reflector) VisitRPC(rpc *RPC)               { r.name = "RPC" }
-func (r *reflector) VisitMapField(f *MapField)       { r.name = "MapField" }
-func (r *reflector) VisitGroup(g *Group)             { r.name = "Group" }
-func (r *reflector) VisitExtensions(e *Extensions)   { r.name = "Extensions" }
-
-// nameOfVisitee returns the short type name of a Visitee.
-func nameOfVisitee(e Visitee) string {
-	e.Accept(namer)
-	return namer.name
-}

@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"strconv"
 	"text/scanner"
 )
 
@@ -137,19 +136,6 @@ func (f *EnumField) inlineComment(c *Comment) {
 // Doc is part of Documented
 func (f *EnumField) Doc() *Comment {
 	return f.Comment
-}
-
-// columns returns printable source tokens
-func (f EnumField) columns() (cols []aligned) {
-	cols = append(cols, leftAligned(f.Name), alignedEquals, rightAligned(strconv.Itoa(f.Integer)))
-	if f.ValueOption != nil {
-		cols = append(cols, f.ValueOption.columns()...)
-	}
-	cols = append(cols, alignedSemicolon)
-	if f.InlineComment != nil {
-		cols = append(cols, f.InlineComment.alignedInlinePrefix(), notAligned(f.InlineComment.Message()))
-	}
-	return
 }
 
 func (f *EnumField) parse(p *Parser) error {

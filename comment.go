@@ -57,36 +57,9 @@ func newComment(pos scanner.Position, lit string) *Comment {
 	return &Comment{Position: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
 }
 
-// columns is part of columnsPrintable
-func (c *Comment) columnsPrintables() (list []columnsPrintable) {
-	for _, each := range c.Lines {
-		list = append(list, inlineComment{each, c.ExtraSlash})
-	}
-	return
-}
-
-func (c *Comment) alignedInlinePrefix() aligned {
-	prefix := " //"
-	if c.ExtraSlash {
-		prefix = " ///"
-	}
-	return notAligned(prefix)
-}
-
 type inlineComment struct {
 	line       string
 	extraSlash bool
-}
-
-func (i inlineComment) columns() (list []aligned) {
-	if len(i.line) == 0 {
-		return append(list, notAligned(""))
-	}
-	prefix := "//"
-	if i.extraSlash {
-		prefix = "///"
-	}
-	return append(list, notAligned(prefix+i.line))
 }
 
 // Accept dispatches the call to the visitor.
