@@ -35,6 +35,7 @@ type Group struct {
 	Name     string
 	Optional bool
 	Repeated bool
+	Required bool
 	Sequence int
 	Elements []Visitee
 }
