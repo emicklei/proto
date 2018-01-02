@@ -67,10 +67,11 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	proto := `service AccountService {
 		// CreateAccount
 		rpc CreateAccount (CreateAccount) returns (ServiceFault){
+			// test_ident
 			option (test_ident) = {
 				test: "test"
 				test2:"test2"
-			};
+			}; // inline test_ident
 		}
 	}`
 	pr, err := newParserOn(proto).Parse()
@@ -82,11 +83,21 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	rpc1 := srv.Elements[0].(*RPC)
-	if got, want := len(rpc1.Options), 1; got != want {
+	if got, want := len(rpc1.Elements), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	opt := rpc1.Options[0]
+	com := rpc1.Elements[0].(*Comment)
+	if got, want := com.Message(), " test_ident"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	opt := rpc1.Elements[1].(*Option)
 	if got, want := opt.Name, "(test_ident)"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.InlineComment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.InlineComment.Message(), " inline test_ident"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := len(opt.AggregatedConstants), 2; got != want {

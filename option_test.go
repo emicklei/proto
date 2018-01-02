@@ -189,3 +189,27 @@ message Bar {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestNonPrimitiveOptionComment(t *testing.T) {
+	proto := `
+// comment
+option Help = { string_field: "value" }; // inline`
+	p := newParserOn(proto)
+	pr, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := pr.Elements[0].(*Option)
+	if got, want := o.Comment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Comment.Lines[0], " comment"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.InlineComment != nil, true; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.InlineComment.Lines[0], " inline"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}

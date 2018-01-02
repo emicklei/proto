@@ -169,6 +169,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 			continue
 		}
 		if tSEMICOLON == tok {
+			p.nextPut(pos, tok, lit) // allow for inline comment parsing
 			return nil
 		}
 		if tCOMMA == tok {

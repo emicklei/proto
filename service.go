@@ -112,7 +112,7 @@ type RPC struct {
 	StreamsRequest bool
 	ReturnsType    string
 	StreamsReturns bool
-	Options        []*Option
+	Elements       []Visitee
 	InlineComment  *Comment
 }
 
@@ -188,8 +188,14 @@ func (r *RPC) parse(p *Parser) error {
 			if tRIGHTCURLY == tok {
 				break
 			}
-			if tCOMMENT == tok {
-				// TODO put comment in the next option
+			if isComment(lit) {
+				if com := mergeOrReturnComment(r.elements(), lit, pos); com != nil { // not merged?
+					r.addElement(com)
+					continue
+				}
+			}
+			if tSEMICOLON == tok {
+				maybeScanInlineComment(p, r)
 				continue
 			}
 			if tOPTION != tok {
@@ -200,8 +206,23 @@ func (r *RPC) parse(p *Parser) error {
 			if err := o.parse(p); err != nil {
 				return err
 			}
-			r.Options = append(r.Options, o)
+			r.Elements = append(r.Elements, o)
 		}
 	}
 	return nil
+}
+
+// addElement is part of elementContainer
+func (r *RPC) addElement(v Visitee) {
+	r.Elements = append(r.Elements, v)
+}
+
+// elements is part of elementContainer
+func (r *RPC) elements() []Visitee {
+	return r.Elements
+}
+
+func (r *RPC) takeLastComment() (last *Comment) {
+	last, r.Elements = takeLastComment(r.Elements)
+	return
 }
