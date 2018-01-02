@@ -34,6 +34,7 @@ type Group struct {
 	Comment  *Comment
 	Name     string
 	Optional bool
+	Repeated bool
 	Sequence int
 	Elements []Visitee
 }
