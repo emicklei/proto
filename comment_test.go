@@ -89,6 +89,9 @@ func TestParseCommentWithEmptyLinesIndentAndTripleSlash(t *testing.T) {
 	if got, want := def.Elements[0].(*Comment).Position.Line, 2; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
 	}
+	if got, want := def.Elements[0].(*Comment).Cstyle, false; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 }
 
 func TestParseCStyleComment(t *testing.T) {
@@ -115,6 +118,9 @@ comment 3
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Cstyle, true; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
@@ -144,6 +150,9 @@ func TestParseCStyleCommentWithIndent(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Cstyle, true; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
