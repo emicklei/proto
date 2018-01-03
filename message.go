@@ -132,6 +132,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				g.Comment = c.takeLastComment(pos.Line - 1)
 				g.Optional = prevTok == tOPTIONAL
 				g.Repeated = prevTok == tREPEATED
+				g.Required = prevTok == tREQUIRED
 				if err := g.parse(p); err != nil {
 					return err
 				}

@@ -98,3 +98,32 @@ func TestRepeatedGroupInMessage(t *testing.T) {
 	}
 
 }
+
+func TestRequiredGroupInMessage(t *testing.T) {
+	src := `message SearchResponse {
+		required group Result = 1 {
+		  required string url = 2;
+		  optional string title = 3;
+		  repeated string snippets = 4;
+		}
+	  }`
+	p := newParserOn(src)
+	p.next() // consume first token
+	m := new(Message)
+	err := m.parse(p)
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := len(m.Elements), 1; got != want {
+		t.Logf("%#v", m.Elements)
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	g := m.Elements[0].(*Group)
+	if got, want := len(g.Elements), 3; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := g.Required, true; got != want {
+		t.Fatalf("got Required [%v] want [%v]", got, want)
+	}
+
+}
