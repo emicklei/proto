@@ -26,6 +26,8 @@ package proto
 import (
 	"testing"
 	"text/scanner"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var startPosition = scanner.Position{Line: 1, Column: 1}
@@ -88,6 +90,32 @@ func TestParseCommentWithEmptyLinesAndTripleSlash(t *testing.T) {
 	}
 	if got, want := def.Elements[0].(*Comment).Position.Line, 2; got != want {
 		t.Fatalf("got [%d] want [%d]", got, want)
+	}
+}
+
+func TestParseCStyleComment(t *testing.T) {
+	proto := `
+/*comment 1
+comment 2
+
+comment 3
+  comment 4
+*/`
+	p := newParserOn(proto)
+	def, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	spew.Dump(def)
+	if got, want := len(def.Elements), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+
+	if got, want := len(def.Elements[0].(*Comment).Lines), 6; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
 
