@@ -63,13 +63,13 @@ func TestTakeLastComment(t *testing.T) {
 	}
 }
 
-func TestParseCommentWithEmptyLinesAndTripleSlash(t *testing.T) {
+func TestParseCommentWithEmptyLinesIndentAndTripleSlash(t *testing.T) {
 	proto := `
-// comment 1
-// comment 2
-//
-// comment 3
-/// comment 4`
+	// comment 1
+	// comment 2
+	//
+	// comment 3
+	/// comment 4`
 	p := newParserOn(proto)
 	def, err := p.Parse()
 	if err != nil {
@@ -109,6 +109,38 @@ comment 3
 	}
 
 	if got, want := len(def.Elements[0].(*Comment).Lines), 6; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[3], "comment 3"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestParseCStyleCommentWithIndent(t *testing.T) {
+	t.Skip("See https://github.com/emicklei/proto/issues/53")
+	proto := `
+	/*comment 1
+	comment 2
+
+	comment 3
+	  comment 4
+	*/`
+	p := newParserOn(proto)
+	def, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(def.Elements), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+
+	if got, want := len(def.Elements[0].(*Comment).Lines), 6; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[3], "comment 3"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
