@@ -34,6 +34,10 @@ enum EnumAllowingAlias {
   STARTED = 1;
   RUNNING = 2 [(custom_option) = "hello world"];
   NEG = -42;
+  SOMETHING_FOO = 0 [
+    (bar.enum_value_option) = true,
+    (bar.enum_value_dep_option) = { hello: 1 }
+  ];  
 }`
 	p := newParserOn(proto)
 	pr, err := p.Parse()
@@ -44,7 +48,7 @@ enum EnumAllowingAlias {
 	if got, want := len(enums), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(enums[0].Elements), 5; got != want {
+	if got, want := len(enums[0].Elements), 6; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := enums[0].Comment != nil, true; got != want {
@@ -67,10 +71,11 @@ enum EnumAllowingAlias {
 	if got, want := ef3.Integer, 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef3.ValueOption.Name, "(custom_option)"; got != want {
+	ef3opt := ef3.Elements[0].(*Option)
+	if got, want := ef3opt.Name, "(custom_option)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef3.ValueOption.Constant.Source, "hello world"; got != want {
+	if got, want := ef3opt.Constant.Source, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := ef3.Position.Line, 7; got != want {

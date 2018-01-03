@@ -119,7 +119,7 @@ type EnumField struct {
 	Comment       *Comment
 	Name          string
 	Integer       int
-	ValueOption   *Option
+	Elements      []Visitee // such as Option and Comment
 	InlineComment *Comment
 }
 
@@ -157,17 +157,22 @@ func (f *EnumField) parse(p *Parser) error {
 	f.Integer = i
 	pos, tok, lit = p.next()
 	if tok == tLEFTSQUARE {
-		o := new(Option)
-		o.Position = pos
-		o.IsEmbedded = true
-		err := o.parse(p)
-		if err != nil {
-			return err
-		}
-		f.ValueOption = o
-		pos, tok, lit = p.next()
-		if tok != tRIGHTSQUARE {
-			return p.unexpected(lit, "option closing ]", f)
+		for {
+			o := new(Option)
+			o.Position = pos
+			o.IsEmbedded = true
+			err := o.parse(p)
+			if err != nil {
+				return err
+			}
+			f.Elements = append(f.Elements, o)
+			pos, tok, lit = p.next()
+			if tok == tCOMMA {
+				continue
+			}
+			if tok == tRIGHTSQUARE {
+				break
+			}
 		}
 	}
 	if tSEMICOLON == tok {
