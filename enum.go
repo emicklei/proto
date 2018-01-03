@@ -115,11 +115,14 @@ done:
 
 // EnumField is part of the body of an Enum.
 type EnumField struct {
-	Position      scanner.Position
-	Comment       *Comment
-	Name          string
-	Integer       int
+	Position scanner.Position
+	Comment  *Comment
+	Name     string
+	Integer  int
+	// Deprecated: use Options instead.
+	// If there is more than one option, this will be equal to the last option.
 	ValueOption   *Option
+	Options       []*Option
 	InlineComment *Comment
 }
 
@@ -157,17 +160,13 @@ func (f *EnumField) parse(p *Parser) error {
 	f.Integer = i
 	pos, tok, lit = p.next()
 	if tok == tLEFTSQUARE {
-		o := new(Option)
-		o.Position = pos
-		o.IsEmbedded = true
-		err := o.parse(p)
+		// in field.go
+		f.Options, err = parseFieldOptions(p)
+		if len(f.Options) > 0 {
+			f.ValueOption = f.Options[len(f.Options)-1]
+		}
 		if err != nil {
 			return err
-		}
-		f.ValueOption = o
-		pos, tok, lit = p.next()
-		if tok != tRIGHTSQUARE {
-			return p.unexpected(lit, "option closing ]", f)
 		}
 	}
 	if tSEMICOLON == tok {
