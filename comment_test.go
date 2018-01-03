@@ -26,8 +26,6 @@ package proto
 import (
 	"testing"
 	"text/scanner"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 var startPosition = scanner.Position{Line: 1, Column: 1}
@@ -106,7 +104,6 @@ comment 3
 	if err != nil {
 		t.Fatal(err)
 	}
-	spew.Dump(def)
 	if got, want := len(def.Elements), 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
