@@ -76,7 +76,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tENUM == tok:
 			e := new(Enum)
 			e.Position = pos
-			e.Comment = c.takeLastComment(pos.Line - 1)
+			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tMESSAGE == tok:
 			msg := new(Message)
 			msg.Position = pos
-			msg.Comment = c.takeLastComment(pos.Line - 1)
+			msg.Comment = c.takeLastComment()
 			if err := msg.parse(p); err != nil {
 				return err
 			}
@@ -92,7 +92,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tOPTION == tok:
 			o := new(Option)
 			o.Position = pos
-			o.Comment = c.takeLastComment(pos.Line - 1)
+			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tONEOF == tok:
 			o := new(Oneof)
 			o.Position = pos
-			o.Comment = c.takeLastComment(pos.Line - 1)
+			o.Comment = c.takeLastComment()
 			if err := o.parse(p); err != nil {
 				return err
 			}
@@ -108,7 +108,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tMAP == tok:
 			f := newMapField()
 			f.Position = pos
-			f.Comment = c.takeLastComment(pos.Line - 1)
+			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err
 			}
@@ -116,7 +116,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tRESERVED == tok:
 			r := new(Reserved)
 			r.Position = pos
-			r.Comment = c.takeLastComment(pos.Line - 1)
+			r.Comment = c.takeLastComment()
 			if err := r.parse(p); err != nil {
 				return err
 			}
@@ -129,7 +129,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			if tGROUP == tok {
 				g := new(Group)
 				g.Position = pos
-				g.Comment = c.takeLastComment(pos.Line - 1)
+				g.Comment = c.takeLastComment()
 				g.Optional = prevTok == tOPTIONAL
 				g.Repeated = prevTok == tREPEATED
 				g.Required = prevTok == tREQUIRED
@@ -143,7 +143,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 				f := newNormalField()
 				f.Type = lit
 				f.Position = pos
-				f.Comment = c.takeLastComment(pos.Line - 1)
+				f.Comment = c.takeLastComment()
 				f.Optional = prevTok == tOPTIONAL
 				f.Repeated = prevTok == tREPEATED
 				f.Required = prevTok == tREQUIRED
@@ -155,7 +155,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tGROUP == tok:
 			g := new(Group)
 			g.Position = pos
-			g.Comment = c.takeLastComment(pos.Line - 1)
+			g.Comment = c.takeLastComment()
 			if err := g.parse(p); err != nil {
 				return err
 			}
@@ -163,7 +163,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tEXTENSIONS == tok:
 			e := new(Extensions)
 			e.Position = pos
-			e.Comment = c.takeLastComment(pos.Line - 1)
+			e.Comment = c.takeLastComment()
 			if err := e.parse(p); err != nil {
 				return err
 			}
@@ -171,7 +171,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 		case tEXTEND == tok:
 			e := new(Message)
 			e.Position = pos
-			e.Comment = c.takeLastComment(pos.Line - 1)
+			e.Comment = c.takeLastComment()
 			e.IsExtend = true
 			if err := e.parse(p); err != nil {
 				return err
@@ -188,7 +188,7 @@ func parseMessageBody(p *Parser, c elementContainer) error {
 			p.nextPut(pos, tok, lit)
 			f := newNormalField()
 			f.Position = pos
-			f.Comment = c.takeLastComment(pos.Line - 1)
+			f.Comment = c.takeLastComment()
 			if err := f.parse(p); err != nil {
 				return err
 			}
@@ -217,8 +217,8 @@ func (m *Message) elements() []Visitee {
 	return m.Elements
 }
 
-func (m *Message) takeLastComment(expectedOnLine int) (last *Comment) {
-	last, m.Elements = takeLastCommentIfOnLine(m.Elements, expectedOnLine)
+func (m *Message) takeLastComment() (last *Comment) {
+	last, m.Elements = takeLastComment(m.Elements)
 	return
 }
 

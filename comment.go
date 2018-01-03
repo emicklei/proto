@@ -105,12 +105,12 @@ func maybeScanInlineComment(p *Parser, c elementContainer) {
 	}
 }
 
-// takeLastComment removes and returns the last element of the list if it is a Comment
-func takeLastCommentIfOnLine(list []Visitee, line int) (*Comment, []Visitee) {
+// takeLastComment removes and returns the last element of the list if it is a Comment.
+func takeLastComment(list []Visitee) (*Comment, []Visitee) {
 	if len(list) == 0 {
 		return nil, list
 	}
-	if last, ok := list[len(list)-1].(*Comment); ok && last.Position.Line == line {
+	if last, ok := list[len(list)-1].(*Comment); ok {
 		return last, list[:len(list)-1]
 	}
 	return nil, list

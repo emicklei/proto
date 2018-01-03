@@ -57,8 +57,8 @@ func (s *Service) elements() []Visitee {
 
 // takeLastComment is part of elementContainer
 // removes and returns the last elements of the list if it is a Comment.
-func (s *Service) takeLastComment(expectedOnLine int) (last *Comment) {
-	last, s.Elements = takeLastCommentIfOnLine(s.Elements, expectedOnLine)
+func (s *Service) takeLastComment() (last *Comment) {
+	last, s.Elements = takeLastComment(s.Elements)
 	return
 }
 
@@ -85,7 +85,7 @@ func (s *Service) parse(p *Parser) error {
 		case tRPC:
 			rpc := new(RPC)
 			rpc.Position = pos
-			rpc.Comment, s.Elements = takeLastCommentIfOnLine(s.Elements, pos.Line-1)
+			rpc.Comment, s.Elements = takeLastComment(s.Elements)
 			err := rpc.parse(p)
 			if err != nil {
 				return err

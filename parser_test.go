@@ -49,7 +49,7 @@ func TestParseComment(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got, want := len(collect(pr).Comments()), 3; got != want {
+	if got, want := len(collect(pr).Comments()), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
