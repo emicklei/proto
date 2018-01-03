@@ -31,7 +31,7 @@ func TestEnum(t *testing.T) {
 enum EnumAllowingAlias {
   option allow_alias = true;
   UNKNOWN = 0;
-  STARTED = 1;
+  STARTED = 1[(custom_option)="one", (another_option)=2];
   RUNNING = 2 [(custom_option) = "hello world"];
   NEG = -42;
 }`
@@ -62,6 +62,28 @@ enum EnumAllowingAlias {
 	}
 	if got, want := ef1.Position.Line, 5; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	ef2 := enums[0].Elements[2].(*EnumField)
+	if got, want := ef2.Integer, 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef2.ValueOption.Name, "(another_option)"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef2.ValueOption.Constant.Source, "2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(ef2.Options), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef2.Options[0].Name, "(custom_option)"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef2.Options[0].Constant.Source, "one"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := ef2.Options[1], ef2.ValueOption; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	ef3 := enums[0].Elements[3].(*EnumField)
 	if got, want := ef3.Integer, 2; got != want {

@@ -111,26 +111,33 @@ func parseFieldAfterType(f *Field, p *Parser) error {
 		p.nextPut(pos, tok, lit)
 		return nil
 	}
-	// consume options
+	f.Options, err = parseFieldOptions(p)
+	return err
+}
+
+func parseFieldOptions(p *Parser) ([]*Option, error) {
+	var options []*Option
+	var pos scanner.Position
+	var tok token
+	var lit string
 	for {
 		o := new(Option)
 		o.Position = pos
 		o.IsEmbedded = true
 		err := o.parse(p)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		f.Options = append(f.Options, o)
+		options = append(options, o)
 
 		pos, tok, lit = p.next()
 		if tRIGHTSQUARE == tok {
-			break
+			return options, nil
 		}
 		if tCOMMA != tok {
-			return p.unexpected(lit, "option ,", o)
+			return nil, p.unexpected(lit, "option ,", o)
 		}
 	}
-	return nil
 }
 
 // MapField represents a map entry in a message.
