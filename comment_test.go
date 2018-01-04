@@ -54,7 +54,7 @@ world`)
 func TestTakeLastComment(t *testing.T) {
 	c0 := newComment(startPosition, "hi")
 	c1 := newComment(startPosition, "there")
-	_, l := takeLastCommentIfOnLine([]Visitee{c0, c1}, 1)
+	_, l := takeLastCommentIfEndsOnLine([]Visitee{c0, c1}, 1)
 	if got, want := len(l), 1; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
@@ -247,6 +247,8 @@ func TestCommentAssociation(t *testing.T) {
 	
 	// baz
 	
+	// bat1
+	// bat2
 	package bat;`
 	p := newParserOn(src)
 	def, err := p.Parse()
@@ -254,6 +256,16 @@ func TestCommentAssociation(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, want := len(def.Elements), 5; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	pkg := def.Elements[4].(*Package)
+	if got, want := pkg.Comment.Message(), " bat1"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(pkg.Comment.Lines), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := pkg.Comment.Lines[1], " bat2"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }

@@ -218,7 +218,7 @@ func (m *Message) elements() []Visitee {
 }
 
 func (m *Message) takeLastComment(expectedOnLine int) (last *Comment) {
-	last, m.Elements = takeLastCommentIfOnLine(m.Elements, expectedOnLine)
+	last, m.Elements = takeLastCommentIfEndsOnLine(m.Elements, expectedOnLine)
 	return
 }
 

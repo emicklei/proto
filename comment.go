@@ -73,6 +73,13 @@ func (c *Comment) Merge(other *Comment) {
 	c.Cstyle = c.Cstyle || other.Cstyle
 }
 
+func (c Comment) hasTextOnLine(line int) bool {
+	if len(c.Lines) == 0 {
+		return false
+	}
+	return c.Position.Line <= line && line <= c.Position.Line+len(c.Lines)-1
+}
+
 // Message returns the first line or empty if no lines.
 func (c Comment) Message() string {
 	if len(c.Lines) == 0 {
@@ -105,12 +112,12 @@ func maybeScanInlineComment(p *Parser, c elementContainer) {
 	}
 }
 
-// takeLastComment removes and returns the last element of the list if it is a Comment
-func takeLastCommentIfOnLine(list []Visitee, line int) (*Comment, []Visitee) {
+// takeLastCommentIfEndsOnLine removes and returns the last element of the list if it is a Comment
+func takeLastCommentIfEndsOnLine(list []Visitee, line int) (*Comment, []Visitee) {
 	if len(list) == 0 {
 		return nil, list
 	}
-	if last, ok := list[len(list)-1].(*Comment); ok && last.Position.Line == line {
+	if last, ok := list[len(list)-1].(*Comment); ok && last.hasTextOnLine(line) {
 		return last, list[:len(list)-1]
 	}
 	return nil, list
@@ -119,17 +126,24 @@ func takeLastCommentIfOnLine(list []Visitee, line int) (*Comment, []Visitee) {
 // mergeOrReturnComment creates a new comment and tries to merge it with the last element (if is a comment and is on the next line).
 func mergeOrReturnComment(elements []Visitee, lit string, pos scanner.Position) *Comment {
 	com := newComment(pos, lit)
-	// last element must be a comment to merge +
-	// do not merge c-style comments +
-	// last comment line was on previous line
-	if esize := len(elements); esize > 0 {
-		if last, ok := elements[esize-1].(*Comment); ok &&
-			!last.Cstyle &&
-			pos.Line <= last.Position.Line+len(last.Lines) { // less than because last line of file could be inline comment
-			last.Merge(com)
-			// mark as merged
-			com = nil
-		}
+	esize := len(elements)
+	if esize == 0 {
+		return com
 	}
-	return com
+	// last element must be a comment to merge
+	last, ok := elements[esize-1].(*Comment)
+	if !ok {
+		return com
+	}
+	// do not merge c-style comments
+	if last.Cstyle {
+		return com
+	}
+	// last comment has text on previous line
+	// TODO handle last line of file could be inline comment
+	if !last.hasTextOnLine(pos.Line - 1) {
+		return com
+	}
+	last.Merge(com)
+	return nil
 }

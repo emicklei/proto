@@ -58,7 +58,7 @@ func (e *Enum) elements() []Visitee {
 // takeLastComment is part of elementContainer
 // removes and returns the last element of the list if it is a Comment.
 func (e *Enum) takeLastComment(expectedOnLine int) (last *Comment) {
-	last, e.Elements = takeLastCommentIfOnLine(e.Elements, expectedOnLine)
+	last, e.Elements = takeLastCommentIfEndsOnLine(e.Elements, expectedOnLine)
 	return
 }
 

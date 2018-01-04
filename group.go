@@ -63,7 +63,7 @@ func (g *Group) Doc() *Comment {
 // takeLastComment is part of elementContainer
 // removes and returns the last element of the list if it is a Comment.
 func (g *Group) takeLastComment(expectedOnLine int) (last *Comment) {
-	last, g.Elements = takeLastCommentIfOnLine(g.Elements, expectedOnLine)
+	last, g.Elements = takeLastCommentIfEndsOnLine(g.Elements, expectedOnLine)
 	return
 }
 
