@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestOptionCases(t *testing.T) {
 	for i, each := range []struct {
@@ -210,6 +212,27 @@ option Help = { string_field: "value" }; // inline`
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := o.InlineComment.Lines[0], " inline"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestNestedAggregatedOption(t *testing.T) {
+	t.Skip("https://github.com/emicklei/proto/issues/50")
+	src := `
+option (foo.bar) = {
+	woot: 100
+	foo: {
+	  hello: 200
+	}
+  };
+`
+	p := newParserOn(src)
+	pr, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := pr.Elements[0].(*Option)
+	if got, want := len(o.AggregatedConstants), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
