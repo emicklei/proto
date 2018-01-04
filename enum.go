@@ -115,10 +115,12 @@ done:
 
 // EnumField is part of the body of an Enum.
 type EnumField struct {
-	Position      scanner.Position
-	Comment       *Comment
-	Name          string
-	Integer       int
+	Position scanner.Position
+	Comment  *Comment
+	Name     string
+	Integer  int
+	// ValueOption is deprecated, use Elements instead
+	ValueOption   *Option
 	Elements      []Visitee // such as Option and Comment
 	InlineComment *Comment
 }
@@ -165,6 +167,8 @@ func (f *EnumField) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
+			// update deprecated field with the last option found
+			f.ValueOption = o
 			f.Elements = append(f.Elements, o)
 			pos, tok, lit = p.next()
 			if tok == tCOMMA {

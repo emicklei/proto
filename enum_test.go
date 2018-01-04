@@ -75,6 +75,10 @@ enum EnumAllowingAlias {
 	if got, want := ef3opt.Name, "(custom_option)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	// test for deprecated field
+	if got, want := ef3opt, ef3.ValueOption; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	if got, want := ef3opt.Constant.Source, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
