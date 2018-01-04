@@ -157,6 +157,29 @@ func TestParseCStyleCommentWithIndent(t *testing.T) {
 	}
 }
 
+func TestParseCStyleOneLineComment(t *testing.T) {
+	t.Skip("See https://github.com/emicklei/proto/issues/54")
+	proto := `/* comment 1 */`
+	p := newParserOn(proto)
+	def, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(def.Elements), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+
+	if got, want := len(def.Elements[0].(*Comment).Lines), 1; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[0], "/* comment 1 */"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Cstyle, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestParseCommentWithTripleSlash(t *testing.T) {
 	proto := `
 /// comment 1
