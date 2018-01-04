@@ -180,6 +180,38 @@ func TestParseCStyleOneLineComment(t *testing.T) {
 	}
 }
 
+func TestParseCStyleInlineComment(t *testing.T) {
+	proto := `message Foo {
+		int64 hello = 1; /*
+			comment 1
+		*/
+	}`
+	p := newParserOn(proto)
+	def := new(Proto)
+	err := def.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := def.Elements[0].(*Message)
+	if len(m.Elements) != 1 {
+		t.Fatal("expected one element", m.Elements)
+	}
+	f := m.Elements[0].(*NormalField)
+	comment := f.InlineComment
+	if comment == nil {
+		t.Fatal("no inline comment")
+	}
+	if got, want := len(comment.Lines), 3; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := comment.Lines[0], "/*"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := comment.Cstyle, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestParseCommentWithTripleSlash(t *testing.T) {
 	proto := `
 /// comment 1
