@@ -31,13 +31,13 @@ func TestService(t *testing.T) {
 		rpc CreateAccount (CreateAccount) returns (ServiceFault); // inline comment
 		rpc GetAccounts   (stream Int64)  returns (Account) {} // inline comment2
 		rpc Health(google.protobuf.Empty) returns (google.protobuf.Empty) {} // inline comment3
-	} // inline comment4`
+	}`
 	pr, err := newParserOn(proto).Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
 	srv := collect(pr).Services()[0]
-	if got, want := len(srv.Elements), 4; got != want {
+	if got, want := len(srv.Elements), 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := srv.Position.String(), "<input>:1:1"; got != want {

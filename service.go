@@ -91,6 +91,7 @@ func (s *Service) parse(p *Parser) error {
 				return err
 			}
 			s.Elements = append(s.Elements, rpc)
+			maybeScanInlineComment(p, s)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, s)
 		case tRIGHTCURLY:
