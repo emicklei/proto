@@ -28,33 +28,27 @@ import (
 	"text/scanner"
 )
 
-// Comment holds a message.
+// Comment one or more comment text lines, either in c- or c++ style.
 type Comment struct {
-	Position   scanner.Position
+	Position scanner.Position
+	// Lines are comment text lines without prefixes //, ///, /* or suffix */
 	Lines      []string
 	Cstyle     bool // refers to /* ... */,  C++ style is using //
-	ExtraSlash bool
+	ExtraSlash bool // is true if the comment starts with 3 slashes
 }
 
 // newComment returns a comment.
 func newComment(pos scanner.Position, lit string) *Comment {
-	nonEmpty := []string{}
-	extraSlash := false
-	lines := strings.Split(lit, "\n")
-	if len(lines) > 1 {
-		for _, each := range lines {
-			// do not modify if a line has an extra slash prefix
-			nonEmpty = append(nonEmpty, each)
-		}
+	extraSlash := strings.HasPrefix(lit, "///")
+	isCstyle := strings.HasPrefix(lit, "/*") && strings.HasSuffix(lit, "*/")
+	var lines []string
+	if isCstyle {
+		withoutMarkers := strings.TrimRight(strings.TrimLeft(lit, "/*"), "*/")
+		lines = strings.Split(withoutMarkers, "\n")
 	} else {
-		if strings.HasPrefix(lit, "/") {
-			extraSlash = strings.HasPrefix(lit, "///")
-			nonEmpty = append(nonEmpty, strings.TrimLeft(lit, "/"))
-		} else {
-			nonEmpty = append(nonEmpty, lit)
-		}
+		lines = strings.Split(strings.TrimLeft(lit, "/"), "\n")
 	}
-	return &Comment{Position: pos, Lines: nonEmpty, Cstyle: len(lines) > 1, ExtraSlash: extraSlash}
+	return &Comment{Position: pos, Lines: lines, Cstyle: isCstyle, ExtraSlash: extraSlash}
 }
 
 type inlineComment struct {
