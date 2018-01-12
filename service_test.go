@@ -28,9 +28,9 @@ import "testing"
 func TestService(t *testing.T) {
 	proto := `service AccountService {
 		// comment
-		rpc CreateAccount (CreateAccount) returns (ServiceFault);
-		rpc GetAccounts   (stream Int64)  returns (Account);
-		rpc Health(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+		rpc CreateAccount (CreateAccount) returns (ServiceFault); // inline comment
+		rpc GetAccounts   (stream Int64)  returns (Account) {} // inline comment2
+		rpc Health(google.protobuf.Empty) returns (google.protobuf.Empty) {} // inline comment3
 	}`
 	pr, err := newParserOn(proto).Parse()
 	if err != nil {
@@ -50,6 +50,9 @@ func TestService(t *testing.T) {
 	if got, want := rpc1.Doc().Message(), " comment"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	if got, want := rpc1.InlineComment.Message(), " inline comment"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 	if got, want := rpc1.Position.Line, 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
@@ -60,6 +63,18 @@ func TestService(t *testing.T) {
 	rpc3 := srv.Elements[2].(*RPC)
 	if got, want := rpc3.Name, "Health"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if rpc2.InlineComment == nil {
+		t.Fatal("missing inline comment 2")
+	}
+	if got, want := rpc2.InlineComment.Message(), " inline comment2"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if rpc3.InlineComment == nil {
+		t.Fatal("missing inline comment 3")
+	}
+	if got, want := rpc3.InlineComment.Message(), " inline comment3"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
 
