@@ -57,8 +57,8 @@ func (e *Enum) elements() []Visitee {
 
 // takeLastComment is part of elementContainer
 // removes and returns the last element of the list if it is a Comment.
-func (e *Enum) takeLastComment() (last *Comment) {
-	last, e.Elements = takeLastComment(e.Elements)
+func (e *Enum) takeLastComment(expectedOnLine int) (last *Comment) {
+	last, e.Elements = takeLastCommentIfEndsOnLine(e.Elements, expectedOnLine)
 	return
 }
 
@@ -84,7 +84,7 @@ func (e *Enum) parse(p *Parser) error {
 		case tOPTION:
 			v := new(Option)
 			v.Position = pos
-			v.Comment = e.takeLastComment()
+			v.Comment = e.takeLastComment(pos.Line)
 			err := v.parse(p)
 			if err != nil {
 				return err
@@ -98,7 +98,7 @@ func (e *Enum) parse(p *Parser) error {
 			p.nextPut(pos, tok, lit)
 			f := new(EnumField)
 			f.Position = pos
-			f.Comment = e.takeLastComment()
+			f.Comment = e.takeLastComment(pos.Line - 1)
 			err := f.parse(p)
 			if err != nil {
 				return err

@@ -47,8 +47,8 @@ func (o *Oneof) elements() []Visitee {
 
 // takeLastComment is part of elementContainer
 // removes and returns the last element of the list if it is a Comment.
-func (o *Oneof) takeLastComment() (last *Comment) {
-	last, o.Elements = takeLastComment(o.Elements)
+func (o *Oneof) takeLastComment(expectedOnLine int) (last *Comment) {
+	last, o.Elements = takeLastCommentIfEndsOnLine(o.Elements, expectedOnLine)
 	return last
 }
 
@@ -76,7 +76,7 @@ func (o *Oneof) parse(p *Parser) error {
 		case tIDENT:
 			f := newOneOfField()
 			f.Position = pos
-			f.Comment, o.Elements = takeLastComment(o.elements())
+			f.Comment, o.Elements = takeLastCommentIfEndsOnLine(o.elements(), pos.Line-1) // TODO call takeLastComment instead?
 			f.Type = lit
 			if err := parseFieldAfterType(f.Field, p); err != nil {
 				return err
@@ -85,7 +85,7 @@ func (o *Oneof) parse(p *Parser) error {
 		case tGROUP:
 			g := new(Group)
 			g.Position = pos
-			g.Comment, o.Elements = takeLastComment(o.elements())
+			g.Comment, o.Elements = takeLastCommentIfEndsOnLine(o.elements(), pos.Line-1)
 			if err := g.parse(p); err != nil {
 				return err
 			}

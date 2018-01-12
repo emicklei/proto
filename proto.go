@@ -41,8 +41,8 @@ func (proto *Proto) elements() []Visitee {
 
 // takeLastComment is part of elementContainer
 // removes and returns the last element of the list if it is a Comment.
-func (proto *Proto) takeLastComment() (last *Comment) {
-	last, proto.Elements = takeLastComment(proto.Elements)
+func (proto *Proto) takeLastComment(expectedOnLine int) (last *Comment) {
+	last, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, expectedOnLine)
 	return
 }
 
@@ -58,7 +58,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tOPTION == tok:
 			o := new(Option)
 			o.Position = pos
-			o.Comment, proto.Elements = takeLastComment(proto.Elements)
+			o.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := o.parse(p); err != nil {
 				return err
 			}
@@ -66,7 +66,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tSYNTAX == tok:
 			s := new(Syntax)
 			s.Position = pos
-			s.Comment, proto.Elements = takeLastComment(proto.Elements)
+			s.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := s.parse(p); err != nil {
 				return err
 			}
@@ -74,7 +74,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tIMPORT == tok:
 			im := new(Import)
 			im.Position = pos
-			im.Comment, proto.Elements = takeLastComment(proto.Elements)
+			im.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := im.parse(p); err != nil {
 				return err
 			}
@@ -82,7 +82,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tENUM == tok:
 			enum := new(Enum)
 			enum.Position = pos
-			enum.Comment, proto.Elements = takeLastComment(proto.Elements)
+			enum.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := enum.parse(p); err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tSERVICE == tok:
 			service := new(Service)
 			service.Position = pos
-			service.Comment, proto.Elements = takeLastComment(proto.Elements)
+			service.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			err := service.parse(p)
 			if err != nil {
 				return err
@@ -99,7 +99,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tPACKAGE == tok:
 			pkg := new(Package)
 			pkg.Position = pos
-			pkg.Comment, proto.Elements = takeLastComment(proto.Elements)
+			pkg.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := pkg.parse(p); err != nil {
 				return err
 			}
@@ -107,7 +107,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tMESSAGE == tok:
 			msg := new(Message)
 			msg.Position = pos
-			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
+			msg.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			if err := msg.parse(p); err != nil {
 				return err
 			}
@@ -116,7 +116,7 @@ func (proto *Proto) parse(p *Parser) error {
 		case tEXTEND == tok:
 			msg := new(Message)
 			msg.Position = pos
-			msg.Comment, proto.Elements = takeLastComment(proto.Elements)
+			msg.Comment, proto.Elements = takeLastCommentIfEndsOnLine(proto.Elements, pos.Line-1)
 			msg.IsExtend = true
 			if err := msg.parse(p); err != nil {
 				return err
@@ -140,5 +140,5 @@ done:
 type elementContainer interface {
 	addElement(v Visitee)
 	elements() []Visitee
-	takeLastComment() *Comment
+	takeLastComment(expectedOnLine int) *Comment
 }
