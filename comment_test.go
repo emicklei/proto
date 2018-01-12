@@ -249,13 +249,19 @@ func TestCommentAssociation(t *testing.T) {
 	
 	// bat1
 	// bat2
-	package bat;`
+	package bat;
+	
+	// Oneway is the return type to use for an rpc method if
+	// the method should be generated as oneway.
+	message Oneway {
+	  bool ack = 1;
+	}`
 	p := newParserOn(src)
 	def, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := len(def.Elements), 5; got != want {
+	if got, want := len(def.Elements), 6; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	pkg := def.Elements[4].(*Package)
@@ -266,6 +272,9 @@ func TestCommentAssociation(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := pkg.Comment.Lines[1], " bat2"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(def.Elements[5].(*Message).Comment.Lines), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
