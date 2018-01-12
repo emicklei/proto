@@ -37,7 +37,7 @@ func TestService(t *testing.T) {
 		t.Fatal(err)
 	}
 	srv := collect(pr).Services()[0]
-	if got, want := len(srv.Elements), 4; got != want {
+	if got, want := len(srv.Elements), 3; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := srv.Position.String(), "<input>:1:1"; got != want {
