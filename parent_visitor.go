@@ -36,14 +36,6 @@ func NewParentAwareVisitor(delegate Visitor) *ParentAwareVisitor {
 	return &ParentAwareVisitor{delegate: delegate}
 }
 
-func (v *ParentAwareVisitor) push(parent Visitee) {
-	v.Parents = append(v.Parents, parent)
-}
-
-func (v *ParentAwareVisitor) pop() {
-	v.Parents = v.Parents[:len(v.Parents)-1]
-}
-
 // VisitMessage is part of Visitor
 func (v *ParentAwareVisitor) VisitMessage(m *Message) {
 	v.push(m)
@@ -146,3 +138,11 @@ func (v *ParentAwareVisitor) VisitGroup(g *Group) {
 
 // VisitExtensions is part of Visitor
 func (v *ParentAwareVisitor) VisitExtensions(e *Extensions) {}
+
+func (v *ParentAwareVisitor) push(parent Visitee) {
+	v.Parents = append(v.Parents, parent)
+}
+
+func (v *ParentAwareVisitor) pop() {
+	v.Parents = v.Parents[:len(v.Parents)-1]
+}
