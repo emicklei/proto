@@ -124,4 +124,8 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	if got, want := opt.AggregatedConstants[1].Source, "test2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	// test deprecated field Options in RPC
+	if got, want := len(rpc1.Options), 1; got != want {
+		t.Errorf("got len Options %v want %v", got, want)
+	}
 }

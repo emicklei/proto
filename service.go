@@ -115,6 +115,9 @@ type RPC struct {
 	StreamsReturns bool
 	Elements       []Visitee
 	InlineComment  *Comment
+
+	// Options field is DEPRECATED, use Elements instead.
+	Options []*Option
 }
 
 // Accept dispatches the call to the visitor.
@@ -207,7 +210,7 @@ func (r *RPC) parse(p *Parser) error {
 			if err := o.parse(p); err != nil {
 				return err
 			}
-			r.Elements = append(r.Elements, o)
+			r.addElement(o)
 		}
 	}
 	return nil
@@ -216,6 +219,10 @@ func (r *RPC) parse(p *Parser) error {
 // addElement is part of elementContainer
 func (r *RPC) addElement(v Visitee) {
 	r.Elements = append(r.Elements, v)
+	// handle deprecated field
+	if option, ok := v.(*Option); ok {
+		r.Options = append(r.Options, option)
+	}
 }
 
 // elements is part of elementContainer
