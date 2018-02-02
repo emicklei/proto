@@ -32,8 +32,17 @@ type ParentAwareVisitor struct {
 
 // NewParentAwareVisitor returns a ParentAwareVisitor that collects the parents
 // of each visited and delegates the Visit call to the delegate.
+// The delegate typically has a reference to the *ParentAwareVisitor (embbeded or normal field)
 func NewParentAwareVisitor(delegate Visitor) *ParentAwareVisitor {
 	return &ParentAwareVisitor{delegate: delegate}
+}
+
+// LastParent returns the immediat parent of the current Visitee accepted (and visited) by the visitor.
+func (v *ParentAwareVisitor) LastParent() Visitee {
+	if len(v.Parents) == 0 {
+		return nil
+	}
+	return v.Parents[len(v.Parents)-1]
 }
 
 // VisitMessage is part of Visitor

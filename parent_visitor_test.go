@@ -28,10 +28,16 @@ func TestShowParents(t *testing.T) {
 		t.Fatal(err)
 	}
 	collector := newTree()
+	if got, want := collector.LastParent(), Visitee(nil); got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 	m.Accept(collector)
 	for _, each := range m.Elements {
 		parents := collector.parents[each]
 		if got, want := parents[0], m; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+		if got, want := collector.lastParent, m; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}
@@ -39,7 +45,8 @@ func TestShowParents(t *testing.T) {
 
 type tree struct {
 	*ParentAwareVisitor
-	parents map[Visitee][]Visitee
+	parents    map[Visitee][]Visitee
+	lastParent Visitee
 }
 
 func newTree() *tree {
@@ -51,6 +58,7 @@ func newTree() *tree {
 
 func (v *tree) VisitMessage(e *Message) {
 	v.parents[e] = v.ParentAwareVisitor.Parents
+	v.lastParent = v.LastParent()
 	// super
 	v.ParentAwareVisitor.VisitMessage(e)
 }
