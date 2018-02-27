@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestOptionCases(t *testing.T) {
 	for i, each := range []struct {
