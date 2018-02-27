@@ -213,3 +213,31 @@ option Help = { string_field: "value" }; // inline`
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestFieldCustomOptions(t *testing.T) {
+	proto := `foo.bar lots = 1 [foo={hello:1}, bar=2];`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Type, "foo.bar"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Name, "lots"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(f.Options), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].Name, "foo"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[1].Name, "bar"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[1].Constant.Source, "2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

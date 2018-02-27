@@ -166,7 +166,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 			return nil
 		}
 		if tRIGHTCURLY == tok {
-			continue
+			return nil
 		}
 		if tSEMICOLON == tok {
 			p.nextPut(pos, tok, lit) // allow for inline comment parsing
