@@ -136,7 +136,7 @@ option Help = "me"; // inline`
 	}
 }
 
-func TestIssue8(t *testing.T) {
+func TestAggregateSyntax(t *testing.T) {
 	proto := `
 // usage:
 message Bar {
@@ -238,6 +238,41 @@ func TestFieldCustomOptions(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[1].Constant.Source, "2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+// issue #50
+func TestNestedAggregateConstants(t *testing.T) {
+	src := `syntax = "proto3";
+
+	package baz;
+	
+	option (foo.bar) = {
+	  woot: 100
+	  foo {
+		hello: 200
+	  }
+	};`
+	p := newParserOn(src)
+	proto, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+	option := proto.Elements[2].(*Option)
+	if got, want := option.Name, "(foo.bar)"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(option.AggregatedConstants), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[0].Name, "woot"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[1].Name, "foo.hello"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[1].Literal.SourceRepresentation(), "200"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
