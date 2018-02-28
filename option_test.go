@@ -393,3 +393,21 @@ func TestNestedAggregateConstantsColonsWithLineSeparation(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+// Issue #59
+func TestMultiLineOptionAggregateValue(t *testing.T) {
+	src := `rpc ListTransferLogs(ListTransferLogsRequest)
+	returns (ListTransferLogsResponse) {
+		option (google.api.http) = {
+		get: "/v1/{parent=projects/*/locations/*/transferConfigs/*/runs/*}/"
+			"transferLogs"
+		};
+}`
+	p := newParserOn(src)
+	rpc := new(RPC)
+	p.next()
+	err := rpc.parse(p)
+	if err != nil {
+		t.Error(err)
+	}
+}
