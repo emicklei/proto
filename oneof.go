@@ -90,6 +90,14 @@ func (o *Oneof) parse(p *Parser) error {
 				return err
 			}
 			o.Elements = append(o.Elements, g)
+		case tOPTION:
+			opt := new(Option)
+			opt.Position = pos
+			opt.Comment, o.Elements = takeLastCommentIfEndsOnLine(o.elements(), pos.Line-1)
+			if err := opt.parse(p); err != nil {
+				return err
+			}
+			o.Elements = append(o.Elements, opt)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, o)
 			// continue

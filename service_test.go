@@ -129,3 +129,19 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 		t.Errorf("got len Options %v want %v", got, want)
 	}
 }
+
+func TestServiceWithOption(t *testing.T) {
+	src := `service AnyService {
+		option secure = true;
+	  }`
+	p := newParserOn(src)
+	p.next()
+	svc := new(Service)
+	err := svc.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := svc.Elements[0].(*Option).Name, "secure"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
