@@ -249,11 +249,15 @@ func TestNestedAggregateConstants(t *testing.T) {
 	src := `syntax = "proto3";
 
 	package baz;
-	
+
 	option (foo.bar) = {
 	  woot: 100
 	  foo {
 		hello: 200
+		hello2: 300
+		bar {
+			hello3: 400
+		}
 	  }
 	};`
 	p := newParserOn(src)
@@ -265,7 +269,7 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := option.Name, "(foo.bar)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(option.AggregatedConstants), 2; got != want {
+	if got, want := len(option.AggregatedConstants), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := option.AggregatedConstants[0].Name, "woot"; got != want {
@@ -274,7 +278,19 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := option.AggregatedConstants[1].Name, "foo.hello"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := option.AggregatedConstants[2].Name, "foo.hello2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[3].Name, "foo.bar.hello3"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	if got, want := option.AggregatedConstants[1].Literal.SourceRepresentation(), "200"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[2].Literal.SourceRepresentation(), "300"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[3].Literal.SourceRepresentation(), "400"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
