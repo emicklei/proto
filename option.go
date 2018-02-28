@@ -155,42 +155,66 @@ type NamedLiteral struct {
 	Name string
 }
 
-// parseAggregate reads options written using aggregate syntax
+// parseAggregate reads options written using aggregate syntax.
+// tLEFTCURLY { has been consumed
 func (o *Option) parseAggregate(p *Parser) error {
-	o.AggregatedConstants = []*NamedLiteral{}
+	constants, err := parseAggregateConstants(p, o)
+	o.AggregatedConstants = constants
+	return err
+}
+
+func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
 	for {
 		pos, tok, lit := p.next()
 		if tRIGHTSQUARE == tok {
 			p.nextPut(pos, tok, lit)
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
-			return nil
+			return
 		}
 		if tRIGHTCURLY == tok {
-			return nil
+			return
 		}
 		if tSEMICOLON == tok {
 			p.nextPut(pos, tok, lit) // allow for inline comment parsing
-			return nil
+			return
 		}
 		if tCOMMA == tok {
-			if len(o.AggregatedConstants) == 0 {
-				return p.unexpected(lit, "non-empty option aggregate key", o)
+			if len(list) == 0 {
+				err = p.unexpected(lit, "non-empty option aggregate key", container)
+				return
 			}
 			continue
 		}
 		if tIDENT != tok {
-			return p.unexpected(lit, "option aggregate key", o)
+			err = p.unexpected(lit, "option aggregate key", container)
+			return
 		}
 		key := lit
 		pos, tok, lit = p.next()
+		if tLEFTCURLY == tok {
+			nested, fault := parseAggregateConstants(p, container)
+			if fault != nil {
+				err = fault
+				return
+			}
+			// flatten the constants
+			for _, each := range nested {
+				flatten := &NamedLiteral{
+					Name:    key + "." + each.Name,
+					Literal: each.Literal}
+				list = append(list, flatten)
+			}
+			continue
+		}
 		if tCOLON != tok {
-			return p.unexpected(lit, "option aggregate key colon :", o)
+			err = p.unexpected(lit, "option aggregate key colon :", container)
+			return
 		}
 		l := new(Literal)
 		l.Position = pos
-		if err := l.parse(p); err != nil {
-			return err
+		if err = l.parse(p); err != nil {
+			return
 		}
-		o.AggregatedConstants = append(o.AggregatedConstants, &NamedLiteral{Name: key, Literal: l})
+		list = append(list, &NamedLiteral{Name: key, Literal: l})
 	}
 }
