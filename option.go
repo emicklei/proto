@@ -108,11 +108,13 @@ func (o *Option) Doc() *Comment {
 	return o.Comment
 }
 
-// Literal represents intLit,floatLit,strLit or boolLit
+// Literal represents intLit,floatLit,strLit or boolLit or a collection thereof.
 type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
+	// next is used to model repeated values; mostly unused and therefore nil
+	next *Literal
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -155,6 +157,19 @@ type NamedLiteral struct {
 	Name string
 }
 
+// Literals returns a list of one or more Literal values
+// in case the aggregate constant (which holds this NamedLiteral) has multiple values.
+func (n *NamedLiteral) Literals() (list []*Literal) {
+	here := n.Literal
+	for {
+		if here == nil {
+			return
+		}
+		list = append(list, here)
+		here = here.next
+	}
+}
+
 // parseAggregate reads options written using aggregate syntax.
 // tLEFTCURLY { has been consumed
 func (o *Option) parseAggregate(p *Parser) error {
@@ -188,6 +203,15 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		if tIDENT != tok {
 			err = p.unexpected(lit, "option aggregate key", container)
 			return
+		}
+		// workaround issue #59 TODO
+		if isString(lit) {
+			next := new(Literal)
+			next.Position = pos
+			next.Source = unQuote(lit)
+			next.IsString = true
+			list[len(list)-1].next = next
+			continue
 		}
 		key := lit
 		pos, tok, lit = p.next()
