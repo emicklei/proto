@@ -14,7 +14,7 @@ func TestParseTheTest(t *testing.T) {
 	fetchAndParse(t, "https://raw.githubusercontent.com/gogo/protobuf/master/test/thetest.proto")
 }
 
-func fetchAndParse(t *testing.T, url string) {
+func fetchAndParse(t *testing.T, url string) *Proto {
 	resp, err := http.Get(url)
 	if err != nil {
 		t.Fatal(err)
@@ -26,6 +26,7 @@ func fetchAndParse(t *testing.T, url string) {
 		t.Fatal(err)
 	}
 	t.Log("elements:", len(def.Elements))
+	return def
 }
 
 // PB=y go test -v -run ^TestParseTheProto3$
