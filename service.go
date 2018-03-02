@@ -82,6 +82,14 @@ func (s *Service) parse(p *Parser) error {
 			if com := mergeOrReturnComment(s.Elements, lit, pos); com != nil { // not merged?
 				s.Elements = append(s.Elements, com)
 			}
+		case tOPTION:
+			opt := new(Option)
+			opt.Position = pos
+			opt.Comment, s.Elements = takeLastCommentIfEndsOnLine(s.elements(), pos.Line-1)
+			if err := opt.parse(p); err != nil {
+				return err
+			}
+			s.Elements = append(s.Elements, opt)
 		case tRPC:
 			rpc := new(RPC)
 			rpc.Position = pos

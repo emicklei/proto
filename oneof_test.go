@@ -95,3 +95,20 @@ func TestFieldOneofImported(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestOneOfWithOption(t *testing.T) {
+	src := `oneof AnOneof {
+		option (oneof_opt1) = -99;
+		int32 oneof_field = 2;
+	  }`
+	p := newParserOn(src)
+	p.next()
+	oneof := new(Oneof)
+	err := oneof.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := oneof.Elements[0].(*Option).Name, "(oneof_opt1)"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
