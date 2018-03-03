@@ -33,6 +33,7 @@ type Enum struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
+	Parent   Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -47,6 +48,7 @@ func (e *Enum) Doc() *Comment {
 
 // addElement is part of elementContainer
 func (e *Enum) addElement(v Visitee) {
+	v.parent(e)
 	e.Elements = append(e.Elements, v)
 }
 
@@ -79,7 +81,7 @@ func (e *Enum) parse(p *Parser) error {
 		switch tok {
 		case tCOMMENT:
 			if com := mergeOrReturnComment(e.elements(), lit, pos); com != nil { // not merged?
-				e.Elements = append(e.Elements, com)
+				e.addElement(com)
 			}
 		case tOPTION:
 			v := new(Option)
@@ -89,7 +91,7 @@ func (e *Enum) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			e.Elements = append(e.Elements, v)
+			e.addElement(v)
 		case tRIGHTCURLY, tEOF:
 			goto done
 		case tSEMICOLON:
@@ -103,7 +105,7 @@ func (e *Enum) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			e.Elements = append(e.Elements, f)
+			e.addElement(f)
 		}
 	}
 done:
@@ -112,6 +114,9 @@ done:
 	}
 	return nil
 }
+
+// parent is part of elementContainer
+func (e *Enum) parent(p Visitee) { e.Parent = p }
 
 // EnumField is part of the body of an Enum.
 type EnumField struct {
@@ -123,6 +128,7 @@ type EnumField struct {
 	ValueOption   *Option
 	Elements      []Visitee // such as Option and Comment
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -169,7 +175,7 @@ func (f *EnumField) parse(p *Parser) error {
 			}
 			// update deprecated field with the last option found
 			f.ValueOption = o
-			f.Elements = append(f.Elements, o)
+			f.addElement(o)
 			pos, tok, lit = p.next()
 			if tok == tCOMMA {
 				continue
@@ -184,3 +190,11 @@ func (f *EnumField) parse(p *Parser) error {
 	}
 	return nil
 }
+
+// addElement is part of elementContainer
+func (f *EnumField) addElement(v Visitee) {
+	v.parent(f)
+	f.Elements = append(f.Elements, v)
+}
+
+func (f *EnumField) parent(v Visitee) { f.Parent = v }

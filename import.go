@@ -34,6 +34,7 @@ type Import struct {
 	Filename      string
 	Kind          string // weak, public, <empty>
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 func (i *Import) parse(p *Parser) error {
@@ -67,3 +68,5 @@ func (i *Import) inlineComment(c *Comment) {
 func (i *Import) Doc() *Comment {
 	return i.Comment
 }
+
+func (i *Import) parent(v Visitee) { i.Parent = v }

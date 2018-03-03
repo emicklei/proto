@@ -36,6 +36,7 @@ type Field struct {
 	Sequence      int
 	Options       []*Option
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // inlineComment is part of commentInliner.
@@ -175,3 +176,5 @@ func (f *MapField) parse(p *Parser) error {
 	}
 	return parseFieldAfterType(f.Field, p)
 }
+
+func (f *Field) parent(v Visitee) { f.Parent = v }
