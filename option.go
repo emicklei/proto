@@ -38,6 +38,7 @@ type Option struct {
 	IsEmbedded          bool
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
+	Parent              Visitee
 }
 
 // parse reads an Option body
@@ -218,3 +219,5 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		list = append(list, &NamedLiteral{Name: key, Literal: l})
 	}
 }
+
+func (o *Option) parent(v Visitee) { o.Parent = v }

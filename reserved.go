@@ -32,6 +32,7 @@ type Reserved struct {
 	Ranges        []Range
 	FieldNames    []string
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // inlineComment is part of commentInliner.
@@ -73,3 +74,5 @@ func (r *Reserved) parse(p *Parser) error {
 	}
 	return nil
 }
+
+func (r *Reserved) parent(v Visitee) { r.Parent = v }

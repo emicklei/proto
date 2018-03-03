@@ -33,6 +33,7 @@ type Syntax struct {
 	Comment       *Comment
 	Value         string
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 func (s *Syntax) parse(p *Parser) error {
@@ -61,3 +62,5 @@ func (s *Syntax) Doc() *Comment {
 func (s *Syntax) inlineComment(c *Comment) {
 	s.InlineComment = c
 }
+
+func (s *Syntax) parent(v Visitee) { s.Parent = v }

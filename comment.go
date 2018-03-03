@@ -141,3 +141,6 @@ func mergeOrReturnComment(elements []Visitee, lit string, pos scanner.Position) 
 	last.Merge(com)
 	return nil
 }
+
+// parent is part of elementContainer
+func (c *Comment) parent(Visitee) {}

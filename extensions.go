@@ -34,6 +34,7 @@ type Extensions struct {
 	Comment       *Comment
 	Ranges        []Range
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // inlineComment is part of commentInliner.
@@ -55,3 +56,6 @@ func (e *Extensions) parse(p *Parser) error {
 	e.Ranges = list
 	return nil
 }
+
+// parent is part of elementContainer
+func (e *Extensions) parent(p Visitee) { e.Parent = p }

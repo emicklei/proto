@@ -33,6 +33,7 @@ type Service struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
+	Parent   Visitee
 }
 
 // Accept dispatches the call to the visitor.
@@ -47,6 +48,7 @@ func (s *Service) Doc() *Comment {
 
 // addElement is part of elementContainer
 func (s *Service) addElement(v Visitee) {
+	v.parent(s)
 	s.Elements = append(s.Elements, v)
 }
 
@@ -112,6 +114,8 @@ done:
 	return nil
 }
 
+func (s *Service) parent(v Visitee) { s.Parent = v }
+
 // RPC represents an rpc entry in a message.
 type RPC struct {
 	Position       scanner.Position
@@ -123,6 +127,7 @@ type RPC struct {
 	StreamsReturns bool
 	Elements       []Visitee
 	InlineComment  *Comment
+	Parent         Visitee
 
 	// Options field is DEPRECATED, use Elements instead.
 	Options []*Option
@@ -226,6 +231,7 @@ func (r *RPC) parse(p *Parser) error {
 
 // addElement is part of elementContainer
 func (r *RPC) addElement(v Visitee) {
+	v.parent(r)
 	r.Elements = append(r.Elements, v)
 	// handle deprecated field
 	if option, ok := v.(*Option); ok {
@@ -242,3 +248,5 @@ func (r *RPC) takeLastComment(expectedOnLine int) (last *Comment) {
 	last, r.Elements = takeLastCommentIfEndsOnLine(r.Elements, expectedOnLine)
 	return
 }
+
+func (r *RPC) parent(v Visitee) { r.Parent = v }
