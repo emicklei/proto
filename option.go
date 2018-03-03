@@ -153,6 +153,8 @@ func (l *Literal) parse(p *Parser) error {
 type NamedLiteral struct {
 	*Literal
 	Name string
+	// PrintsColon is true when the Name must be printed with a colon suffix
+	PrintsColon bool
 }
 
 // parseAggregate reads options written using aggregate syntax.
@@ -190,7 +192,15 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			return
 		}
 		key := lit
+		printsColon := false
+		// expect colon, aggregate or plain literal
 		pos, tok, lit = p.next()
+		if tCOLON == tok {
+			// consume it
+			printsColon = true
+			pos, tok, lit = p.next()
+		}
+		// see if nested aggregate is started
 		if tLEFTCURLY == tok {
 			nested, fault := parseAggregateConstants(p, container)
 			if fault != nil {
@@ -206,15 +216,14 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			}
 			continue
 		}
-		if tCOLON != tok {
-			err = p.unexpected(lit, "option aggregate key colon :", container)
-			return
-		}
+		// no aggregate, put back token
+		p.nextPut(pos, tok, lit)
+		// now we see plain literal
 		l := new(Literal)
 		l.Position = pos
 		if err = l.parse(p); err != nil {
 			return
 		}
-		list = append(list, &NamedLiteral{Name: key, Literal: l})
+		list = append(list, &NamedLiteral{Name: key, Literal: l, PrintsColon: printsColon})
 	}
 }
