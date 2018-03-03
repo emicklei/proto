@@ -311,4 +311,11 @@ func TestMultiLineOptionAggregateValue(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	get := rpc.Options[0].AggregatedConstants[0]
+	if got, want := get.Name, "get"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := get.Literal.Source, "/v1/{parent=projects/*/locations/*/transferConfigs/*/runs/*}/transferLogs"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
