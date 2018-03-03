@@ -191,6 +191,12 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			err = p.unexpected(lit, "option aggregate key", container)
 			return
 		}
+		// workaround issue #59 TODO
+		if isString(lit) && len(list) > 0 {
+			// concatenate with previous constant
+			list[len(list)-1].Source += unQuote(lit)
+			continue
+		}
 		key := lit
 		printsColon := false
 		// expect colon, aggregate or plain literal
