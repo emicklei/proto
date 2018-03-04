@@ -38,6 +38,7 @@ type Oneof struct {
 
 // addElement is part of elementContainer
 func (o *Oneof) addElement(v Visitee) {
+	v.parent(o)
 	o.Elements = append(o.Elements, v)
 }
 
@@ -72,7 +73,7 @@ func (o *Oneof) parse(p *Parser) error {
 		switch tok {
 		case tCOMMENT:
 			if com := mergeOrReturnComment(o.elements(), lit, pos); com != nil { // not merged?
-				o.Elements = append(o.Elements, com)
+				o.addElement(com)
 			}
 		case tIDENT:
 			f := newOneOfField()
@@ -90,7 +91,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := g.parse(p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, g)
+			o.addElement(g)
 		case tOPTION:
 			opt := new(Option)
 			opt.Position = pos
@@ -98,7 +99,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := opt.parse(p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, opt)
+			o.addElement(opt)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, o)
 			// continue

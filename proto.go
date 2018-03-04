@@ -31,7 +31,11 @@ type Proto struct {
 
 // Accept dispatches the call to the visitor.
 func (proto *Proto) Accept(v Visitor) {
-	v.VisitProto(proto)
+	// As Proto is not (yet) a Visitee, we enumerate its elements instead
+	//v.VisitProto(proto)
+	for _, each := range proto.Elements {
+		each.Accept(v)
+	}
 }
 
 // addElement is part of elementContainer
@@ -84,7 +88,7 @@ func (proto *Proto) parse(p *Parser) error {
 			if err := im.parse(p); err != nil {
 				return err
 			}
-			proto.Elements = append(proto.Elements, im)
+			proto.addElement(im)
 		case tENUM == tok:
 			enum := new(Enum)
 			enum.Position = pos
@@ -109,7 +113,7 @@ func (proto *Proto) parse(p *Parser) error {
 			if err := pkg.parse(p); err != nil {
 				return err
 			}
-			proto.Elements = append(proto.Elements, pkg)
+			proto.addElement(pkg)
 		case tMESSAGE == tok:
 			msg := new(Message)
 			msg.Position = pos

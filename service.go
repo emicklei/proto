@@ -82,7 +82,7 @@ func (s *Service) parse(p *Parser) error {
 		switch tok {
 		case tCOMMENT:
 			if com := mergeOrReturnComment(s.Elements, lit, pos); com != nil { // not merged?
-				s.Elements = append(s.Elements, com)
+				s.addElement(com)
 			}
 		case tOPTION:
 			opt := new(Option)
@@ -91,7 +91,7 @@ func (s *Service) parse(p *Parser) error {
 			if err := opt.parse(p); err != nil {
 				return err
 			}
-			s.Elements = append(s.Elements, opt)
+			s.addElement(opt)
 		case tRPC:
 			rpc := new(RPC)
 			rpc.Position = pos
@@ -100,7 +100,7 @@ func (s *Service) parse(p *Parser) error {
 			if err != nil {
 				return err
 			}
-			s.Elements = append(s.Elements, rpc)
+			s.addElement(rpc)
 			maybeScanInlineComment(p, s)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, s)
