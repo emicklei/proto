@@ -126,7 +126,6 @@ comment 3
 }
 
 func TestParseCStyleCommentWithIndent(t *testing.T) {
-	t.Skip("See https://github.com/emicklei/proto/issues/53")
 	proto := `
 	/*comment 1
 	comment 2
@@ -146,10 +145,13 @@ func TestParseCStyleCommentWithIndent(t *testing.T) {
 	if got, want := len(def.Elements[0].(*Comment).Lines), 6; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := def.Elements[0].(*Comment).Lines[3], "comment 3"; got != want {
+	if got, want := def.Elements[0].(*Comment).Lines[0], "comment 1"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
-	if got, want := def.Elements[0].(*Comment).Lines[4], "  comment 4"; got != want {
+	if got, want := def.Elements[0].(*Comment).Lines[3], "\tcomment 3"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := def.Elements[0].(*Comment).Lines[4], "\t  comment 4"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := def.Elements[0].(*Comment).Cstyle, true; got != want {
