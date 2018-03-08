@@ -31,6 +31,7 @@ type Package struct {
 	Comment       *Comment
 	Name          string
 	InlineComment *Comment
+	Parent        Visitee
 }
 
 // Doc is part of Documented
@@ -58,3 +59,5 @@ func (p *Package) Accept(v Visitor) {
 func (p *Package) inlineComment(c *Comment) {
 	p.InlineComment = c
 }
+
+func (p *Package) parent(v Visitee) { p.Parent = v }

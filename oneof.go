@@ -33,10 +33,12 @@ type Oneof struct {
 	Comment  *Comment
 	Name     string
 	Elements []Visitee
+	Parent   Visitee
 }
 
 // addElement is part of elementContainer
 func (o *Oneof) addElement(v Visitee) {
+	v.parent(o)
 	o.Elements = append(o.Elements, v)
 }
 
@@ -71,7 +73,7 @@ func (o *Oneof) parse(p *Parser) error {
 		switch tok {
 		case tCOMMENT:
 			if com := mergeOrReturnComment(o.elements(), lit, pos); com != nil { // not merged?
-				o.Elements = append(o.Elements, com)
+				o.addElement(com)
 			}
 		case tIDENT:
 			f := newOneOfField()
@@ -81,7 +83,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := parseFieldAfterType(f.Field, p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, f)
+			o.addElement(f)
 		case tGROUP:
 			g := new(Group)
 			g.Position = pos
@@ -89,7 +91,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := g.parse(p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, g)
+			o.addElement(g)
 		case tOPTION:
 			opt := new(Option)
 			opt.Position = pos
@@ -97,7 +99,7 @@ func (o *Oneof) parse(p *Parser) error {
 			if err := opt.parse(p); err != nil {
 				return err
 			}
-			o.Elements = append(o.Elements, opt)
+			o.addElement(opt)
 		case tSEMICOLON:
 			maybeScanInlineComment(p, o)
 			// continue
@@ -134,3 +136,5 @@ func (o *OneOfField) Accept(v Visitor) {
 func (o *OneOfField) Doc() *Comment {
 	return o.Comment
 }
+
+func (o *Oneof) parent(v Visitee) { o.Parent = v }
