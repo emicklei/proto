@@ -23,10 +23,10 @@
 
 package proto
 
-// Handler is function that accepts a Visitee
+// Handler is a type of function that accepts a Visitee.
 type Handler func(v Visitee)
 
-// Walk recursively meets all Visitees of a Proto can calls each handler with it.
+// Walk recursively pays a visit to all Visitees of a Proto and calls each handler with it.
 func Walk(proto *Proto, handlers ...Handler) {
 	walk(proto, handlers...)
 }
@@ -42,7 +42,7 @@ func walk(container elementContainer, handlers ...Handler) {
 	}
 }
 
-// WithMessage returns a Handler that will call the argument when the Visitee is a Message.
+// WithMessage returns a Handler that will call the apply function when the Visitee is a Message.
 func WithMessage(apply func(*Message)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*Message); ok {
@@ -51,7 +51,7 @@ func WithMessage(apply func(*Message)) Handler {
 	}
 }
 
-// WithOption returns a Handler that will call the argument when the Visitee is a Option.
+// WithOption returns a Handler that will call the apply function when the Visitee is a Option.
 func WithOption(apply func(*Option)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*Option); ok {
@@ -60,7 +60,7 @@ func WithOption(apply func(*Option)) Handler {
 	}
 }
 
-// WithEnum returns a Handler that will call the argument when the Visitee is a Enum.
+// WithEnum returns a Handler that will call the apply function when the Visitee is a Enum.
 func WithEnum(apply func(*Enum)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*Enum); ok {
@@ -69,7 +69,7 @@ func WithEnum(apply func(*Enum)) Handler {
 	}
 }
 
-// WithOneof returns a Handler that will call the argument when the Visitee is a Oneof.
+// WithOneof returns a Handler that will call the apply function when the Visitee is a Oneof.
 func WithOneof(apply func(*Oneof)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*Oneof); ok {
@@ -78,7 +78,7 @@ func WithOneof(apply func(*Oneof)) Handler {
 	}
 }
 
-// WithService returns a Handler that will call the argument when the Visitee is a Service.
+// WithService returns a Handler that will call the apply function when the Visitee is a Service.
 func WithService(apply func(*Service)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*Service); ok {
@@ -87,7 +87,7 @@ func WithService(apply func(*Service)) Handler {
 	}
 }
 
-// WithRPC returns a Handler that will call the argument when the Visitee is a RPC.
+// WithRPC returns a Handler that will call the apply function when the Visitee is a RPC.
 func WithRPC(apply func(*RPC)) Handler {
 	return func(v Visitee) {
 		if s, ok := v.(*RPC); ok {
