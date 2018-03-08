@@ -23,143 +23,66 @@
 
 package proto
 
-func setParent(child Visitee, parent Visitee) {
-	// silently ignore bad argument
-	if child == nil {
-		return
-	}
-	// silently ignore bad argument
-	if parent == nil {
-		return
-	}
-	child.Accept(&parentAccessor{isGet: false, parent: parent})
-}
-
 func getParent(child Visitee) Visitee {
 	if child == nil {
 		return nil
 	}
-	pa := &parentAccessor{isGet: true}
+	pa := new(parentAccessor)
 	child.Accept(pa)
 	return pa.parent
 }
 
 type parentAccessor struct {
-	isGet  bool
 	parent Visitee
 }
 
 func (p *parentAccessor) VisitMessage(m *Message) {
-	if p.isGet {
-		p.parent = m.Parent
-	} else {
-		m.Parent = p.parent
-	}
+	p.parent = m.Parent
 }
 func (p *parentAccessor) VisitService(v *Service) {
-	if p.isGet {
-		p.parent = v.Parent
-	} else {
-		v.Parent = p.parent
-	}
+	p.parent = v.Parent
 }
 func (p *parentAccessor) VisitSyntax(s *Syntax) {
-	if p.isGet {
-		p.parent = s.Parent
-	} else {
-		s.Parent = p.parent
-	}
+	p.parent = s.Parent
 }
 func (p *parentAccessor) VisitPackage(pkg *Package) {
-	if p.isGet {
-		p.parent = pkg.Parent
-	} else {
-		pkg.Parent = p.parent
-	}
+	p.parent = pkg.Parent
 }
 func (p *parentAccessor) VisitOption(o *Option) {
-	if p.isGet {
-		p.parent = o.Parent
-	} else {
-		o.Parent = p.parent
-	}
+	p.parent = o.Parent
 }
 func (p *parentAccessor) VisitImport(i *Import) {
-	if p.isGet {
-		p.parent = i.Parent
-	} else {
-		i.Parent = p.parent
-	}
+	p.parent = i.Parent
 }
 func (p *parentAccessor) VisitNormalField(i *NormalField) {
-	if p.isGet {
-		p.parent = i.Parent
-	} else {
-		i.Parent = p.parent
-	}
+	p.parent = i.Parent
 }
 func (p *parentAccessor) VisitEnumField(i *EnumField) {
-	if p.isGet {
-		p.parent = i.Parent
-	} else {
-		i.Parent = p.parent
-	}
+	p.parent = i.Parent
 }
 func (p *parentAccessor) VisitEnum(e *Enum) {
-	if p.isGet {
-		p.parent = e.Parent
-	} else {
-		e.Parent = p.parent
-	}
+	p.parent = e.Parent
 }
 func (p *parentAccessor) VisitComment(e *Comment) {}
 func (p *parentAccessor) VisitOneof(o *Oneof) {
-	if p.isGet {
-		p.parent = o.Parent
-	} else {
-		o.Parent = p.parent
-	}
+	p.parent = o.Parent
 }
 func (p *parentAccessor) VisitOneofField(o *OneOfField) {
-	if p.isGet {
-		p.parent = o.Parent
-	} else {
-		o.Parent = p.parent
-	}
+	p.parent = o.Parent
 }
 func (p *parentAccessor) VisitReserved(rs *Reserved) {
-	if p.isGet {
-		p.parent = rs.Parent
-	} else {
-		rs.Parent = p.parent
-	}
+	p.parent = rs.Parent
 }
 func (p *parentAccessor) VisitRPC(rpc *RPC) {
-	if p.isGet {
-		p.parent = rpc.Parent
-	} else {
-		rpc.Parent = p.parent
-	}
+	p.parent = rpc.Parent
 }
 func (p *parentAccessor) VisitMapField(f *MapField) {
-	if p.isGet {
-		p.parent = f.Parent
-	} else {
-		f.Parent = p.parent
-	}
+	p.parent = f.Parent
 }
 func (p *parentAccessor) VisitGroup(g *Group) {
-	if p.isGet {
-		p.parent = g.Parent
-	} else {
-		g.Parent = p.parent
-	}
+	p.parent = g.Parent
 }
 func (p *parentAccessor) VisitExtensions(e *Extensions) {
-	if p.isGet {
-		p.parent = e.Parent
-	} else {
-		e.Parent = p.parent
-	}
+	p.parent = e.Parent
 }
 func (p *parentAccessor) VisitProto(*Proto) {}
