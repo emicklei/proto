@@ -15,6 +15,7 @@ Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (
 	package main
 
 	import (
+		"fmt"
 		"os"
 
 		"github.com/emicklei/proto"
@@ -23,14 +24,27 @@ Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (
 	func main() {
 		reader, _ := os.Open("test.proto")
 		defer reader.Close()
+
 		parser := proto.NewParser(reader)
 		definition, _ := parser.Parse()
-		log.Println(definition)
+
+		proto.Walk(definition,
+			proto.WithService(handleService),
+			proto.WithMessage(handleMessage))
 	}
+
+	func handleService(s *proto.Service) {
+		fmt.Println(s.Name)
+	}
+
+	func handleMessage(m *proto.Message) {
+		fmt.Println(m.Name)
+	}
+
 
 ### contributions
 
-See (https://github.com/emicklei/proto-contrib) for contributions on top of this package such as protofmt, proto2xsd and proto2gql.
+See (https://github.com/emicklei/proto-contrib) for other contributions on top of this package such as protofmt, proto2xsd and proto2gql.
 
 #### known issues
 
