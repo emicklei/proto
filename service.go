@@ -215,15 +215,14 @@ func (r *RPC) parse(p *Parser) error {
 				maybeScanInlineComment(p, r)
 				continue
 			}
-			if tOPTION != tok {
-				return p.unexpected(lit, "rpc option", r)
+			if tOPTION == tok {
+				o := new(Option)
+				o.Position = pos
+				if err := o.parse(p); err != nil {
+					return err
+				}
+				r.addElement(o)
 			}
-			o := new(Option)
-			o.Position = pos
-			if err := o.parse(p); err != nil {
-				return err
-			}
-			r.addElement(o)
 		}
 	}
 	return nil

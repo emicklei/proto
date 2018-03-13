@@ -159,15 +159,23 @@ func TestRPCWithOneLineCommentInOptionBlock(t *testing.T) {
 }
 
 func TestRPCWithMultiLineCommentInOptionBlock(t *testing.T) {
-	t.Skip("this fails")
 	proto := `service AccountService {
 		rpc CreateAccount (CreateAccount) returns (ServiceFault) {
 			// test comment
 			// test comment
 		}
 	}`
-	_, err := newParserOn(proto).Parse()
+	def, err := newParserOn(proto).Parse()
 	if err != nil {
 		t.Fatal(err)
+	}
+	s := def.Elements[0].(*Service)
+	r := s.Elements[0].(*RPC)
+	if got, want := len(r.Elements), 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	c := r.Elements[0].(*Comment)
+	if got, want := len(c.Lines), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
