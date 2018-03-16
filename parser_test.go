@@ -98,7 +98,7 @@ func TestNextIdentifierWithKeyword(t *testing.T) {
 	if got, want := lit, "aap.rpc.mies.enum"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	_, tok, lit = p.next()
+	_, tok, _ = p.next()
 	if got, want := tok, tEQUALS; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
