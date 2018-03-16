@@ -249,50 +249,38 @@ func TestFieldCustomOptions(t *testing.T) {
 	}
 }
 
-// issue #73
-func TestFieldOptionEscapeCharacters(t *testing.T) {
-	src := `  string name  = 3 [(validate.rules).string = {
-		pattern:   "^[^\d\s]+( [^\d\s]+)*$",
-		max_bytes: 256,
-	 }];`
+func TestIgnoreIllegalEscapeCharsInAggregatedConstants(t *testing.T) {
+	src := `syntax = "proto3";
+	message Person {
+	  string name  = 3 [(validate.rules).string = {
+						  pattern:   "^[^\d\s]+( [^\d\s]+)*$",
+						  max_bytes: 256,
+					   }];
+	}`
 	p := newParserOn(src)
-	f := newNormalField()
-	err := f.parse(p)
+	d, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
+	f := d.Elements[1].(*Message).Elements[0].(*NormalField)
 	if got, want := f.Options[0].AggregatedConstants[0].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
-func TestIssue73(t *testing.T) {
-	t.Skip()
-	src := `syntax = "proto3";
-
-	import "validate/validate.proto";
-	
+func TestIgnoreIllegalEscapeCharsInConstant(t *testing.T) {
+	src := `syntax = "proto2";
 	message Person {
-	  uint64 id    = 1 [(validate.rules).uint64.gt    = 999];
-	
-	  string email = 2 [(validate.rules).string.email = true];
-	
-	  string name  = 3 [(validate.rules).string = {
-						  pattern:   "^[^\d\s]+( [^\d\s]+)*$",
-						  max_bytes: 256,
-					   }];
-	
-	  Location home = 4 [(validate.rules).xmessage.required = true];
-	
-	  message Location {
-		double lat = 1 [(validate.rules).double = { gte: -90,  lte: 90 }];
-		double lng = 2 [(validate.rules).double = { gte: -180, lte: 180 }];
-	  }
+		optional string cpp_trigraph = 20 [default = "? \? ?? \?? \??? ??/ ?\?-"];
 	}`
 	p := newParserOn(src)
-	_, err := p.Parse()
+	d, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
+	}
+	f := d.Elements[1].(*Message).Elements[0].(*NormalField)
+	if got, want := f.Options[0].Constant.Source, "? \\? ?? \\?? \\??? ??/ ?\\?-"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
