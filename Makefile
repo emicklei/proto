@@ -76,3 +76,6 @@ test: testdeps lint
 .PHONY: clean
 clean:
 	go clean -i ./...
+
+integration:
+	PB=y go test -cover

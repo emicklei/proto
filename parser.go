@@ -132,9 +132,17 @@ func (p *Parser) nextInteger() (i int, err error) {
 
 // nextIdentifier consumes tokens which may have one or more dot separators (namespaced idents).
 func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) {
+	return p.nextIdent(false)
+}
+
+func (p *Parser) nextIdent(keywordStartAllowed bool) (pos scanner.Position, tok token, lit string) {
 	pos, tok, lit = p.next()
 	if tIDENT != tok {
-		return
+		// can be keyword
+		if !(isKeyword(tok) && keywordStartAllowed) {
+			return
+		}
+		// proceed with keyword as first literal
 	}
 	startPos := pos
 	fullLit := lit
