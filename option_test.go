@@ -249,6 +249,53 @@ func TestFieldCustomOptions(t *testing.T) {
 	}
 }
 
+// issue #73
+func TestFieldOptionEscapeCharacters(t *testing.T) {
+	src := `  string name  = 3 [(validate.rules).string = {
+		pattern:   "^[^\d\s]+( [^\d\s]+)*$",
+		max_bytes: 256,
+	 }];`
+	p := newParserOn(src)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Options[0].AggregatedConstants[0].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestIssue73(t *testing.T) {
+	t.Skip()
+	src := `syntax = "proto3";
+
+	import "validate/validate.proto";
+	
+	message Person {
+	  uint64 id    = 1 [(validate.rules).uint64.gt    = 999];
+	
+	  string email = 2 [(validate.rules).string.email = true];
+	
+	  string name  = 3 [(validate.rules).string = {
+						  pattern:   "^[^\d\s]+( [^\d\s]+)*$",
+						  max_bytes: 256,
+					   }];
+	
+	  Location home = 4 [(validate.rules).xmessage.required = true];
+	
+	  message Location {
+		double lat = 1 [(validate.rules).double = { gte: -90,  lte: 90 }];
+		double lng = 2 [(validate.rules).double = { gte: -180, lte: 180 }];
+	  }
+	}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestFieldCustomOptionExtendedIdent(t *testing.T) {
 	proto := `Type field = 1 [(validate.rules).enum.defined_only = true];`
 	p := newParserOn(proto)
