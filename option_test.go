@@ -58,6 +58,11 @@ func TestOptionCases(t *testing.T) {
 		"optimize_for",
 		"",
 		"SPEED",
+	}, {
+		"option (my.enum.service.is.like).rpc = 1;",
+		"(my.enum.service.is.like).rpc",
+		"",
+		"1",
 	}} {
 		p := newParserOn(each.proto)
 		pr, err := p.Parse()
@@ -240,6 +245,19 @@ func TestFieldCustomOptions(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[1].Constant.Source, "2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestFieldCustomOptionExtendedIdent(t *testing.T) {
+	proto := `Type field = 1 [(validate.rules).enum.defined_only = true];`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Options[0].Name, "(validate.rules).enum.defined_only"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

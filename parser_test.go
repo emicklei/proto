@@ -89,13 +89,29 @@ func TestNextIdentifier(t *testing.T) {
 }
 
 func TestNextIdentifierWithKeyword(t *testing.T) {
-	ident := " aap.rpc.mies "
+	ident := " aap.rpc.mies.enum ="
 	p := newParserOn(ident)
 	_, tok, lit := p.nextIdentifier()
 	if got, want := tok, tIDENT; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := lit, strings.TrimSpace(ident); got != want {
+	if got, want := lit, "aap.rpc.mies.enum"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	_, tok, lit = p.next()
+	if got, want := tok, tEQUALS; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestNextIdentifierNoIdent(t *testing.T) {
+	ident := "("
+	p := newParserOn(ident)
+	_, tok, lit := p.nextIdentifier()
+	if got, want := tok, tLEFTPAREN; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := lit, "("; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

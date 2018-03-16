@@ -54,7 +54,7 @@ func (o *Option) parse(p *Parser) error {
 		}
 		pos, tok, _ = p.next()
 		if tok != tRIGHTPAREN {
-			return p.unexpected(lit, "full identifier closing )", o)
+			return p.unexpected(lit, "option full identifier closing )", o)
 		}
 		o.Name = fmt.Sprintf("(%s)", lit)
 	} else {
@@ -69,15 +69,17 @@ func (o *Option) parse(p *Parser) error {
 	pos, tok, lit = p.next()
 	if tDOT == tok {
 		// extend identifier
-		pos, tok, lit = p.nextIdentifier()
+		pos, tok, lit = p.nextIdent(true) // keyword allowed as start
 		if tok != tIDENT {
-			return p.unexpected(lit, "option postfix identifier", o)
+			if !isKeyword(tok) {
+				return p.unexpected(lit, "option postfix identifier", o)
+			}
 		}
 		o.Name = fmt.Sprintf("%s.%s", o.Name, lit)
 		pos, tok, lit = p.next()
 	}
 	if tEQUALS != tok {
-		return p.unexpected(lit, "option constant =", o)
+		return p.unexpected(lit, "option value assignment =", o)
 	}
 	r := p.peekNonWhitespace()
 	if '{' == r {
