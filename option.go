@@ -83,7 +83,8 @@ func (o *Option) parse(p *Parser) error {
 	}
 	r := p.peekNonWhitespace()
 	var err error
-	// values of an option can have a illegal escape sequences.
+	// values of an option can have illegal escape sequences
+	// for the standard Go scanner used by this package.
 	p.ignoreIllegalEscapesWhile(func() {
 		if '{' == r {
 			// aggregate
