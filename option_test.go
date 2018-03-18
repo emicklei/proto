@@ -249,6 +249,41 @@ func TestFieldCustomOptions(t *testing.T) {
 	}
 }
 
+func TestIgnoreIllegalEscapeCharsInAggregatedConstants(t *testing.T) {
+	src := `syntax = "proto3";
+	message Person {
+	  string name  = 3 [(validate.rules).string = {
+						  pattern:   "^[^\d\s]+( [^\d\s]+)*$",
+						  max_bytes: 256,
+					   }];
+	}`
+	p := newParserOn(src)
+	d, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := d.Elements[1].(*Message).Elements[0].(*NormalField)
+	if got, want := f.Options[0].AggregatedConstants[0].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestIgnoreIllegalEscapeCharsInConstant(t *testing.T) {
+	src := `syntax = "proto2";
+	message Person {
+		optional string cpp_trigraph = 20 [default = "? \? ?? \?? \??? ??/ ?\?-"];
+	}`
+	p := newParserOn(src)
+	d, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := d.Elements[1].(*Message).Elements[0].(*NormalField)
+	if got, want := f.Options[0].Constant.Source, "? \\? ?? \\?? \\??? ??/ ?\\?-"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestFieldCustomOptionExtendedIdent(t *testing.T) {
 	proto := `Type field = 1 [(validate.rules).enum.defined_only = true];`
 	p := newParserOn(proto)

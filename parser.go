@@ -30,6 +30,7 @@ import (
 	"io"
 	"runtime"
 	"strconv"
+	"strings"
 	"text/scanner"
 )
 
@@ -62,6 +63,22 @@ func NewParser(r io.Reader) *Parser {
 func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
 	p.scannerErrors = append(p.scannerErrors,
 		fmt.Errorf("go scanner error at %v = %v", s.Position, msg))
+}
+
+// ignoreIllegalEscapesWhile is called for scanning constants of an option.
+// Such content can have a syntax that is not acceptable by the Go scanner.
+// This temporary installs a handler that ignores only one type of error: illegal char escape
+func (p *Parser) ignoreIllegalEscapesWhile(block func()) {
+	// during block call change error handler
+	p.scanner.Error = func(s *scanner.Scanner, msg string) {
+		if strings.Contains(msg, "illegal char escape") { // too bad there is no constant for this in scanner pkg
+			return
+		}
+		p.handleScanError(s, msg)
+	}
+	block()
+	// restore
+	p.scanner.Error = p.handleScanError
 }
 
 // Parse parses a proto definition. May return a parse or scanner error.

@@ -46,8 +46,5 @@ Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (
 
 See (https://github.com/emicklei/proto-contrib) for other contributions on top of this package such as protofmt, proto2xsd and proto2gql.
 
-#### known issues
-
-- the proto2 test file in (https://github.com/emicklei/proto-contrib/cmd/protofmt) folder contains character escape sequences that are currently not accepted by the scanner. See line 537 and 573.
 
 © 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License. Contributions welcome.

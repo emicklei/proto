@@ -82,18 +82,25 @@ func (o *Option) parse(p *Parser) error {
 		return p.unexpected(lit, "option value assignment =", o)
 	}
 	r := p.peekNonWhitespace()
-	if '{' == r {
-		p.next() // consume {
-		return o.parseAggregate(p)
-	}
-	// non aggregate
-	l := new(Literal)
-	l.Position = pos
-	if err := l.parse(p); err != nil {
-		return err
-	}
-	o.Constant = *l
-	return nil
+	var err error
+	// values of an option can have illegal escape sequences
+	// for the standard Go scanner used by this package.
+	p.ignoreIllegalEscapesWhile(func() {
+		if '{' == r {
+			// aggregate
+			p.next() // consume {
+			err = o.parseAggregate(p)
+		} else {
+			// non aggregate
+			l := new(Literal)
+			l.Position = pos
+			if e := l.parse(p); e != nil {
+				err = e
+			}
+			o.Constant = *l
+		}
+	})
+	return err
 }
 
 // inlineComment is part of commentInliner.
