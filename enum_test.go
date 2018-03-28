@@ -90,3 +90,21 @@ enum EnumAllowingAlias {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestEnumWithHex(t *testing.T) {
+	src := `enum Flags {
+		  FLAG1 = 0x11;
+		}`
+	p := newParserOn(src)
+	enum := new(Enum)
+	p.next()
+	if err := enum.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(enum.Elements), 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := enum.Elements[0].(*EnumField).Integer, 17; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

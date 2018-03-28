@@ -160,7 +160,7 @@ func (f *EnumField) parse(p *Parser) error {
 	}
 	i, err := p.nextInteger()
 	if err != nil {
-		return p.unexpected(lit, "enum field integer", f)
+		return p.unexpected(err.Error(), "enum field integer", f)
 	}
 	f.Integer = i
 	pos, tok, lit = p.next()
