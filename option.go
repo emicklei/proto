@@ -197,7 +197,7 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			}
 			continue
 		}
-		if tIDENT != tok {
+		if tIDENT != tok && !isKeyword(tok) {
 			err = p.unexpected(lit, "option aggregate key", container)
 			return
 		}

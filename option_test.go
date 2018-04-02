@@ -372,3 +372,15 @@ func TestMultiLineOptionAggregateValue(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+// issue #76
+func TestOptionAggregateCanUseKeyword(t *testing.T) {
+	src := `message User {
+		string email = 3 [(validate.field) = {required: true}];
+	}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+}
