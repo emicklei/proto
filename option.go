@@ -123,6 +123,7 @@ type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
+	Array    []*Literal
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -140,7 +141,29 @@ func (l Literal) SourceRepresentation() string {
 
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
-	pos, _, lit := p.next()
+	pos, tok, lit := p.next()
+	if tok == tLEFTSQUARE {
+		// collect array elements
+		array := []*Literal{}
+		for {
+			e := new(Literal)
+			if err := e.parse(p); err != nil {
+				return err
+			}
+			array = append(array, e)
+			_, tok, _ := p.next()
+			if tok == tCOMMA {
+				continue
+			}
+			if tok == tRIGHTSQUARE {
+				break
+			}
+		}
+		l.Array = array
+		l.IsString = false
+		l.Position = pos
+		return nil
+	}
 	if "-" == lit {
 		// negative number
 		if err := l.parse(p); err != nil {
