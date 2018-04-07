@@ -384,3 +384,41 @@ func TestOptionAggregateCanUseKeyword(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+// issue #77
+func TestOptionAggregateWithRepeatedValues(t *testing.T) {
+	src := `message Envelope {
+		int64 not_in = 15 [(validate.rules).int64 = {not_in: [40, 45]}];
+		int64 in = 16 [(validate.rules).int64 = {in: [[1],[2]]}];
+	}`
+	p := newParserOn(src)
+	def, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+	field := def.Elements[0].(*Message).Elements[0].(*NormalField)
+	constant := field.Options[0].AggregatedConstants[0]
+	if got, want := constant.Name, "not_in"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(constant.Array), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := constant.Array[0].Source, "40"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := constant.Array[1].Source, "45"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestInvalidOptionAggregateWithRepeatedValues(t *testing.T) {
+	src := `message Bogus {
+		int64 a = 1 [a = {not_in: [40 syntax]}];
+	}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err == nil {
+		t.Error("expected syntax error")
+	}
+}
