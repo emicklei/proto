@@ -123,7 +123,8 @@ type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
-	Array    []*Literal
+	// literal value can be an array literal value (even nested)
+	Array []*Literal
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -151,13 +152,14 @@ func (l *Literal) parse(p *Parser) error {
 				return err
 			}
 			array = append(array, e)
-			_, tok, _ := p.next()
+			_, tok, lit := p.next()
 			if tok == tCOMMA {
 				continue
 			}
 			if tok == tRIGHTSQUARE {
 				break
 			}
+			return p.unexpected(lit, ", or ]", l)
 		}
 		l.Array = array
 		l.IsString = false

@@ -389,6 +389,7 @@ func TestOptionAggregateCanUseKeyword(t *testing.T) {
 func TestOptionAggregateWithRepeatedValues(t *testing.T) {
 	src := `message Envelope {
 		int64 not_in = 15 [(validate.rules).int64 = {not_in: [40, 45]}];
+		int64 in = 16 [(validate.rules).int64 = {in: [[1],[2]]}];
 	}`
 	p := newParserOn(src)
 	def, err := p.Parse()
@@ -409,5 +410,15 @@ func TestOptionAggregateWithRepeatedValues(t *testing.T) {
 	if got, want := constant.Array[1].Source, "45"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	t.Log(constant)
+}
+
+func TestInvalidOptionAggregateWithRepeatedValues(t *testing.T) {
+	src := `message Bogus {
+		int64 a = 1 [a = {not_in: [40 syntax]}];
+	}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err == nil {
+		t.Error("expected syntax error")
+	}
 }
