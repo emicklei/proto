@@ -212,8 +212,16 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			return
 		}
 		if tSEMICOLON == tok {
-			p.nextPut(pos, tok, lit) // allow for inline comment parsing
-			return
+			// just consume it
+			continue
+		}
+		if tCOMMENT == tok {
+			// assign to last parsed literal
+			// TODO: see TestUseOfSemicolonsInAggregatedConstants
+			//if len(list) > 0 {
+			//	list[len(list)-1].InlineComment = newComment(pos, lit)
+			//}
+			continue
 		}
 		if tCOMMA == tok {
 			if len(list) == 0 {

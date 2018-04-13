@@ -422,3 +422,36 @@ func TestInvalidOptionAggregateWithRepeatedValues(t *testing.T) {
 		t.Error("expected syntax error")
 	}
 }
+
+// issue #79
+func TestUseOfSemicolonsInAggregatedConstants(t *testing.T) {
+	src := `rpc Test(Void) returns (Void) {
+				option (google.api.http) = {
+					post: "/api/v1/test";
+					body: "*"; // ignored comment
+				};
+			}`
+	p := newParserOn(src)
+	rpc := new(RPC)
+	p.next()
+	err := rpc.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(rpc.Elements), 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	opt := rpc.Elements[0].(*Option)
+	if got, want := len(opt.AggregatedConstants), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.AggregatedConstants[0].Name, "post"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.AggregatedConstants[1].Name, "body"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := opt.AggregatedConstants[1].Source, "*"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
