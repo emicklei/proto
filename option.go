@@ -118,13 +118,15 @@ func (o *Option) Doc() *Comment {
 	return o.Comment
 }
 
-// Literal represents intLit,floatLit,strLit or boolLit
+// Literal represents intLit,floatLit,strLit or boolLit or a nested structure thereof.
 type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
 	// literal value can be an array literal value (even nested)
 	Array []*Literal
+	// literal value can be a map of literals (even nested)
+	Map map[string]*Literal
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -214,6 +216,8 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		if tSEMICOLON == tok {
 			// just consume it
 			continue
+			//p.nextPut(pos, tok, lit) // allow for inline comment parsing
+			//return
 		}
 		if tCOMMENT == tok {
 			// assign to last parsed literal
@@ -256,13 +260,23 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 				err = fault
 				return
 			}
-			// flatten the constants
+
+			// create the map
+			m := map[string]*Literal{}
 			for _, each := range nested {
-				flatten := &NamedLiteral{
-					Name:    key + "." + each.Name,
-					Literal: each.Literal}
-				list = append(list, flatten)
+				m[each.Name] = each.Literal
 			}
+			list = append(list, &NamedLiteral{
+				Name:    key,
+				Literal: &Literal{Map: m}})
+
+			// flatten the constants
+			// for _, each := range nested {
+			// 	flatten := &NamedLiteral{
+			// 		Name:    key + "." + each.Name,
+			// 		Literal: each.Literal}
+			// 	list = append(list, flatten)
+			// }
 			continue
 		}
 		// no aggregate, put back token

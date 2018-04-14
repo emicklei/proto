@@ -322,6 +322,24 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := option.Name, "(foo.bar)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := len(option.AggregatedConstants), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[0].Name, "woot"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.AggregatedConstants[1].Name, "foo"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	con1 := option.AggregatedConstants[1]
+	if got, want := len(con1.Literal.Map), 3; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := con1.Literal.Map["hello"].SourceRepresentation(), "200"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+
+	/**
 	if got, want := len(option.AggregatedConstants), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -346,6 +364,7 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := option.AggregatedConstants[3].Literal.SourceRepresentation(), "400"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	**/
 }
 
 // Issue #59
@@ -454,4 +473,22 @@ func TestUseOfSemicolonsInAggregatedConstants(t *testing.T) {
 	if got, want := opt.AggregatedConstants[1].Source, "*"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+}
+
+func TestParseNestedSelectorInAggregatedConstant(t *testing.T) {
+	src := `rpc Test(Void) returns (Void) {
+		option (google.api.http) = {
+			get: "/api/v1/test"
+			additional_bindings.post: "/api/v1/test"
+			additional_bindings.body: "*"
+		};
+	}`
+	p := newParserOn(src)
+	rpc := new(RPC)
+	p.next()
+	err := rpc.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 }
