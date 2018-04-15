@@ -31,11 +31,12 @@ import (
 
 // Option is a protoc compiler option
 type Option struct {
-	Position            scanner.Position
-	Comment             *Comment
-	Name                string
-	Constant            Literal
-	IsEmbedded          bool
+	Position   scanner.Position
+	Comment    *Comment
+	Name       string
+	Constant   Literal
+	IsEmbedded bool
+	// AggregatedConstants is DEPRECATED. These Literals are populated into Constant.Map
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
 	Parent              Visitee
@@ -198,7 +199,11 @@ type NamedLiteral struct {
 // tLEFTCURLY { has been consumed
 func (o *Option) parseAggregate(p *Parser) error {
 	constants, err := parseAggregateConstants(p, o)
-	o.AggregatedConstants = constants
+	literalMap := map[string]*Literal{}
+	for _, each := range constants {
+		literalMap[each.Name] = each.Literal
+	}
+	o.Constant = Literal{Map: literalMap, Position: o.Position}
 	return err
 }
 
@@ -216,15 +221,11 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		if tSEMICOLON == tok {
 			// just consume it
 			continue
-			//p.nextPut(pos, tok, lit) // allow for inline comment parsing
 			//return
 		}
 		if tCOMMENT == tok {
 			// assign to last parsed literal
 			// TODO: see TestUseOfSemicolonsInAggregatedConstants
-			//if len(list) > 0 {
-			//	list[len(list)-1].InlineComment = newComment(pos, lit)
-			//}
 			continue
 		}
 		if tCOMMA == tok {
@@ -269,14 +270,6 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			list = append(list, &NamedLiteral{
 				Name:    key,
 				Literal: &Literal{Map: m}})
-
-			// flatten the constants
-			// for _, each := range nested {
-			// 	flatten := &NamedLiteral{
-			// 		Name:    key + "." + each.Name,
-			// 		Literal: each.Literal}
-			// 	list = append(list, flatten)
-			// }
 			continue
 		}
 		// no aggregate, put back token

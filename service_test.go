@@ -115,14 +115,8 @@ func TestRPCWithOptionAggregateSyntax(t *testing.T) {
 	if got, want := opt.InlineComment.Message(), " inline test_ident"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(opt.AggregatedConstants), 2; got != want {
+	if got, want := len(opt.Constant.Map), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
-	}
-	if got, want := opt.AggregatedConstants[0].Source, "test"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-	if got, want := opt.AggregatedConstants[1].Source, "test2"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	// test deprecated field Options in RPC
 	if got, want := len(rpc1.Options), 1; got != want {
