@@ -381,14 +381,14 @@ func TestOptionAggregateWithRepeatedValues(t *testing.T) {
 		t.Error(err)
 	}
 	field := def.Elements[0].(*Message).Elements[0].(*NormalField)
-	not_in := field.Options[0].Constant.Map["not_in"]
-	if got, want := len(not_in.Array), 2; got != want {
+	notIn := field.Options[0].Constant.Map["not_in"]
+	if got, want := len(notIn.Array), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := not_in.Array[0].Source, "40"; got != want {
+	if got, want := notIn.Array[0].Source, "40"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := not_in.Array[1].Source, "45"; got != want {
+	if got, want := notIn.Array[1].Source, "45"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
