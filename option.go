@@ -204,7 +204,34 @@ func (o *Option) parseAggregate(p *Parser) error {
 		literalMap[each.Name] = each.Literal
 	}
 	o.Constant = Literal{Map: literalMap, Position: o.Position}
+
+	// reconstruct the old, deprecated field
+	o.AggregatedConstants = collectAggregatedConstants(literalMap)
 	return err
+}
+
+// flatten the maps of each literal, recursively
+// this func exists for deprecated Option.AggregatedConstants.
+func collectAggregatedConstants(m map[string]*Literal) (list []*NamedLiteral) {
+	for k, v := range m {
+		if v.Map != nil {
+			sublist := collectAggregatedConstants(v.Map)
+			for _, each := range sublist {
+				list = append(list, &NamedLiteral{
+					Name:        k + "." + each.Name,
+					PrintsColon: true,
+					Literal:     each.Literal,
+				})
+			}
+		} else {
+			list = append(list, &NamedLiteral{
+				Name:        k,
+				PrintsColon: true,
+				Literal:     v,
+			})
+		}
+	}
+	return
 }
 
 func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
@@ -268,8 +295,9 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 				m[each.Name] = each.Literal
 			}
 			list = append(list, &NamedLiteral{
-				Name:    key,
-				Literal: &Literal{Map: m}})
+				Name:        key,
+				PrintsColon: printsColon,
+				Literal:     &Literal{Map: m}})
 			continue
 		}
 		// no aggregate, put back token

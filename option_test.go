@@ -333,6 +333,12 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := m["bar"].Map["hello3"].Source, "400"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := len(option.AggregatedConstants), 4; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	for _, each := range option.AggregatedConstants {
+		t.Logf("%#v=%v\n", each, each.SourceRepresentation())
+	}
 }
 
 // Issue #59
