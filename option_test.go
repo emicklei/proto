@@ -183,6 +183,14 @@ message Bar {
 	if got, want := f.Options[0].Constant.Position.Line, 5; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	// check for AggregatedConstants
+	list := f.Options[0].AggregatedConstants
+	if got, want := list[0].Source, "123"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := list[1].Source, "baz"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 }
 
 func TestNonPrimitiveOptionComment(t *testing.T) {
@@ -235,6 +243,16 @@ func TestFieldCustomOptions(t *testing.T) {
 	if got, want := f.Options[1].Constant.Source, "2"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	// check for AggregatedConstants
+	if got, want := f.Options[0].AggregatedConstants[0].Name, "hello"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].AggregatedConstants[0].PrintsColon, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].AggregatedConstants[0].Source, "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
 
 func TestIgnoreIllegalEscapeCharsInAggregatedConstants(t *testing.T) {
@@ -258,6 +276,16 @@ func TestIgnoreIllegalEscapeCharsInAggregatedConstants(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := f.Options[0].Constant.Map["pattern"].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	// check for AggregatedConstants
+	if got, want := f.Options[0].AggregatedConstants[0].Name, "pattern"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].AggregatedConstants[0].PrintsColon, true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].AggregatedConstants[0].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -452,5 +480,16 @@ func TestParseNestedSelectorInAggregatedConstant(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	if got, want := rpc.Options[0].Constant.Map["get"].Source, "/api/v1/test"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := rpc.Options[0].Constant.Map["additional_bindings.post"].Source, "/api/v1/test"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := rpc.Options[0].AggregatedConstants[2].Name, "additional_bindings.body"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := rpc.Options[0].AggregatedConstants[2].Source, "*"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }

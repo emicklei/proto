@@ -26,6 +26,7 @@ package proto
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"text/scanner"
 )
 
@@ -231,12 +232,22 @@ func collectAggregatedConstants(m map[string]*Literal) (list []*NamedLiteral) {
 			})
 		}
 	}
+	// sort list by position of literal
+	sort.Sort(byPosition(list))
 	return
 }
 
+type byPosition []*NamedLiteral
+
+func (b byPosition) Less(i, j int) bool {
+	return b[i].Literal.Position.Line < b[j].Literal.Position.Line
+}
+func (b byPosition) Len() int      { return len(b) }
+func (b byPosition) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
 func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
 	for {
-		pos, tok, lit := p.next()
+		pos, tok, lit := p.nextIdentifier()
 		if tRIGHTSQUARE == tok {
 			p.nextPut(pos, tok, lit)
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
