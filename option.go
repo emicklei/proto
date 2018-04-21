@@ -26,16 +26,18 @@ package proto
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"text/scanner"
 )
 
 // Option is a protoc compiler option
 type Option struct {
-	Position            scanner.Position
-	Comment             *Comment
-	Name                string
-	Constant            Literal
-	IsEmbedded          bool
+	Position   scanner.Position
+	Comment    *Comment
+	Name       string
+	Constant   Literal
+	IsEmbedded bool
+	// AggregatedConstants is DEPRECATED. These Literals are populated into Constant.Map
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
 	Parent              Visitee
@@ -118,13 +120,15 @@ func (o *Option) Doc() *Comment {
 	return o.Comment
 }
 
-// Literal represents intLit,floatLit,strLit or boolLit
+// Literal represents intLit,floatLit,strLit or boolLit or a nested structure thereof.
 type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
 	// literal value can be an array literal value (even nested)
 	Array []*Literal
+	// literal value can be a map of literals (even nested)
+	Map map[string]*Literal
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -196,13 +200,54 @@ type NamedLiteral struct {
 // tLEFTCURLY { has been consumed
 func (o *Option) parseAggregate(p *Parser) error {
 	constants, err := parseAggregateConstants(p, o)
-	o.AggregatedConstants = constants
+	literalMap := map[string]*Literal{}
+	for _, each := range constants {
+		literalMap[each.Name] = each.Literal
+	}
+	o.Constant = Literal{Map: literalMap, Position: o.Position}
+
+	// reconstruct the old, deprecated field
+	o.AggregatedConstants = collectAggregatedConstants(literalMap)
 	return err
 }
 
+// flatten the maps of each literal, recursively
+// this func exists for deprecated Option.AggregatedConstants.
+func collectAggregatedConstants(m map[string]*Literal) (list []*NamedLiteral) {
+	for k, v := range m {
+		if v.Map != nil {
+			sublist := collectAggregatedConstants(v.Map)
+			for _, each := range sublist {
+				list = append(list, &NamedLiteral{
+					Name:        k + "." + each.Name,
+					PrintsColon: true,
+					Literal:     each.Literal,
+				})
+			}
+		} else {
+			list = append(list, &NamedLiteral{
+				Name:        k,
+				PrintsColon: true,
+				Literal:     v,
+			})
+		}
+	}
+	// sort list by position of literal
+	sort.Sort(byPosition(list))
+	return
+}
+
+type byPosition []*NamedLiteral
+
+func (b byPosition) Less(i, j int) bool {
+	return b[i].Literal.Position.Line < b[j].Literal.Position.Line
+}
+func (b byPosition) Len() int      { return len(b) }
+func (b byPosition) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
 func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
 	for {
-		pos, tok, lit := p.next()
+		pos, tok, lit := p.nextIdentifier()
 		if tRIGHTSQUARE == tok {
 			p.nextPut(pos, tok, lit)
 			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
@@ -214,13 +259,11 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		if tSEMICOLON == tok {
 			// just consume it
 			continue
+			//return
 		}
 		if tCOMMENT == tok {
 			// assign to last parsed literal
 			// TODO: see TestUseOfSemicolonsInAggregatedConstants
-			//if len(list) > 0 {
-			//	list[len(list)-1].InlineComment = newComment(pos, lit)
-			//}
 			continue
 		}
 		if tCOMMA == tok {
@@ -256,13 +299,16 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 				err = fault
 				return
 			}
-			// flatten the constants
+
+			// create the map
+			m := map[string]*Literal{}
 			for _, each := range nested {
-				flatten := &NamedLiteral{
-					Name:    key + "." + each.Name,
-					Literal: each.Literal}
-				list = append(list, flatten)
+				m[each.Name] = each.Literal
 			}
+			list = append(list, &NamedLiteral{
+				Name:        key,
+				PrintsColon: printsColon,
+				Literal:     &Literal{Map: m}})
 			continue
 		}
 		// no aggregate, put back token
