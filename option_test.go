@@ -376,9 +376,9 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := option.Constant.OrderedMap[1].OrderedMap[2].Name, "bar"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	//if got, want := option.Constant.OrderedMap[1].OrderedMap[2].OrderedMap[0].Source, "400"; got != want {
-	//t.Errorf("got [%v] want [%v]", got, want)
-	//}
+	if got, want := option.Constant.OrderedMap[1].OrderedMap[2].OrderedMap[0].Source, "400"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	if got, want := len(option.AggregatedConstants), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}

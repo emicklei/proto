@@ -312,7 +312,7 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			list = append(list, &NamedLiteral{
 				Name:        key,
 				PrintsColon: printsColon,
-				Literal:     &Literal{Map: m}})
+				Literal:     &Literal{Map: m, OrderedMap: nested}})
 			continue
 		}
 		// no aggregate, put back token
