@@ -128,7 +128,11 @@ type Literal struct {
 	// literal value can be an array literal value (even nested)
 	Array []*Literal
 	// literal value can be a map of literals (even nested)
+	// Deprecated: use OrderedMap instead
 	Map map[string]*Literal
+	// literal value can be a map of literals (even nested)
+	// this is done as pairs of name keys and literal values so the original ordering is preserved
+	OrderedMap []*NamedLiteral
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -204,7 +208,7 @@ func (o *Option) parseAggregate(p *Parser) error {
 	for _, each := range constants {
 		literalMap[each.Name] = each.Literal
 	}
-	o.Constant = Literal{Map: literalMap, Position: o.Position}
+	o.Constant = Literal{Map: literalMap, OrderedMap: constants, Position: o.Position}
 
 	// reconstruct the old, deprecated field
 	o.AggregatedConstants = collectAggregatedConstants(literalMap)

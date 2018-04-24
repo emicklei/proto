@@ -278,6 +278,15 @@ func TestIgnoreIllegalEscapeCharsInAggregatedConstants(t *testing.T) {
 	if got, want := f.Options[0].Constant.Map["pattern"].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := len(f.Options[0].Constant.OrderedMap), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].Constant.OrderedMap[0].Name, "pattern"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].Constant.OrderedMap[0].Source, "^[^\\d\\s]+( [^\\d\\s]+)*$"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 	// check for AggregatedConstants
 	if got, want := f.Options[0].AggregatedConstants[0].Name, "pattern"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -361,6 +370,15 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := m["bar"].Map["hello3"].Source, "400"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	if got, want := option.Constant.OrderedMap[1].Name, "foo"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := option.Constant.OrderedMap[1].OrderedMap[2].Name, "bar"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	//if got, want := option.Constant.OrderedMap[1].OrderedMap[2].OrderedMap[0].Source, "400"; got != want {
+	//t.Errorf("got [%v] want [%v]", got, want)
+	//}
 	if got, want := len(option.AggregatedConstants), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
