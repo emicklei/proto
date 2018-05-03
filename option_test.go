@@ -478,8 +478,20 @@ func TestUseOfSemicolonsInAggregatedConstants(t *testing.T) {
 	if got, want := len(opt.Constant.Map), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	// old access to map
 	if got, want := opt.Constant.Map["body"].Source, "*"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	// new access to map
+	body, ok := opt.Constant.OrderedMap.Get("body")
+	if !ok {
+		t.Fatal("expected body key")
+	}
+	if got, want := body.Source, "*"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	for _, each := range opt.Constant.OrderedMap {
+		t.Log(each)
 	}
 }
 

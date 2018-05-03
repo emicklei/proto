@@ -132,7 +132,22 @@ type Literal struct {
 	Map map[string]*Literal
 	// literal value can be a map of literals (even nested)
 	// this is done as pairs of name keys and literal values so the original ordering is preserved
-	OrderedMap []*NamedLiteral
+	OrderedMap LiteralMap
+}
+
+// LiteralMap is like a map of *Literal but preserved the ordering.
+// Can be iterated yielding *NamedLiteral values.
+type LiteralMap []*NamedLiteral
+
+// Get returns a Literal from the map.
+func (m LiteralMap) Get(key string) (*Literal, bool) {
+	for _, each := range m {
+		if each.Name == key {
+			// exit on the first match
+			return each.Literal, true
+		}
+	}
+	return new(Literal), false
 }
 
 // SourceRepresentation returns the source (if quoted then use double quote).
@@ -312,7 +327,7 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 			list = append(list, &NamedLiteral{
 				Name:        key,
 				PrintsColon: printsColon,
-				Literal:     &Literal{Map: m, OrderedMap: nested}})
+				Literal:     &Literal{Map: m, OrderedMap: LiteralMap(nested)}})
 			continue
 		}
 		// no aggregate, put back token
