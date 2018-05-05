@@ -523,3 +523,24 @@ func TestParseNestedSelectorInAggregatedConstant(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestParseMultilineStringConstant(t *testing.T) {
+	src := `message Test {
+		string description = 3 [
+			(common.ui_field_desc) = "Description of the account"
+									 " domain (e.g. Team,"
+									 "Name User Account Directory)."
+  		];
+	}`
+	p := newParserOn(src)
+	m := new(Message)
+	p.next()
+	err := m.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := m.Elements[0].(*NormalField).Options[0].Constant.Source
+	if got, want := s, "Description of the account domain (e.g. Team,Name User Account Directory)."; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

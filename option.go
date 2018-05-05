@@ -199,11 +199,22 @@ func (l *Literal) parse(p *Parser) error {
 		return nil
 	}
 	source := lit
-	isString := isString(lit)
-	if isString {
+	iss := isString(lit)
+	if iss {
 		source = unQuote(source)
 	}
-	l.Position, l.Source, l.IsString = pos, source, isString
+	l.Position, l.Source, l.IsString = pos, source, iss
+
+	// peek for multiline strings
+	for {
+		pos, tok, lit := p.next()
+		if isString(lit) {
+			l.Source += unQuote(lit)
+		} else {
+			p.nextPut(pos, tok, lit)
+			break
+		}
+	}
 	return nil
 }
 
