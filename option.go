@@ -189,6 +189,14 @@ func (l *Literal) parse(p *Parser) error {
 		l.Position = pos
 		return nil
 	}
+	if tLEFTCURLY == tok {
+		l.Position, l.Source, l.IsString = pos, "", false
+		constants, err := parseAggregateConstants(p, l)
+		if err != nil {
+			return nil
+		}
+		l.OrderedMap = LiteralMap(constants)
+	}
 	if "-" == lit {
 		// negative number
 		if err := l.parse(p); err != nil {

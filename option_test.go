@@ -544,3 +544,22 @@ func TestParseMultilineStringConstant(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestOptionWithRepeatedMessageValues(t *testing.T) {
+	src := `message Foo {
+		int64 a = 1 [b = {repeated_message_field: [{hello: 1}, {hello: 2}]}];
+	}`
+	p := newParserOn(src)
+	def, err := p.Parse()
+	if err != nil {
+		t.Errorf("expected no error but got %v", err)
+	}
+	opt := def.Elements[0].(*Message).Elements[0].(*NormalField).Options[0]
+	hello, ok := opt.AggregatedConstants[0].Array[0].OrderedMap.Get("hello")
+	if !ok {
+		t.Fail()
+	}
+	if got, want := hello.SourceRepresentation(), "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
