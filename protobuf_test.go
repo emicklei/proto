@@ -29,8 +29,8 @@ func TestPublicProtoDefinitions(t *testing.T) {
 	for _, each := range []string{
 		"https://raw.githubusercontent.com/gogo/protobuf/master/test/thetest.proto",
 		"https://raw.githubusercontent.com/gogo/protobuf/master/test/theproto3/theproto3.proto",
-		"https://raw.githubusercontent.com/googleapis/googleapis/master/google/privacy/dlp/v2beta2/dlp.proto",
-		//	"https://raw.githubusercontent.com/envoyproxy/data-plane-api/master/envoy/api/v2/auth/cert.proto",
+		"https://raw.githubusercontent.com/googleapis/googleapis/master/google/privacy/dlp/v2/dlp.proto",
+		// "https://raw.githubusercontent.com/envoyproxy/data-plane-api/master/envoy/api/v2/auth/cert.proto",
 	} {
 		def := fetchAndParse(t, each)
 		checkParent(def, t)

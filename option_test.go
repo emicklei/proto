@@ -563,3 +563,49 @@ func TestOptionWithRepeatedMessageValues(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestOptionWithRepeatedMessageValuesWithArray(t *testing.T) {
+	src := `message Foo {
+		int64 a = 1 [ (bar.repeated_field_dep_option) = 
+			{ hello: 1, repeated_dep: [
+				{ hello: 1, repeated_bar: [1, 2] },
+				{ hello: 3, repeated_bar: [3, 4] } ] } ];
+	}`
+	p := newParserOn(src)
+	def, err := p.Parse()
+	if err != nil {
+		t.Errorf("expected no error but got %v", err)
+	}
+	opt := def.Elements[0].(*Message).Elements[0].(*NormalField).Options[0]
+	hello, ok := opt.Constant.OrderedMap.Get("hello")
+	if !ok {
+		t.Fail()
+	}
+	if got, want := hello.SourceRepresentation(), "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	repeated_dep, ok := opt.Constant.OrderedMap.Get("repeated_dep")
+	if !ok {
+		t.Fail()
+	}
+	if got, want := len(repeated_dep.Array), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	hello, ok = repeated_dep.Array[0].OrderedMap.Get("hello")
+	if !ok {
+		t.Fail()
+	}
+	if got, want := hello.SourceRepresentation(), "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	onetwo, ok := repeated_dep.Array[0].OrderedMap.Get("repeated_bar")
+	if !ok {
+		t.Fail()
+	}
+	if got, want := onetwo.Array[0].Source, "1"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := onetwo.Array[1].Source, "2"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
