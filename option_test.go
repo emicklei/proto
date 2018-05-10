@@ -584,21 +584,21 @@ func TestOptionWithRepeatedMessageValuesWithArray(t *testing.T) {
 	if got, want := hello.SourceRepresentation(), "1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	repeated_dep, ok := opt.Constant.OrderedMap.Get("repeated_dep")
+	repeatedDep, ok := opt.Constant.OrderedMap.Get("repeated_dep")
 	if !ok {
 		t.Fail()
 	}
-	if got, want := len(repeated_dep.Array), 2; got != want {
+	if got, want := len(repeatedDep.Array), 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	hello, ok = repeated_dep.Array[0].OrderedMap.Get("hello")
+	hello, ok = repeatedDep.Array[0].OrderedMap.Get("hello")
 	if !ok {
 		t.Fail()
 	}
 	if got, want := hello.SourceRepresentation(), "1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	onetwo, ok := repeated_dep.Array[0].OrderedMap.Get("repeated_bar")
+	onetwo, ok := repeatedDep.Array[0].OrderedMap.Get("repeated_bar")
 	if !ok {
 		t.Fail()
 	}
