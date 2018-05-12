@@ -21,7 +21,7 @@ func TestWalkGoogleApisDLP(t *testing.T) {
 	if len(os.Getenv("PB")) == 0 {
 		t.Skip("PB test not run")
 	}
-	proto := fetchAndParse(t, "https://raw.githubusercontent.com/googleapis/googleapis/master/google/privacy/dlp/v2beta2/dlp.proto")
+	proto := fetchAndParse(t, "https://raw.githubusercontent.com/gogo/protobuf/master/test/theproto3/theproto3.proto")
 	count := counter{counts: map[string]int{}}
 	Walk(proto, WithService(count.handleService), WithRPC(count.handleRPC))
 	t.Logf("%#v", count)

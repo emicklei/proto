@@ -37,7 +37,7 @@ type Option struct {
 	Name       string
 	Constant   Literal
 	IsEmbedded bool
-	// AggregatedConstants is DEPRECATED. These Literals are populated into Constant.Map
+	// AggregatedConstants is DEPRECATED. These Literals are populated into Constant.OrderedMap
 	AggregatedConstants []*NamedLiteral
 	InlineComment       *Comment
 	Parent              Visitee
@@ -128,7 +128,7 @@ type Literal struct {
 	// literal value can be an array literal value (even nested)
 	Array []*Literal
 	// literal value can be a map of literals (even nested)
-	// Deprecated: use OrderedMap instead
+	// DEPRECATED: use OrderedMap instead
 	Map map[string]*Literal
 	// literal value can be a map of literals (even nested)
 	// this is done as pairs of name keys and literal values so the original ordering is preserved
@@ -196,6 +196,7 @@ func (l *Literal) parse(p *Parser) error {
 			return nil
 		}
 		l.OrderedMap = LiteralMap(constants)
+		return nil
 	}
 	if "-" == lit {
 		// negative number
