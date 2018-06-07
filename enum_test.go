@@ -29,6 +29,8 @@ func TestEnum(t *testing.T) {
 	proto := `
 // enum
 enum EnumAllowingAlias {
+  reserved 998, 1000 to 2000;
+  reserved "HELLO", "WORLD";
   option allow_alias = true;
   UNKNOWN = 0;
   STARTED = 1;
@@ -48,7 +50,7 @@ enum EnumAllowingAlias {
 	if got, want := len(enums), 1; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := len(enums[0].Elements), 6; got != want {
+	if got, want := len(enums[0].Elements), 8; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	if got, want := enums[0].Comment != nil, true; got != want {
@@ -60,14 +62,46 @@ enum EnumAllowingAlias {
 	if got, want := enums[0].Position.Line, 3; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
-	ef1 := enums[0].Elements[1].(*EnumField)
+	// enum reserved ids
+	e1 := enums[0].Elements[0].(*Reserved)
+	if got, want := len(e1.Ranges), 2; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	e1rg0 := e1.Ranges[0]
+	if got, want := e1rg0.From, 998; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	if got, want := e1rg0.From, e1rg0.To; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	e1rg1 := e1.Ranges[1]
+	if got, want := e1rg1.From, 1000; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	if got, want := e1rg1.To, 2000; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	// enum reserved field names
+	e2 := enums[0].Elements[1].(*Reserved)
+	if got, want := len(e2.FieldNames), 2; got != want {
+		t.Errorf("got [%d] want [%d]", got, want)
+	}
+	e2fn0 := e2.FieldNames[0]
+	if got, want := e2fn0, "HELLO"; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+	e2fn1 := e2.FieldNames[1]
+	if got, want := e2fn1, "WORLD"; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+	ef1 := enums[0].Elements[3].(*EnumField)
 	if got, want := ef1.Integer, 0; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef1.Position.Line, 5; got != want {
+	if got, want := ef1.Position.Line, 7; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
-	ef3 := enums[0].Elements[3].(*EnumField)
+	ef3 := enums[0].Elements[5].(*EnumField)
 	if got, want := ef3.Integer, 2; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -82,10 +116,10 @@ enum EnumAllowingAlias {
 	if got, want := ef3opt.Constant.Source, "hello world"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	if got, want := ef3.Position.Line, 7; got != want {
+	if got, want := ef3.Position.Line, 9; got != want {
 		t.Errorf("got [%d] want [%d]", got, want)
 	}
-	ef4 := enums[0].Elements[4].(*EnumField)
+	ef4 := enums[0].Elements[6].(*EnumField)
 	if got, want := ef4.Integer, -42; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
