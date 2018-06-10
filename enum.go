@@ -96,6 +96,14 @@ func (e *Enum) parse(p *Parser) error {
 			goto done
 		case tSEMICOLON:
 			maybeScanInlineComment(p, e)
+		case tRESERVED:
+			r := new(Reserved)
+			r.Position = pos
+			r.Comment = e.takeLastComment(pos.Line - 1)
+			if err := r.parse(p); err != nil {
+				return err
+			}
+			e.addElement(r)
 		default:
 			p.nextPut(pos, tok, lit)
 			f := new(EnumField)
