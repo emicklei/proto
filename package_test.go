@@ -23,41 +23,21 @@
 
 package proto
 
-import "text/scanner"
+import (
+	"testing"
+)
 
-// Package specifies the namespace for all proto elements.
-type Package struct {
-	Position      scanner.Position
-	Comment       *Comment
-	Name          string
-	InlineComment *Comment
-	Parent        Visitee
-}
+func TestPackageParseWithReservedPrefix(t *testing.T) {
+	want := "rpc.enum.oneof"
+	ident := " " + want + ";"
 
-// Doc is part of Documented
-func (p *Package) Doc() *Comment {
-	return p.Comment
-}
-
-func (p *Package) parse(pr *Parser) error {
-	_, tok, lit := pr.nextIdent(true)
-	if tIDENT != tok {
-		if !isKeyword(tok) {
-			return pr.unexpected(lit, "package identifier", p)
-		}
+	pkg := new(Package)
+	p := newParserOn(ident)
+	if err := pkg.parse(p); err != nil {
+		t.Error(err)
 	}
-	p.Name = lit
-	return nil
-}
 
-// Accept dispatches the call to the visitor.
-func (p *Package) Accept(v Visitor) {
-	v.VisitPackage(p)
+	if pkg.Name != want {
+		t.Errorf("got %q want %q", pkg.Name, want)
+	}
 }
-
-// inlineComment is part of commentInliner.
-func (p *Package) inlineComment(c *Comment) {
-	p.InlineComment = c
-}
-
-func (p *Package) parent(v Visitee) { p.Parent = v }
