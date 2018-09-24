@@ -68,7 +68,7 @@ func (f *NormalField) Doc() *Comment {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		_, tok, lit := p.nextIdentifier()
+		_, tok, lit := p.nextTypeName()
 		switch tok {
 		case tREPEATED:
 			f.Repeated = true
@@ -156,7 +156,7 @@ func (f *MapField) parse(p *Parser) error {
 	if tLESS != tok {
 		return p.unexpected(lit, "map keyType <", f)
 	}
-	_, tok, lit = p.next()
+	_, tok, lit = p.nextTypeName()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map identifier", f)
 	}
@@ -165,7 +165,7 @@ func (f *MapField) parse(p *Parser) error {
 	if tCOMMA != tok {
 		return p.unexpected(lit, "map type separator ,", f)
 	}
-	_, tok, lit = p.nextIdentifier()
+	_, tok, lit = p.nextTypeName()
 	if tIDENT != tok {
 		return p.unexpected(lit, "map valueType identifier", f)
 	}

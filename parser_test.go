@@ -115,3 +115,24 @@ func TestNextIdentifierNoIdent(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+// https://github.com/google/protobuf/issues/4726
+func TestProtobufIssue4726(t *testing.T) {
+	src := `syntax = "proto3";
+
+	service SomeService {
+		rpc SomeMethod (Whatever) returns (Whatever) {
+			option (google.api.http) = {
+				delete : "/some/url"
+				additional_bindings {
+					delete: "/another/url"
+				}
+			};
+		}
+	}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+}
