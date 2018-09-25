@@ -96,6 +96,36 @@ func TestFieldOneofImported(t *testing.T) {
 	}
 }
 
+func TestFieldOneofDotImported(t *testing.T) {
+	fieldType := ".foo.bar"
+	proto := `message Value {
+		oneof value {
+			` + fieldType + ` value = 1;
+		}
+	}`
+	p := newParserOn(proto)
+	def := new(Proto)
+	err := def.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := def.Elements[0].(*Message)
+	if len(m.Elements) != 1 {
+		t.Errorf("expected one element but got %d", len(m.Elements))
+	}
+	o := m.Elements[0].(*Oneof)
+	if len(o.Elements) != 1 {
+		t.Errorf("expected one element but got %d", len(o.Elements))
+	}
+	f := o.Elements[0].(*OneOfField)
+	if got, want := f.Type, fieldType; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Name, "value"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestOneOfWithOption(t *testing.T) {
 	src := `oneof AnOneof {
 		option (oneof_opt1) = -99;

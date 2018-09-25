@@ -157,6 +157,17 @@ func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) 
 	return p.nextIdent(false)
 }
 
+// nextTypeName implements the Packages and Name Resolution for finding the name of the type.
+func (p *Parser) nextTypeName() (pos scanner.Position, tok token, lit string) {
+	pos, tok, lit = p.nextIdent(false)
+	if tDOT == tok {
+		// leading dot allowed
+		pos, tok, lit = p.nextIdent(false)
+		lit = "." + lit
+	}
+	return
+}
+
 func (p *Parser) nextIdent(keywordStartAllowed bool) (pos scanner.Position, tok token, lit string) {
 	pos, tok, lit = p.next()
 	if tIDENT != tok {

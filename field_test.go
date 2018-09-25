@@ -126,6 +126,22 @@ func TestMapField(t *testing.T) {
 	}
 }
 
+func TestMapFieldWithDotTypes(t *testing.T) {
+	proto := ` <.Some.How, .Such.Project> projects = 3;`
+	p := newParserOn(proto)
+	f := newMapField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.KeyType, ".Some.How"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Type, ".Such.Project"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestOptionalWithOption(t *testing.T) {
 	proto := `optional int32 default_int32    = 61 [default =  41    ];`
 	p := newParserOn(proto)
@@ -164,5 +180,19 @@ func TestFieldInlineComment(t *testing.T) {
 	f := m.Elements[0].(*NormalField)
 	if f.InlineComment == nil {
 		t.Error("expected inline comment")
+	}
+}
+
+func TestFieldTypeStartsWithDot(t *testing.T) {
+	proto := `.game.Resource foo = 1;`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	foot := f.Field.Type
+	if got, want := foot, ".game.Resource"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
