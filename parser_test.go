@@ -136,3 +136,20 @@ func TestProtobufIssue4726(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestProtoIssue92(t *testing.T) {
+	src := `syntax = "proto3";
+
+package test;
+
+message Foo {
+  .game.Resource one = 1 [deprecated = true];
+  repeated .game.sub.Resource two = 2;
+  map<string, .game.Resource> three = 3;
+}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+}
