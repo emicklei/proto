@@ -62,3 +62,22 @@ func TestReservedFieldNames(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestReservedFieldNamesSingleQuote(t *testing.T) {
+	r := new(Reserved)
+	p := newParserOn(`reserved 'foo', 'bar';`)
+	_, _, _ = p.next()
+	err := r.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(r.FieldNames), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[0], "foo"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[1], "bar"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

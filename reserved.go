@@ -23,7 +23,9 @@
 
 package proto
 
-import "text/scanner"
+import (
+	"text/scanner"
+)
 
 // Reserved statements declare a range of field numbers or field names that cannot be used in a message.
 type Reserved struct {
