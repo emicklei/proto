@@ -129,9 +129,8 @@ func TestRequiredGroupInMessage(t *testing.T) {
 }
 
 func TestSingleQuotedReservedNames(t *testing.T) {
-	t.Skip()
 	src := `message Channel {
-		reserved 'thing';
+		reserved 'thing', "", '';
 	  }`
 	p := newParserOn(src)
 	p.next() // consume first token
@@ -142,6 +141,12 @@ func TestSingleQuotedReservedNames(t *testing.T) {
 	}
 	r := m.Elements[0].(*Reserved)
 	if got, want := r.FieldNames[0], "thing"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[1], ""; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[2], ""; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }

@@ -53,7 +53,7 @@ type nextValues struct {
 func NewParser(r io.Reader) *Parser {
 	s := new(scanner.Scanner)
 	s.Init(r)
-	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments
+	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments | scanner.ScanChars
 	p := &Parser{scanner: s}
 	s.Error = p.handleScanError
 	return p
