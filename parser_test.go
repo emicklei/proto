@@ -160,7 +160,7 @@ func TestParseSingleQuotesStrings(t *testing.T) {
 	if got, want := lit, "'bohemian'"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	_, tok, lit := p.next()
+	_, tok, _ := p.next()
 	if got, want := tok, tCOMMA; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
