@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMessage(t *testing.T) {
 	proto := `
@@ -126,4 +128,27 @@ func TestRequiredGroupInMessage(t *testing.T) {
 		t.Fatalf("got Required [%v] want [%v]", got, want)
 	}
 
+}
+
+func TestSingleQuotedReservedNames(t *testing.T) {
+	src := `message Channel {
+		reserved '', 'things', "";
+	  }`
+	p := newParserOn(src)
+	p.next() // consume first token
+	m := new(Message)
+	err := m.parse(p)
+	if err != nil {
+		t.Error(err)
+	}
+	r := m.Elements[0].(*Reserved)
+	if got, want := r.FieldNames[0], ""; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[1], "things"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := r.FieldNames[2], ""; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
 }

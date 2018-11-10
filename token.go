@@ -106,6 +106,9 @@ func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // isString checks if the literal is quoted (single or double).
 func isString(lit string) bool {
+	if lit == "'" {
+		return false
+	}
 	return (strings.HasPrefix(lit, "\"") &&
 		strings.HasSuffix(lit, "\"")) ||
 		(strings.HasPrefix(lit, "'") &&
