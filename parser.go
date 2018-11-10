@@ -53,7 +53,7 @@ type nextValues struct {
 func NewParser(r io.Reader) *Parser {
 	s := new(scanner.Scanner)
 	s.Init(r)
-	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments | scanner.ScanChars
+	s.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments
 	p := &Parser{scanner: s}
 	s.Error = p.handleScanError
 	return p
@@ -104,6 +104,8 @@ func (p *Parser) Filename(f string) {
 	p.scanner.Filename = f
 }
 
+const stringWithSingleQuote = "'"
+
 // next returns the next token using the scanner or drain the buffer.
 func (p *Parser) next() (pos scanner.Position, tok token, lit string) {
 	if p.buf != nil {
@@ -117,7 +119,34 @@ func (p *Parser) next() (pos scanner.Position, tok token, lit string) {
 		return p.scanner.Position, tEOF, ""
 	}
 	lit = p.scanner.TokenText()
+	// single quote needs additional scanning
+	if stringWithSingleQuote == lit {
+		return p.nextSingleQuotedString()
+	}
 	return p.scanner.Position, asToken(lit), lit
+}
+
+// pre: first single quote has been read
+func (p *Parser) nextSingleQuotedString() (pos scanner.Position, tok token, lit string) {
+	ch := p.scanner.Scan()
+	if ch == scanner.EOF {
+		return p.scanner.Position, tEOF, ""
+	}
+	// string inside single quote
+	lit = p.scanner.TokenText()
+	if stringWithSingleQuote == lit {
+		// empty single quoted string
+		return p.scanner.Position, tIDENT, "''"
+	}
+	ch = p.scanner.Scan()
+	if ch == scanner.EOF {
+		return p.scanner.Position, tEOF, ""
+	}
+	// end quote expected
+	if stringWithSingleQuote != p.scanner.TokenText() {
+		p.unexpected(lit, "'", p)
+	}
+	return p.scanner.Position, tIDENT, fmt.Sprintf("'%s'", lit)
 }
 
 // nextPut sets the buffer

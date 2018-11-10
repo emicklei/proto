@@ -153,3 +153,19 @@ message Foo {
 		t.Error(err)
 	}
 }
+
+func TestParseSingleQuotesStrings(t *testing.T) {
+	p := newParserOn(` 'bohemian','' `)
+	_, _, lit := p.next()
+	if got, want := lit, "'bohemian'"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	_, tok, lit := p.next()
+	if got, want := tok, tCOMMA; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	_, _, lit = p.next()
+	if got, want := lit, "''"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
