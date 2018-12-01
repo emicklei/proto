@@ -159,10 +159,10 @@ func (r *RPC) parse(p *Parser) error {
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.nextIdentifier()
+	pos, tok, lit = p.nextTypeName()
 	if tSTREAM == tok {
 		r.StreamsRequest = true
-		pos, tok, lit = p.nextIdentifier()
+		pos, tok, lit = p.nextTypeName()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | request type", r)
@@ -180,10 +180,10 @@ func (r *RPC) parse(p *Parser) error {
 	if tok != tLEFTPAREN {
 		return p.unexpected(lit, "rpc type opening (", r)
 	}
-	pos, tok, lit = p.nextIdentifier()
+	pos, tok, lit = p.nextTypeName()
 	if tSTREAM == tok {
 		r.StreamsReturns = true
-		pos, tok, lit = p.nextIdentifier()
+		pos, tok, lit = p.nextTypeName()
 	}
 	if tok != tIDENT {
 		return p.unexpected(lit, "rpc stream | returns type", r)
