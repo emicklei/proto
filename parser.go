@@ -183,11 +183,6 @@ func (p *Parser) nextInteger() (i int, err error) {
 
 // nextIdentifier consumes tokens which may have one or more dot separators (namespaced idents).
 func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) {
-	return p.nextIdent(false)
-}
-
-// nextTypeName implements the Packages and Name Resolution for finding the name of the type.
-func (p *Parser) nextTypeName() (pos scanner.Position, tok token, lit string) {
 	pos, tok, lit = p.nextIdent(false)
 	if tDOT == tok {
 		// leading dot allowed
@@ -195,6 +190,11 @@ func (p *Parser) nextTypeName() (pos scanner.Position, tok token, lit string) {
 		lit = "." + lit
 	}
 	return
+}
+
+// nextTypeName implements the Packages and Name Resolution for finding the name of the type.
+func (p *Parser) nextTypeName() (pos scanner.Position, tok token, lit string) {
+	return p.nextIdentifier()
 }
 
 func (p *Parser) nextIdent(keywordStartAllowed bool) (pos scanner.Position, tok token, lit string) {
