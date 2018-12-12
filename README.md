@@ -44,7 +44,7 @@ Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (
 
 ### contributions
 
-See (https://github.com/emicklei/proto-contrib) for other contributions on top of this package such as protofmt, proto2xsd and proto2gql.
-
+See [proto-contrib](https://github.com/emicklei/proto-contrib) for other contributions on top of this package such as protofmt, proto2xsd and proto2gql.
+[protobuf2map](https://github.com/emicklei/protobuf2map) is a small package for inspecting serialized protobuf messages using its `.proto` definition.
 
 © 2017, [ernestmicklei.com](http://ernestmicklei.com).  MIT License. Contributions welcome.

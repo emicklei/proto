@@ -609,3 +609,21 @@ func TestOptionWithRepeatedMessageValuesWithArray(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+// https://github.com/emicklei/proto/issues/99
+func TestFieldCustomOptionLeadingDot(t *testing.T) {
+	proto := `string app_entity_id = 4 [(.common.v1.some_custom_option) = { opt1: true opt2: false }];`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Type, "string"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	o := f.Options[0]
+	if got, want := o.Name, "(.common.v1.some_custom_option)"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+}

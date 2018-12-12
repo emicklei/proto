@@ -173,3 +173,13 @@ func TestRPCWithMultiLineCommentInOptionBlock(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestRPCWithTypeThatHasLeadingDot(t *testing.T) {
+	src := `service Dummy {
+		rpc DeleteProgram (ProgramIdentifier) returns (.google.protobuf.Empty) {}
+	}`
+	_, err := newParserOn(src).Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
