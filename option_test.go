@@ -63,6 +63,21 @@ func TestOptionCases(t *testing.T) {
 		"(my.enum.service.is.like).rpc",
 		"",
 		"1",
+	}, {
+		`option (imported.oss.package).action = "literal-double-quotes";`,
+		"(imported.oss.package).action",
+		"literal-double-quotes",
+		"",
+	}, {
+		`option (imported.oss.package).action = 'literalsinglequotes';`,
+		"(imported.oss.package).action",
+		"literalsinglequotes",
+		"",
+	}, {
+		`option (imported.oss.package).action = 'single-quotes.with/symbols';`,
+		"(imported.oss.package).action",
+		"single-quotes.with/symbols",
+		"",
 	}} {
 		p := newParserOn(each.proto)
 		pr, err := p.Parse()
