@@ -138,9 +138,20 @@ func (p *Parser) nextSingleQuotedString() (pos scanner.Position, tok token, lit 
 		// empty single quoted string
 		return p.scanner.Position, tIDENT, "''"
 	}
-	ch = p.scanner.Scan()
-	if ch == scanner.EOF {
-		return p.scanner.Position, tEOF, ""
+
+	// scan for partial tokens until actual closing single-quote(') token
+	for {
+		ch = p.scanner.Scan()
+
+		if ch == scanner.EOF {
+			return p.scanner.Position, tEOF, ""
+		}
+
+		partial := p.scanner.TokenText()
+		if partial == "'" {
+			break
+		}
+		lit += partial
 	}
 	// end quote expected
 	if stringWithSingleQuote != p.scanner.TokenText() {
