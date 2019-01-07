@@ -58,7 +58,7 @@ errcheck: testdeps
 
 .PHONY: staticcheck
 staticcheck: testdeps
-	staticcheck ./...
+	staticcheck -fail "" ./...
 
 .PHONY: unused
 unused: testdeps
