@@ -1,9 +1,6 @@
-cmd/proto2xsd/sample.proto
-cmd/proto2xsd/proto2xsd
-cmd/protofmt/protofmt
-cmd/proto2gql/proto2gql
+/.idea/
+/.tmp/
+/.vscode/
+/bin/
 debug.test
-.idea/
-.vscode/
-bin/
 .DS_Store
