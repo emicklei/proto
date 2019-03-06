@@ -120,7 +120,24 @@ func isComment(lit string) bool {
 }
 
 func unQuote(lit string) string {
-	return strings.Trim(lit, "\"'")
+	lit = strings.TrimLeft(lit, "\"'")
+	array := []rune(lit)
+	// https://github.com/emicklei/proto/issues/103
+	// cannot use strconv.Unquote as this unescapes quotes
+	for len(array) > 0 {
+		last := array[len(array)-1]
+		if last != '\'' && last != '"' {
+			break
+		}
+		if len(array) > 1 {
+			secondLast := array[len(array)-2]
+			if secondLast == '\\' {
+				break
+			}
+		}
+		array = array[:len(array)-1]
+	}
+	return string(array)
 }
 
 func asToken(literal string) token {

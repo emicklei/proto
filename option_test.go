@@ -69,6 +69,11 @@ func TestOptionCases(t *testing.T) {
 		"literal-double-quotes",
 		"",
 	}, {
+		`option (imported.oss.package).action = "key:\"literal-double-quotes-escaped\"";`,
+		"(imported.oss.package).action",
+		`key:\"literal-double-quotes-escaped\"`,
+		"",
+	}, {
 		`option (imported.oss.package).action = 'literalsinglequotes';`,
 		"(imported.oss.package).action",
 		"literalsinglequotes",
@@ -581,7 +586,7 @@ func TestOptionWithRepeatedMessageValues(t *testing.T) {
 
 func TestOptionWithRepeatedMessageValuesWithArray(t *testing.T) {
 	src := `message Foo {
-		int64 a = 1 [ (bar.repeated_field_dep_option) = 
+		int64 a = 1 [ (bar.repeated_field_dep_option) =
 			{ hello: 1, repeated_dep: [
 				{ hello: 1, repeated_bar: [1, 2] },
 				{ hello: 3, repeated_bar: [3, 4] } ] } ];
