@@ -33,57 +33,63 @@ func TestOptionCases(t *testing.T) {
 		name      string
 		strLit    string
 		nonStrLit string
-	}{{
-		`option (full).java_package = "com.example.foo";`,
-		"(full).java_package",
-		"com.example.foo",
-		"",
-	}, {
-		`option Bool = true;`,
-		"Bool",
-		"",
-		"true",
-	}, {
-		`option Float = -3.14E1;`,
-		"Float",
-		"",
-		"-3.14E1",
-	}, {
-		`option (foo_options) = { opt1: 123 opt2: "baz" };`,
-		"(foo_options)",
-		"",
-		"",
-	}, {
-		`option optimize_for = SPEED;`,
-		"optimize_for",
-		"",
-		"SPEED",
-	}, {
-		"option (my.enum.service.is.like).rpc = 1;",
-		"(my.enum.service.is.like).rpc",
-		"",
-		"1",
-	}, {
-		`option (imported.oss.package).action = "literal-double-quotes";`,
-		"(imported.oss.package).action",
-		"literal-double-quotes",
-		"",
-	}, {
-		`option (imported.oss.package).action = "key:\"literal-double-quotes-escaped\"";`,
-		"(imported.oss.package).action",
-		`key:\"literal-double-quotes-escaped\"`,
-		"",
-	}, {
-		`option (imported.oss.package).action = 'literalsinglequotes';`,
-		"(imported.oss.package).action",
-		"literalsinglequotes",
-		"",
-	}, {
-		`option (imported.oss.package).action = 'single-quotes.with/symbols';`,
-		"(imported.oss.package).action",
-		"single-quotes.with/symbols",
-		"",
-	}} {
+	}{
+		{
+			`option (full).java_package = "com.example.foo";`,
+			"(full).java_package",
+			"com.example.foo",
+			"",
+		}, {
+			`option Bool = true;`,
+			"Bool",
+			"",
+			"true",
+		}, {
+			`option Float = -3.14E1;`,
+			"Float",
+			"",
+			"-3.14E1",
+		}, {
+			`option (foo_options) = { opt1: 123 opt2: "baz" };`,
+			"(foo_options)",
+			"",
+			"",
+		}, {
+			`option foo = []`,
+			"foo",
+			"",
+			"",
+		}, {
+			`option optimize_for = SPEED;`,
+			"optimize_for",
+			"",
+			"SPEED",
+		}, {
+			"option (my.enum.service.is.like).rpc = 1;",
+			"(my.enum.service.is.like).rpc",
+			"",
+			"1",
+		}, {
+			`option (imported.oss.package).action = "literal-double-quotes";`,
+			"(imported.oss.package).action",
+			"literal-double-quotes",
+			"",
+		}, {
+			`option (imported.oss.package).action = "key:\"literal-double-quotes-escaped\"";`,
+			"(imported.oss.package).action",
+			`key:\"literal-double-quotes-escaped\"`,
+			"",
+		}, {
+			`option (imported.oss.package).action = 'literalsinglequotes';`,
+			"(imported.oss.package).action",
+			"literalsinglequotes",
+			"",
+		}, {
+			`option (imported.oss.package).action = 'single-quotes.with/symbols';`,
+			"(imported.oss.package).action",
+			"single-quotes.with/symbols",
+			"",
+		}} {
 		p := newParserOn(each.proto)
 		pr, err := p.Parse()
 		if err != nil {
