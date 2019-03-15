@@ -652,3 +652,46 @@ func TestFieldCustomOptionLeadingDot(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+// https://github.com/emicklei/proto/issues/106
+func TestEmptyArrayInOptionStructure(t *testing.T) {
+	src := `
+	option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema : {
+		  title : "Frob a request"
+		  description : "blah blah blah"
+		  required : [ ]
+		  optional:["this"]
+		}
+	  };	
+	`
+	p := newParserOn(src)
+	p.next()
+	o := new(Option)
+	if err := o.parse(p); err != nil {
+		t.Fatal("testcase parse failed:", err)
+	}
+	s, ok := o.Constant.OrderedMap.Get("json_schema")
+	if !ok {
+		t.Fatal("expected json_schema literal")
+	}
+	// none
+	a, ok := s.OrderedMap.Get("required")
+	if !ok {
+		t.Fatal("expected required literal")
+	}
+	if len(a.Array) != 0 {
+		t.Fatal("expecting empty array")
+	}
+	// one
+	a, ok = s.OrderedMap.Get("optional")
+	if !ok {
+		t.Fatal("expected required literal")
+	}
+	if len(a.Array) != 1 {
+		t.Fatal("expecting one size array")
+	}
+	if got, want := a.Array[0].Source, "this"; got != want {
+		t.Fatalf("got [%s] want [%s]", got, want)
+	}
+}
