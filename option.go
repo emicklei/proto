@@ -169,6 +169,18 @@ func (l *Literal) parse(p *Parser) error {
 	if tok == tLEFTSQUARE {
 		// collect array elements
 		array := []*Literal{}
+
+		// if it's an empty array, consume the close bracket, set the Array to
+		// an empty array, and return
+		r := p.peekNonWhitespace()
+		if ']' == r {
+			pos, _, _ := p.next()
+			l.Array = array
+			l.IsString = false
+			l.Position = pos
+			return nil
+		}
+
 		for {
 			e := new(Literal)
 			if err := e.parse(p); err != nil {
