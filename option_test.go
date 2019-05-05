@@ -695,3 +695,16 @@ func TestEmptyArrayInOptionStructure(t *testing.T) {
 		t.Fatalf("got [%s] want [%s]", got, want)
 	}
 }
+
+// https://github.com/emicklei/proto/issues/107
+func TestQuoteNotDroppedInOption(t *testing.T) {
+	src := `string name = 1 [ quote = '<="foo"' ];`
+	f := newNormalField()
+	if err := f.parse(newParserOn(src)); err != nil {
+		t.Fatal(err)
+	}
+	sr := f.Options[0].Constant.SourceRepresentation()
+	if got, want := sr, `"<="foo""`; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+}
