@@ -44,7 +44,7 @@ func (s *Syntax) parse(p *Parser) error {
 	if !isString(lit) {
 		return p.unexpected(lit, "syntax string constant", s)
 	}
-	s.Value = unQuote(lit)
+	s.Value, _ = unQuote(lit)
 	return nil
 }
 

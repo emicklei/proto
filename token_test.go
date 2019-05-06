@@ -36,8 +36,12 @@ func TestUnQuoteCases(t *testing.T) {
 		{"\"tony\"", "tony"},
 		{"\"'\"\"'  -> \"\"\"\"\"\"", `'""'  -> """""`},
 		{`"''"`, "''"},
+		{"''", ""},
+		{"", ""},
 	} {
-		if got, want := unQuote(each.input), each.output; got != want {
+		got, _ := unQuote(each.input)
+		want := each.output
+		if got != want {
 			t.Errorf("[%d] got [%s] want [%s]", i, got, want)
 		}
 	}

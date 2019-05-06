@@ -64,7 +64,8 @@ func (r *Reserved) parse(p *Parser) error {
 			continue
 		}
 		if isString(lit) {
-			r.FieldNames = append(r.FieldNames, unQuote(lit))
+			s, _ := unQuote(lit)
+			r.FieldNames = append(r.FieldNames, s)
 			continue
 		}
 		if tSEMICOLON == tok {

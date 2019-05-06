@@ -704,7 +704,19 @@ func TestQuoteNotDroppedInOption(t *testing.T) {
 		t.Fatal(err)
 	}
 	sr := f.Options[0].Constant.SourceRepresentation()
-	if got, want := sr, `"<="foo""`; got != want {
+	if got, want := sr, `'<="foo"'`; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+}
+
+func TestWhatYouTypeIsWhatYouGetOptionValue(t *testing.T) {
+	src := `string n = 1 [ quote = 'm"\"/"' ];`
+	f := newNormalField()
+	if err := f.parse(newParserOn(src)); err != nil {
+		t.Fatal(err)
+	}
+	sr := f.Options[0].Constant.SourceRepresentation()
+	if got, want := sr, `'m"\"/"'`; got != want {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
