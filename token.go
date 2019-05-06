@@ -120,6 +120,9 @@ func isComment(lit string) bool {
 }
 
 // unQuote removes one matching leading and trailing single or double quote.
+//
+// https://github.com/emicklei/proto/issues/103
+// cannot use strconv.Unquote as this unescapes quotes.
 func unQuote(lit string) string {
 	if len(lit) < 2 {
 		return lit
