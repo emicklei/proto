@@ -26,20 +26,25 @@ package proto
 import "testing"
 
 func TestUnQuoteCases(t *testing.T) {
+	singleQuoteRune := rune('\'')
 	for i, each := range []struct {
 		input, output string
+		quoteRune     rune
 	}{
-		{"thanos", "thanos"},
-		{"`bucky`", "`bucky`"},
-		{"'nat", "'nat"},
-		{"'bruce'", "bruce"},
-		{"\"tony\"", "tony"},
-		{"\"'\"\"'  -> \"\"\"\"\"\"", `'""'  -> """""`},
-		{`"''"`, "''"},
-		{"''", ""},
-		{"", ""},
+		{"thanos", "thanos", doubleQuoteRune},
+		{"`bucky`", "`bucky`", doubleQuoteRune},
+		{"'nat", "'nat", doubleQuoteRune},
+		{"'bruce'", "bruce", singleQuoteRune},
+		{"\"tony\"", "tony", doubleQuoteRune},
+		{"\"'\"\"'  -> \"\"\"\"\"\"", `'""'  -> """""`, doubleQuoteRune},
+		{`"''"`, "''", doubleQuoteRune},
+		{"''", "", singleQuoteRune},
+		{"", "", doubleQuoteRune},
 	} {
-		got, _ := unQuote(each.input)
+		got, gotRune := unQuote(each.input)
+		if gotRune != each.quoteRune {
+			t.Errorf("[%d] got [%v] want [%v]", i, gotRune, each.quoteRune)
+		}
 		want := each.output
 		if got != want {
 			t.Errorf("[%d] got [%s] want [%s]", i, got, want)
