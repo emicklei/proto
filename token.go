@@ -119,25 +119,25 @@ func isComment(lit string) bool {
 	return strings.HasPrefix(lit, "//") || strings.HasPrefix(lit, "/*")
 }
 
-func unQuote(lit string) string {
-	lit = strings.TrimLeft(lit, "\"'")
-	array := []rune(lit)
-	// https://github.com/emicklei/proto/issues/103
-	// cannot use strconv.Unquote as this unescapes quotes
-	for len(array) > 0 {
-		last := array[len(array)-1]
-		if last != '\'' && last != '"' {
-			break
-		}
-		if len(array) > 1 {
-			secondLast := array[len(array)-2]
-			if secondLast == '\\' {
-				break
-			}
-		}
-		array = array[:len(array)-1]
+const doubleQuoteRune = rune('"')
+
+// unQuote removes one matching leading and trailing single or double quote.
+//
+// https://github.com/emicklei/proto/issues/103
+// cannot use strconv.Unquote as this unescapes quotes.
+func unQuote(lit string) (string, rune) {
+	if len(lit) < 2 {
+		return lit, doubleQuoteRune
 	}
-	return string(array)
+	chars := []rune(lit)
+	first, last := chars[0], chars[len(chars)-1]
+	if first != last {
+		return lit, doubleQuoteRune
+	}
+	if s := string(chars[0]); s == "\"" || s == stringWithSingleQuote {
+		return string(chars[1 : len(chars)-1]), chars[0]
+	}
+	return lit, doubleQuoteRune
 }
 
 func asToken(literal string) token {

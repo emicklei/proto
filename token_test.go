@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Ernest Micklei
+// Copyright (c) 2019 Ernest Micklei
 //
 // MIT License
 //
@@ -23,44 +23,31 @@
 
 package proto
 
-import (
-	"text/scanner"
-)
+import "testing"
 
-// Syntax should have value "proto"
-type Syntax struct {
-	Position      scanner.Position
-	Comment       *Comment
-	Value         string
-	InlineComment *Comment
-	Parent        Visitee
-}
-
-func (s *Syntax) parse(p *Parser) error {
-	if _, tok, lit := p.next(); tok != tEQUALS {
-		return p.unexpected(lit, "syntax =", s)
+func TestUnQuoteCases(t *testing.T) {
+	singleQuoteRune := rune('\'')
+	for i, each := range []struct {
+		input, output string
+		quoteRune     rune
+	}{
+		{"thanos", "thanos", doubleQuoteRune},
+		{"`bucky`", "`bucky`", doubleQuoteRune},
+		{"'nat", "'nat", doubleQuoteRune},
+		{"'bruce'", "bruce", singleQuoteRune},
+		{"\"tony\"", "tony", doubleQuoteRune},
+		{"\"'\"\"'  -> \"\"\"\"\"\"", `'""'  -> """""`, doubleQuoteRune},
+		{`"''"`, "''", doubleQuoteRune},
+		{"''", "", singleQuoteRune},
+		{"", "", doubleQuoteRune},
+	} {
+		got, gotRune := unQuote(each.input)
+		if gotRune != each.quoteRune {
+			t.Errorf("[%d] got [%v] want [%v]", i, gotRune, each.quoteRune)
+		}
+		want := each.output
+		if got != want {
+			t.Errorf("[%d] got [%s] want [%s]", i, got, want)
+		}
 	}
-	_, _, lit := p.next()
-	if !isString(lit) {
-		return p.unexpected(lit, "syntax string constant", s)
-	}
-	s.Value, _ = unQuote(lit)
-	return nil
 }
-
-// Accept dispatches the call to the visitor.
-func (s *Syntax) Accept(v Visitor) {
-	v.VisitSyntax(s)
-}
-
-// Doc is part of Documented
-func (s *Syntax) Doc() *Comment {
-	return s.Comment
-}
-
-// inlineComment is part of commentInliner.
-func (s *Syntax) inlineComment(c *Comment) {
-	s.InlineComment = c
-}
-
-func (s *Syntax) parent(v Visitee) { s.Parent = v }

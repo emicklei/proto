@@ -47,7 +47,7 @@ func (i *Import) parse(p *Parser) error {
 		i.Kind = lit
 		return i.parse(p)
 	case tIDENT:
-		i.Filename = unQuote(lit)
+		i.Filename, _ = unQuote(lit)
 	default:
 		return p.unexpected(lit, "import classifier weak|public|quoted", i)
 	}

@@ -41,6 +41,11 @@ Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (
 		fmt.Println(m.Name)
 	}
 
+### validation
+
+Current parser implementation is not completely validating `.proto` definitions.
+In many but not all cases, the parser will report syntax errors when reading unexpected charaters or tokens.
+Use some linting tools (e.g. https://github.com/uber/prototool) or `protoc` for full validation.
 
 ### contributions
 

@@ -125,11 +125,17 @@ type Literal struct {
 	Position scanner.Position
 	Source   string
 	IsString bool
+
+	// The rune use to delimit the string value (only valid iff IsString)
+	QuoteRune rune
+
 	// literal value can be an array literal value (even nested)
 	Array []*Literal
+
 	// literal value can be a map of literals (even nested)
 	// DEPRECATED: use OrderedMap instead
 	Map map[string]*Literal
+
 	// literal value can be a map of literals (even nested)
 	// this is done as pairs of name keys and literal values so the original ordering is preserved
 	OrderedMap LiteralMap
@@ -150,15 +156,15 @@ func (m LiteralMap) Get(key string) (*Literal, bool) {
 	return new(Literal), false
 }
 
-// SourceRepresentation returns the source (if quoted then use double quote).
+// SourceRepresentation returns the source (use the same rune that was used to delimit the string).
 func (l Literal) SourceRepresentation() string {
 	var buf bytes.Buffer
 	if l.IsString {
-		buf.WriteRune('"')
+		buf.WriteRune(l.QuoteRune)
 	}
 	buf.WriteString(l.Source)
 	if l.IsString {
-		buf.WriteRune('"')
+		buf.WriteRune(l.QuoteRune)
 	}
 	return buf.String()
 }
@@ -222,7 +228,7 @@ func (l *Literal) parse(p *Parser) error {
 	source := lit
 	iss := isString(lit)
 	if iss {
-		source = unQuote(source)
+		source, l.QuoteRune = unQuote(source)
 	}
 	l.Position, l.Source, l.IsString = pos, source, iss
 
@@ -230,7 +236,8 @@ func (l *Literal) parse(p *Parser) error {
 	for {
 		pos, tok, lit := p.next()
 		if isString(lit) {
-			l.Source += unQuote(lit)
+			line, _ := unQuote(lit)
+			l.Source += line
 		} else {
 			p.nextPut(pos, tok, lit)
 			break
@@ -331,7 +338,8 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		// workaround issue #59 TODO
 		if isString(lit) && len(list) > 0 {
 			// concatenate with previous constant
-			list[len(list)-1].Source += unQuote(lit)
+			s, _ := unQuote(lit)
+			list[len(list)-1].Source += s
 			continue
 		}
 		key := lit
