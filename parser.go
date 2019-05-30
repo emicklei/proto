@@ -221,7 +221,7 @@ func (p *Parser) nextIdent(keywordStartAllowed bool) (pos scanner.Position, tok 
 	fullLit := lit
 	// see if identifier is namespaced
 	for {
-		r := p.scanner.Peek()
+		r := p.peekNonWhitespace()
 		if '.' != r {
 			break
 		}

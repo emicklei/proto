@@ -24,7 +24,6 @@
 package proto
 
 import (
-	"fmt"
 	"text/scanner"
 )
 
@@ -93,14 +92,6 @@ done:
 func parseFieldAfterType(f *Field, p *Parser) error {
 	pos, tok, lit := p.next()
 	if tok != tIDENT {
-		if tok == tDOT {
-			// extend the type of field with the next identifier to scan and recurse
-			pos, tok, lit = p.next()
-			if tok == tIDENT {
-				f.Type = fmt.Sprintf("%s.%s", f.Type, lit)
-				return parseFieldAfterType(f, p)
-			}
-		}
 		if !isKeyword(tok) {
 			return p.unexpected(lit, "field identifier", f)
 		}
