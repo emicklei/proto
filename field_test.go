@@ -196,3 +196,14 @@ func TestFieldTypeStartsWithDot(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestMultiLineFieldType(t *testing.T) {
+	src := `google.ads.googleads.v1.enums.ConversionAdjustmentTypeEnum
+	.ConversionAdjustmentType adjustment_type = 5;`
+	p := newParserOn(src)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
