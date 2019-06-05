@@ -720,3 +720,13 @@ func TestWhatYouTypeIsWhatYouGetOptionValue(t *testing.T) {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
+
+func TestLiteralNoQuoteRuneSet(t *testing.T) {
+	l := Literal{
+		Source:   "foo",
+		IsString: true,
+	}
+	if got, want := l.SourceRepresentation(), "\"foo\""; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+}
