@@ -141,6 +141,8 @@ type Literal struct {
 	OrderedMap LiteralMap
 }
 
+var emptyRune rune
+
 // LiteralMap is like a map of *Literal but preserved the ordering.
 // Can be iterated yielding *NamedLiteral values.
 type LiteralMap []*NamedLiteral
@@ -160,11 +162,19 @@ func (m LiteralMap) Get(key string) (*Literal, bool) {
 func (l Literal) SourceRepresentation() string {
 	var buf bytes.Buffer
 	if l.IsString {
-		buf.WriteRune(l.QuoteRune)
+		if l.QuoteRune == emptyRune {
+			buf.WriteRune('"')
+		} else {
+			buf.WriteRune(l.QuoteRune)
+		}
 	}
 	buf.WriteString(l.Source)
 	if l.IsString {
-		buf.WriteRune(l.QuoteRune)
+		if l.QuoteRune == emptyRune {
+			buf.WriteRune('"')
+		} else {
+			buf.WriteRune(l.QuoteRune)
+		}
 	}
 	return buf.String()
 }
