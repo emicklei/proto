@@ -281,3 +281,18 @@ func TestCommentAssociation(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestCommentInOptionValue(t *testing.T) {
+	src := `syntax = "proto3";
+message Foo {
+  string bar = 1 [
+    // comment 
+    deprecated=true
+  ];
+}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
