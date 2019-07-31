@@ -286,13 +286,24 @@ func TestCommentInOptionValue(t *testing.T) {
 	src := `syntax = "proto3";
 message Foo {
   string bar = 1 [
-    // comment 
+	// comment
+	// me
     deprecated=true
   ];
 }`
 	p := newParserOn(src)
-	_, err := p.Parse()
+	def, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
+	}
+	o := def.Elements[1].(*Message).elements()[0].(*NormalField).Options[0]
+	if got, want := o.Name, "deprecated"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := len(o.Comment.Lines), 2; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
+	}
+	if got, want := o.Comment.Lines[1], " me"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
