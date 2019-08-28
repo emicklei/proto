@@ -71,7 +71,8 @@ func (p *Parser) handleScanError(s *scanner.Scanner, msg string) {
 func (p *Parser) ignoreIllegalEscapesWhile(block func()) {
 	// during block call change error handler
 	p.scanner.Error = func(s *scanner.Scanner, msg string) {
-		if strings.Contains(msg, "illegal char escape") { // too bad there is no constant for this in scanner pkg
+		// this catches both "illegal char escape" <= go1.12 and "invalid char escape" go1.13
+		if strings.Contains(msg, "char escape") { // too bad there is no constant for this in scanner pkg
 			return
 		}
 		p.handleScanError(s, msg)
