@@ -60,6 +60,15 @@ func (o *Option) parse(p *Parser) error {
 		}
 		o.Name = fmt.Sprintf("(%s)", lit)
 	} else {
+		if tCOMMENT == tok {
+			nc := newComment(pos, lit)
+			if o.Comment != nil {
+				o.Comment.Merge(nc)
+			} else {
+				o.Comment = nc
+			}
+			return o.parse(p)
+		}
 		// non full ident
 		if tIDENT != tok {
 			if !isKeyword(tok) {
