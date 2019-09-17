@@ -142,3 +142,25 @@ func TestOneOfWithOption(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestOneofInlineCommentBeforeBody(t *testing.T) {
+	src := `oneof BarOption // BarOption
+	  // with another line
+	  {
+		  name string = 1;
+	  } 
+	`
+	p := newParserOn(src)
+	oneof := new(Oneof)
+	p.next()
+	if err := oneof.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	nestedComment := oneof.Elements[0].(*Comment)
+	if nestedComment == nil {
+		t.Fatal("expected comment present")
+	}
+	if got, want := len(nestedComment.Lines), 2; got != want {
+		t.Errorf("got %d want %d lines", got, want)
+	}
+}
