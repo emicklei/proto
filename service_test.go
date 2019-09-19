@@ -183,3 +183,27 @@ func TestRPCWithTypeThatHasLeadingDot(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestServiceInlineCommentBeforeBody(t *testing.T) {
+	src := `service BarService // BarService
+	  // with another line
+	  {
+		rpc Foo (Void) returns (Magic) // FooRPC {
+			// yet another line
+		}
+	  } 
+	`
+	p := newParserOn(src)
+	svc := new(Service)
+	p.next()
+	if err := svc.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	nestedComment := svc.Elements[0].(*Comment)
+	if nestedComment == nil {
+		t.Fatal("expected comment present")
+	}
+	if got, want := len(nestedComment.Lines), 2; got != want {
+		t.Errorf("got %d want %d lines", got, want)
+	}
+}
