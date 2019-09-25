@@ -64,6 +64,7 @@ func (o *Oneof) parse(p *Parser) error {
 		}
 	}
 	o.Name = lit
+	consumeCommentFor(p, o)
 	pos, tok, lit = p.next()
 	if tok != tLEFTCURLY {
 		return p.unexpected(lit, "oneof opening {", o)

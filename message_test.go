@@ -152,3 +152,25 @@ func TestSingleQuotedReservedNames(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestMessageInlineCommentBeforeBody(t *testing.T) {
+	src := `message BarMessage // BarMessage
+	  // with another line
+	  {
+		  name string = 1;
+	  } 
+	`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	nestedComment := msg.Elements[0].(*Comment)
+	if nestedComment == nil {
+		t.Fatal("expected comment present")
+	}
+	if got, want := len(nestedComment.Lines), 2; got != want {
+		t.Errorf("got %d want %d lines", got, want)
+	}
+}

@@ -28,7 +28,9 @@ import "testing"
 func TestGroup(t *testing.T) {
 	oto := `message M {
 		// group
-        optional group OptionalGroup = 16 {
+		optional group OptionalGroup = 16 // group comment 1
+			// group comment 2 
+		{
 			// field
             optional int32 a = 17;
         }
@@ -45,7 +47,7 @@ func TestGroup(t *testing.T) {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	g := m.Elements[0].(*Group)
-	if got, want := len(g.Elements), 1; got != want {
+	if got, want := len(g.Elements), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 	if got, want := g.Position.Line, 3; got != want {
@@ -54,7 +56,7 @@ func TestGroup(t *testing.T) {
 	if got, want := g.Comment != nil, true; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	f := g.Elements[0].(*NormalField)
+	f := g.Elements[1].(*NormalField)
 	if got, want := f.Name, "a"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}

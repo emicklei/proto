@@ -142,3 +142,26 @@ func TestEnumWithHex(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestEnumInlineCommentBeforeBody(t *testing.T) {
+	src := `enum BarEnum // BarEnum
+	  // with another line
+	  {
+		  BAR_TYPE_INVALID= 0;
+		  BAR_TYPE_BAD = 1;
+	  } 
+	`
+	p := newParserOn(src)
+	e := new(Enum)
+	p.next()
+	if err := e.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	nestedComment := e.Elements[0].(*Comment)
+	if nestedComment == nil {
+		t.Fatal("expected comment present")
+	}
+	if got, want := len(nestedComment.Lines), 2; got != want {
+		t.Errorf("got %d want %d lines", got, want)
+	}
+}
