@@ -120,6 +120,11 @@ func (o *Oneof) Accept(v Visitor) {
 	v.VisitOneof(o)
 }
 
+// Doc is part of Documented
+func (o *Oneof) Doc() *Comment {
+	return o.Comment
+}
+
 // OneOfField is part of Oneof.
 type OneOfField struct {
 	*Field
