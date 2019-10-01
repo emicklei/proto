@@ -164,3 +164,29 @@ func TestOneofInlineCommentBeforeBody(t *testing.T) {
 		t.Errorf("got %d want %d lines", got, want)
 	}
 }
+
+func TestOneOfDocumented(t *testing.T) {
+	src := `message Value {
+	// documented
+	oneof Foo {
+		int32 oneof_field = 1;
+	}
+}`
+	p := newParserOn(src)
+	def := new(Proto)
+	err := def.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := def.Elements[0].(*Message)
+	if len(m.Elements) != 1 {
+		t.Errorf("expected one element but got %d", len(m.Elements))
+	}
+	o := m.Elements[0].(*Oneof)
+	if len(o.Elements) != 1 {
+		t.Errorf("expected one element but got %d", len(o.Elements))
+	}
+	if Documented(o).Doc() == nil {
+		t.Fatal("doc expected")
+	}
+}
