@@ -95,3 +95,12 @@ func WithRPC(apply func(*RPC)) Handler {
 		}
 	}
 }
+
+// WithPackage returns a Handler that will call the apply function when the Visitee is a Package.
+func WithPackage(apply func(*Package)) Handler {
+	return func(v Visitee) {
+		if s, ok := v.(*Package); ok {
+			apply(s)
+		}
+	}
+}

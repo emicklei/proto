@@ -23,6 +23,10 @@ func TestWalkGoogleApisDLP(t *testing.T) {
 	}
 	proto := fetchAndParse(t, "https://raw.githubusercontent.com/gogo/protobuf/master/test/theproto3/theproto3.proto")
 	count := counter{counts: map[string]int{}}
-	Walk(proto, WithService(count.handleService), WithRPC(count.handleRPC))
+	Walk(proto,
+		WithPackage(func(p *Package) {
+			t.Log("package:", p.Name)
+		}),
+		WithService(count.handleService), WithRPC(count.handleRPC))
 	t.Logf("%#v", count)
 }
