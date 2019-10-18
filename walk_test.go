@@ -17,6 +17,10 @@ func (c counter) handleRPC(r *RPC) {
 	c.counts["rpc"] = c.counts["rpc"] + 1
 }
 
+func (c counter) handleImport(r *Import) {
+	c.counts["import"] = c.counts["import"] + 1
+}
+
 func TestWalkGoogleApisDLP(t *testing.T) {
 	if len(os.Getenv("PB")) == 0 {
 		t.Skip("PB test not run")
@@ -27,6 +31,9 @@ func TestWalkGoogleApisDLP(t *testing.T) {
 		WithPackage(func(p *Package) {
 			t.Log("package:", p.Name)
 		}),
-		WithService(count.handleService), WithRPC(count.handleRPC))
+		WithService(count.handleService),
+		WithRPC(count.handleRPC),
+		WithImport(count.handleImport),
+	)
 	t.Logf("%#v", count)
 }

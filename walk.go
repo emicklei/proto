@@ -42,6 +42,15 @@ func walk(container elementContainer, handlers ...Handler) {
 	}
 }
 
+// WithImport returns a Handler that will call the apply function when the Visitee is an Import.
+func WithImport(apply func(*Import)) Handler {
+	return func(v Visitee) {
+		if s, ok := v.(*Import); ok {
+			apply(s)
+		}
+	}
+}
+
 // WithMessage returns a Handler that will call the apply function when the Visitee is a Message.
 func WithMessage(apply func(*Message)) Handler {
 	return func(v Visitee) {
