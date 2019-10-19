@@ -1,3 +1,7 @@
+## v1.8.0
+
+- Add WithImport handler.
+
 ## v1.7.0
 
 - Add WithPackage handler for walking a proto.
