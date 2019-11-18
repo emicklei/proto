@@ -64,6 +64,7 @@ func TestOneof(t *testing.T) {
 	if got, want := second.Position.Line, 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(second.Options[0], t)
 }
 
 func TestFieldOneofImported(t *testing.T) {

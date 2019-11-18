@@ -81,7 +81,7 @@ func (o *Oneof) parse(p *Parser) error {
 			f.Position = pos
 			f.Comment, o.Elements = takeLastCommentIfEndsOnLine(o.elements(), pos.Line-1) // TODO call takeLastComment instead?
 			f.Type = lit
-			if err := parseFieldAfterType(f.Field, p); err != nil {
+			if err := parseFieldAfterType(f.Field, p, f); err != nil {
 				return err
 			}
 			o.addElement(f)

@@ -62,6 +62,7 @@ func TestField(t *testing.T) {
 	if got, want := f.Options[2].Constant.Source, "happy"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(f.Options[0], t)
 }
 
 func TestFieldSimple(t *testing.T) {
@@ -105,7 +106,7 @@ func TestFieldSyntaxErrors(t *testing.T) {
 }
 
 func TestMapField(t *testing.T) {
-	proto := ` <string, Project> projects = 3;`
+	proto := ` <string, Project> projects = 3 [foo=bar];`
 	p := newParserOn(proto)
 	f := newMapField()
 	err := f.parse(p)
@@ -124,6 +125,7 @@ func TestMapField(t *testing.T) {
 	if got, want := f.Sequence, 3; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(f.Options[0], t)
 }
 
 func TestMapFieldWithDotTypes(t *testing.T) {
