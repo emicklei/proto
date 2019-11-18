@@ -139,9 +139,11 @@ func TestOneOfWithOption(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := oneof.Elements[0].(*Option).Name, "(oneof_opt1)"; got != want {
+	option := oneof.Elements[0].(*Option)
+	if got, want := option.Name, "(oneof_opt1)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(option, t)
 }
 
 func TestOneofInlineCommentBeforeBody(t *testing.T) {

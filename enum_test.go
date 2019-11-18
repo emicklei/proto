@@ -94,6 +94,9 @@ enum EnumAllowingAlias {
 	if got, want := e2fn1, "WORLD"; got != want {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
+	// enum option
+	checkParent(enums[0].Elements[2].(*Option), t)
+	// enum values
 	ef1 := enums[0].Elements[3].(*EnumField)
 	if got, want := ef1.Integer, 0; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -109,6 +112,7 @@ enum EnumAllowingAlias {
 	if got, want := ef3opt.Name, "(custom_option)"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(ef3.Elements[0].(*Option), t)
 	// test for deprecated field
 	if got, want := ef3opt, ef3.ValueOption; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)

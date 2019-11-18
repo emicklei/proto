@@ -138,6 +138,7 @@ func TestServiceWithOption(t *testing.T) {
 	if got, want := svc.Elements[0].(*Option).Name, "secure"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(svc.Elements[0].(*Option), t)
 }
 
 func TestRPCWithOneLineCommentInOptionBlock(t *testing.T) {
