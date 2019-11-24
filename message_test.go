@@ -70,6 +70,7 @@ func TestMessage(t *testing.T) {
 	if got, want := m.Elements[3].(*Message).Elements[0].(*NormalField).Position.Line, 13; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	checkParent(m.Elements[5].(*Option), t)
 }
 
 func TestRepeatedGroupInMessage(t *testing.T) {
