@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/emicklei/proto)](https://goreportcard.com/report/github.com/emicklei/proto)
 [![GoDoc](https://godoc.org/github.com/emicklei/proto?status.svg)](https://godoc.org/github.com/emicklei/proto)
 
-Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3] (https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
+Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
 
 ### install
 
