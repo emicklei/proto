@@ -104,6 +104,18 @@ func TestNextIdentifierWithKeyword(t *testing.T) {
 	}
 }
 
+func TestNextTypeNameWithLeadingKeyword(t *testing.T) {
+	ident := " service.me.now"
+	p := newParserOn(ident)
+	_, tok, lit := p.nextTypeName()
+	if got, want := tok, tIDENT; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := lit, "service.me.now"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestNextIdentifierNoIdent(t *testing.T) {
 	ident := "("
 	p := newParserOn(ident)
