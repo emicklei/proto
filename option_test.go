@@ -407,9 +407,9 @@ func TestNestedAggregateConstants(t *testing.T) {
 	if got, want := len(option.AggregatedConstants), 4; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	for _, each := range option.AggregatedConstants {
-		t.Logf("%#v=%v\n", each, each.SourceRepresentation())
-	}
+	// for _, each := range option.AggregatedConstants {
+	// 	t.Logf("%#v=%v\n", each, each.SourceRepresentation())
+	// }
 }
 
 // Issue #59
@@ -515,9 +515,9 @@ func TestUseOfSemicolonsInAggregatedConstants(t *testing.T) {
 	if got, want := body.Source, "*"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	for _, each := range opt.Constant.OrderedMap {
-		t.Log(each)
-	}
+	// for _, each := range opt.Constant.OrderedMap {
+	// 	t.Log(each)
+	// }
 }
 
 func TestParseNestedSelectorInAggregatedConstant(t *testing.T) {
