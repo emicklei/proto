@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/emicklei/proto.png)](https://travis-ci.org/emicklei/proto)
 [![Go Report Card](https://goreportcard.com/badge/github.com/emicklei/proto)](https://goreportcard.com/report/github.com/emicklei/proto)
-[![GoDoc](https://godoc.org/github.com/emicklei/proto?status.svg)](https://godoc.org/github.com/emicklei/proto)
+[![GoDoc](https://pkg.go.dev/badge/github.com/emicklei/proto)](https://pkg.go.dev/github.com/emicklei/proto)
+[![codecov](https://codecov.io/gh/emicklei/proto/branch/master/graph/badge.svg)](https://codecov.io/gh/emicklei/proto)
 
 Package in Go for parsing Google Protocol Buffers [.proto files version 2 + 3](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
 
