@@ -1,3 +1,11 @@
+## v1.9.1
+
+- fix for issue #127 reserved keyword as suffix in type (#128)
+
+## v1.9.0
+
+- Fix & guard Parent value for options (#124)  
+
 ## v1.8.0
 
 - Add WithImport handler.
