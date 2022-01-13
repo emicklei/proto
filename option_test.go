@@ -730,3 +730,14 @@ func TestLiteralNoQuoteRuneSet(t *testing.T) {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
+
+func TestStringValuesParsedAsNumbers(t *testing.T) {
+	src := `VAL0 = 0 [(enum_opt) = '09'];`
+	f := new(EnumField)
+	if err := f.parse(newParserOn(src)); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.ValueOption.Constant.Source, "09"; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+}
