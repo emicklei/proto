@@ -1,3 +1,7 @@
+## v1.9.2
+
+- fix for scanning content of single-quote option values (#129)
+
 ## v1.9.1
 
 - fix for issue #127 reserved keyword as suffix in type (#128)
