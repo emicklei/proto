@@ -72,7 +72,6 @@ func (n NoopVisitor) VisitRPC(r *RPC) {}
 // VisitMapField is part of Visitor interface
 func (n NoopVisitor) VisitMapField(f *MapField) {}
 
-// proto2
 // VisitGroup is part of Visitor interface
 func (n NoopVisitor) VisitGroup(g *Group) {}
 
