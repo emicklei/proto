@@ -21,6 +21,10 @@ func (c counter) handleImport(r *Import) {
 	c.counts["import"] = c.counts["import"] + 1
 }
 
+func (c counter) handleNormalField(r *NormalField) {
+	c.counts["normal field"] = c.counts["import"] + 1
+}
+
 func TestWalkGoogleApisDLP(t *testing.T) {
 	if len(os.Getenv("PB")) == 0 {
 		t.Skip("PB test not run")
@@ -34,6 +38,7 @@ func TestWalkGoogleApisDLP(t *testing.T) {
 		WithService(count.handleService),
 		WithRPC(count.handleRPC),
 		WithImport(count.handleImport),
+		WithNormalField(count.handleNormalField),
 	)
 	t.Logf("%#v", count)
 }
