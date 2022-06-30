@@ -1,3 +1,7 @@
+## v1.11.0
+
+- added WithNormalField handler
+
 ## v1.10.0
 
 - added NoopVisitor and updated README with an example
