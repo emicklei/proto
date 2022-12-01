@@ -1,3 +1,7 @@
+## v1.11.1 (2022-12-01)
+
+- added Doc for MapField so it implements Documented
+
 ## v1.11.0
 
 - added WithNormalField handler
