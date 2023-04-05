@@ -181,3 +181,18 @@ func TestParseSingleQuotesStrings(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestProtoIssue132(t *testing.T) {
+	src := `syntax = "proto3";
+package tutorial;
+message Person {
+  string name = 1;
+  int32 id = 0x2;  // Unique ID number for this person.
+  string email = 0X3; // parser.Parse err <input>:8:18: found "=" but expected [field sequence number]
+}`
+	p := newParserOn(src)
+	_, err := p.Parse()
+	if err != nil {
+		t.Error(err)
+	}
+}
