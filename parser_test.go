@@ -196,3 +196,36 @@ message Person {
 		t.Error(err)
 	}
 }
+
+func TestReservedNegativeRanges(t *testing.T) {
+	r := new(Reserved)
+	p := newParserOn(`reserved -1;`)
+	_, tok, _ := p.next()
+	if tRESERVED != tok {
+		t.Fail()
+	}
+	err := r.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := r.Ranges[0].SourceRepresentation(), "-1"; got != want {
+		t.Fatalf("got [%v] want [%v]", got, want) // reserved_test.go:59: got [1] want [-1]
+	}
+}
+
+func TestParseNegativeEnum(t *testing.T) {
+	const def = `
+syntax = "proto3";
+package example;
+
+enum Value {
+  ZERO = 0;
+  reserved -2, -1;
+}`
+
+	p := NewParser(strings.NewReader(def))
+	_, err := p.Parse()
+	if err != nil {
+		t.Fatal(err) // <input>:7:16: found "-" but expected [range integer]
+	}
+}
