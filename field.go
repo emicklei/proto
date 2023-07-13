@@ -185,3 +185,15 @@ func (f *MapField) parse(p *Parser) error {
 }
 
 func (f *Field) parent(v Visitee) { f.Parent = v }
+
+const optionNameDeprecated = "deprecated"
+
+// IsDeprecated returns true if the option "deprecated" is set with value "true".
+func (f *Field) IsDeprecated() bool {
+	for _, each := range f.Options {
+		if each.Name == optionNameDeprecated {
+			return each.Constant.Source == "true"
+		}
+	}
+	return false
+}
