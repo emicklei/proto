@@ -1,3 +1,7 @@
+## v1.12.0 (2023-07-14)
+
+- add IsDeprecated on Field
+
 ## v1.11.2 (2023-05-01)
 
 - fix Parse failure on negative reserved enums (#133)
