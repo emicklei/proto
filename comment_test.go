@@ -300,6 +300,9 @@ message Foo {
 	if got, want := o.Name, "deprecated"; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
+	if got, want := def.Elements[1].(*Message).elements()[0].(*NormalField).IsDeprecated(), true; got != want {
+		t.Errorf("got [%v]:%T want [%v]:%T", got, got, want, want)
+	}
 	if got, want := len(o.Comment.Lines), 2; got != want {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
