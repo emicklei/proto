@@ -147,6 +147,28 @@ func TestEnumWithHex(t *testing.T) {
 	}
 }
 
+func TestEnumWithDeprecatedField(t *testing.T) {
+	src := `enum Flags {
+		  OLD = 1 [deprecated = true];
+		  NEW = 2;
+		}`
+	p := newParserOn(src)
+	enum := new(Enum)
+	p.next()
+	if err := enum.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := len(enum.Elements), 2; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := enum.Elements[0].(*EnumField).IsDeprecated(), true; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := enum.Elements[1].(*EnumField).IsDeprecated(), false; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestEnumInlineCommentBeforeBody(t *testing.T) {
 	src := `enum BarEnum // BarEnum
 	  // with another line
