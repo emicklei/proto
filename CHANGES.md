@@ -1,3 +1,7 @@
+## v1.12.1 (2023-07-18)
+
+- add IsDeprecated on EnumField
+
 ## v1.12.0 (2023-07-14)
 
 - add IsDeprecated on Field
