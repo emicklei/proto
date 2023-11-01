@@ -135,6 +135,10 @@ type Literal struct {
 	Source   string
 	IsString bool
 
+	// It not nil then the entry is actually a comment with line(s)
+	// modelled this way because Literal is not an elementContainer
+	Comment *Comment
+
 	// The rune use to delimit the string value (only valid iff IsString)
 	QuoteRune rune
 
@@ -191,6 +195,17 @@ func (l Literal) SourceRepresentation() string {
 // parse expects to read a literal constant after =.
 func (l *Literal) parse(p *Parser) error {
 	pos, tok, lit := p.next()
+	// handle special element inside literal, a comment line
+	if isComment(lit) {
+		nc := newComment(pos, lit)
+		if l.Comment == nil {
+			l.Comment = nc
+		} else {
+			l.Comment.Merge(nc)
+		}
+		// continue with remaining entries
+		return l.parse(p)
+	}
 	if tok == tLEFTSQUARE {
 		// collect array elements
 		array := []*Literal{}

@@ -741,3 +741,30 @@ func TestStringValuesParsedAsNumbers(t *testing.T) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }
+
+func TestCommentInsideArray(t *testing.T) {
+	src := `option test = {
+			scope_rules : [
+			  // A comment
+			  // Another comment
+			  {has : [ 
+				// comment on test
+				"test" 
+			  ]}
+			]
+		  };
+		`
+	opt, err := newParserOn(src).Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	opt2 := opt.Elements[0].(*Option)
+	scp, _ := opt2.Constant.OrderedMap.Get("scope_rules")
+	elem0 := scp.Array[0]
+	t.Log("comment:", elem0.Comment.Lines)
+	has, _ := elem0.OrderedMap.Get("has")
+	if got, want := has.Array[0].Source, "test"; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+	t.Log("comment:", has.Array[0].Comment.Lines)
+}
