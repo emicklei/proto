@@ -1,3 +1,8 @@
+## v1.12.2 (2023-11-02)
+
+- allow comments in array of literals of option (#138)
+- adds Comment field in Literal
+
 ## v1.12.1 (2023-07-18)
 
 - add IsDeprecated on EnumField
