@@ -23,7 +23,9 @@
 
 package proto
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestEnum(t *testing.T) {
 	proto := `
@@ -189,5 +191,34 @@ func TestEnumInlineCommentBeforeBody(t *testing.T) {
 	}
 	if got, want := len(nestedComment.Lines), 2; got != want {
 		t.Errorf("got %d want %d lines", got, want)
+	}
+}
+
+func TestEnumFieldWalkWithComment(t *testing.T) {
+	src := `enum HideIt
+	  {
+		  PRIVATE = 1 [
+			// hidden
+			// field
+			(google.api.value_visibility).restriction = "HIDDEN"
+		  ];
+	  }
+	`
+	p := newParserOn(src)
+	e := new(Enum)
+	p.next()
+	if err := e.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	var name, msg string
+	walk(e, WithOption(func(o *Option) {
+		name = o.Name
+		msg = o.Comment.Message()
+	}))
+	if got, want := name, "(google.api.value_visibility).restriction"; got != want {
+		t.Errorf("got [%v]:%T want [%v]:%T", got, got, want, want)
+	}
+	if got, want := msg, " hidden"; got != want {
+		t.Errorf("got [%v]:%T want [%v]:%T", got, got, want, want)
 	}
 }
