@@ -1,3 +1,7 @@
+## v1.13.0 (2023-12-09)
+
+- walk options in Enum fields (#140)
+
 ## v1.12.2 (2023-11-02)
 
 - allow comments in array of literals of option (#138)
