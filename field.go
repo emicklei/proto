@@ -100,7 +100,7 @@ func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
 	expectedToken := tIDENT
 	expected := "field identifier"
 
-	for expectedToken != -1 {
+	for {
 		pos, tok, lit := p.next()
 		if tok == tCOMMENT {
 			c := newComment(pos, lit)
@@ -113,33 +113,31 @@ func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
 		}
 		if tok != expectedToken {
 			return p.unexpected(lit, expected, f)
-		} else {
-			// found expected token
-			if tok == tIDENT {
-				if isKeyword(tok) {
-					return p.unexpected(lit, expected, f)
-				}
-				f.Name = lit
-				expectedToken = tEQUALS
-				expected = "field ="
-				continue
+		}
+		// found expected token
+		if tok == tIDENT {
+			if isKeyword(tok) {
+				return p.unexpected(lit, expected, f)
 			}
-			if tok == tEQUALS {
-				expectedToken = tNUMBER
-				expected = "field sequence number"
-				continue
+			f.Name = lit
+			expectedToken = tEQUALS
+			expected = "field ="
+			continue
+		}
+		if tok == tEQUALS {
+			expectedToken = tNUMBER
+			expected = "field sequence number"
+			continue
+		}
+		if tok == tNUMBER {
+			// put it back so we can use the generic nextInteger
+			p.nextPut(pos, tok, lit)
+			i, err := p.nextInteger()
+			if err != nil {
+				return p.unexpected(lit, expected, f)
 			}
-			if tok == tNUMBER {
-				// put it back so we can use the generic nextInteger
-				p.nextPut(pos, tok, lit)
-				i, err := p.nextInteger()
-				if err != nil {
-					return p.unexpected(lit, expected, f)
-				}
-				f.Sequence = i
-				expectedToken = -1
-				continue
-			}
+			f.Sequence = i
+			break
 		}
 	}
 	consumeFieldComments(f, p)
