@@ -68,8 +68,15 @@ func (f *NormalField) Doc() *Comment {
 // [ "repeated" | "optional" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
 func (f *NormalField) parse(p *Parser) error {
 	for {
-		_, tok, lit := p.nextTypeName()
+		pos, tok, lit := p.nextTypeName()
 		switch tok {
+		case tCOMMENT:
+			c := newComment(pos, lit)
+			if f.InlineComment == nil {
+				f.InlineComment = c
+			} else {
+				f.InlineComment.Merge(c)
+			}
 		case tREPEATED:
 			f.Repeated = true
 			return f.parse(p)
@@ -90,24 +97,53 @@ done:
 // parseFieldAfterType expects:
 // fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";
 func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
-	pos, tok, lit := p.next()
-	if tok != tIDENT {
-		if !isKeyword(tok) {
-			return p.unexpected(lit, "field identifier", f)
+	expectedToken := tIDENT
+	expected := "field identifier"
+
+	for expectedToken != -1 {
+		pos, tok, lit := p.next()
+		if tok == tCOMMENT {
+			c := newComment(pos, lit)
+			if f.InlineComment == nil {
+				f.InlineComment = c
+			} else {
+				f.InlineComment.Merge(c)
+			}
+			continue
+		}
+		if tok != expectedToken {
+			return p.unexpected(lit, expected, f)
+		} else {
+			// found expected token
+			if tok == tIDENT {
+				if isKeyword(tok) {
+					return p.unexpected(lit, expected, f)
+				}
+				f.Name = lit
+				expectedToken = tEQUALS
+				expected = "field ="
+				continue
+			}
+			if tok == tEQUALS {
+				expectedToken = tNUMBER
+				expected = "field sequence number"
+				continue
+			}
+			if tok == tNUMBER {
+				// put it back so we can use the generic nextInteger
+				p.nextPut(pos, tok, lit)
+				i, err := p.nextInteger()
+				if err != nil {
+					return p.unexpected(lit, expected, f)
+				}
+				f.Sequence = i
+				expectedToken = -1
+				continue
+			}
 		}
 	}
-	f.Name = lit
-	pos, tok, lit = p.next()
-	if tok != tEQUALS {
-		return p.unexpected(lit, "field =", f)
-	}
-	i, err := p.nextInteger()
-	if err != nil {
-		return p.unexpected(lit, "field sequence number", f)
-	}
-	f.Sequence = i
 	// see if there are options
-	pos, tok, _ = p.next()
+	pos, tok, lit := p.next()
 	if tLEFTSQUARE != tok {
 		p.nextPut(pos, tok, lit)
 		return nil

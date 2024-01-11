@@ -310,3 +310,26 @@ message Foo {
 		t.Fatalf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestNormalFieldInlineComment(t *testing.T) {
+	src := `message Example {
+		/* i'm */ optional /* a comment */ bool /* too */ field /* hard */ = /* to */ 1 /* read */;
+	}`
+	p := newParserOn(src)
+	def, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := def.Elements[0].(*Message)
+	f := m.Elements[1].(*NormalField)
+	lines := f.Field.InlineComment.Lines
+	if got, want := len(lines), 4; got != want {
+		t.Fatalf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+	if got, want := lines[0], " a comment "; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+	if got, want := lines[1], " too "; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+}
