@@ -323,13 +323,16 @@ func TestNormalFieldInlineComment(t *testing.T) {
 	m := def.Elements[0].(*Message)
 	f := m.Elements[1].(*NormalField)
 	lines := f.Field.InlineComment.Lines
-	if got, want := len(lines), 4; got != want {
+	if got, want := len(lines), 5; got != want {
 		t.Fatalf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 	if got, want := lines[0], " a comment "; got != want {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 	if got, want := lines[1], " too "; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+	if got, want := lines[4], " read "; got != want {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }

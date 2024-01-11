@@ -142,6 +142,8 @@ func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
 			}
 		}
 	}
+	consumeFieldComments(f, p)
+
 	// see if there are options
 	pos, tok, lit := p.next()
 	if tLEFTSQUARE != tok {
@@ -169,6 +171,21 @@ func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
 		}
 	}
 	return nil
+}
+
+func consumeFieldComments(f *Field, p *Parser) {
+	pos, tok, lit := p.next()
+	for tok == tCOMMENT {
+		c := newComment(pos, lit)
+		if f.InlineComment == nil {
+			f.InlineComment = c
+		} else {
+			f.InlineComment.Merge(c)
+		}
+		pos, tok, lit = p.next()
+	}
+	// no longer a comment, put it back
+	p.nextPut(pos, tok, lit)
 }
 
 // MapField represents a map entry in a message.
