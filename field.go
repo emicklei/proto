@@ -112,13 +112,16 @@ func parseFieldAfterType(f *Field, p *Parser, parent Visitee) error {
 			continue
 		}
 		if tok != expectedToken {
-			return p.unexpected(lit, expected, f)
+			// allow keyword as field name
+			if expectedToken == tIDENT && isKeyword(tok) {
+				// continue as identifier
+				tok = tIDENT
+			} else {
+				return p.unexpected(lit, expected, f)
+			}
 		}
 		// found expected token
 		if tok == tIDENT {
-			if isKeyword(tok) {
-				return p.unexpected(lit, expected, f)
-			}
 			f.Name = lit
 			expectedToken = tEQUALS
 			expected = "field ="

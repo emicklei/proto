@@ -175,3 +175,26 @@ func TestMessageInlineCommentBeforeBody(t *testing.T) {
 		t.Errorf("got %d want %d lines", got, want)
 	}
 }
+
+func TestMessageWithMessage(t *testing.T) {
+	src := `message message {
+		string message = 1;
+	}
+	`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := msg.Name, "message"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+	if got, want := len(msg.Elements), 1; got != want {
+		t.Errorf("got %d want %d elements", got, want)
+	}
+	f := msg.Elements[0].(*NormalField)
+	if got, want := f.Name, "message"; got != want {
+		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	}
+}
