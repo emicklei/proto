@@ -1,3 +1,7 @@
+## v1.13.1 (2024-01-24)
+
+- allow embedded comment in between normal field parts (#131)
+
 ## v1.13.0 (2023-12-09)
 
 - walk options in Enum fields (#140)
