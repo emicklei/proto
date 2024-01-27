@@ -1,3 +1,7 @@
+## v1.13.2 (2024-01-24)
+
+- allow keyword as field name (such as message,service, etc)
+
 ## v1.13.1 (2024-01-24)
 
 - allow embedded comment in between normal field parts (#131)
