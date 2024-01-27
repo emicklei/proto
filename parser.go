@@ -190,7 +190,7 @@ func (p *Parser) nextInteger() (i int, err error) {
 		i, err = p.nextInteger()
 		return i * -1, err
 	}
-	if tok != tIDENT {
+	if tok != tNUMBER {
 		return 0, errors.New("non integer")
 	}
 	if strings.HasPrefix(lit, "0x") || strings.HasPrefix(lit, "0X") {

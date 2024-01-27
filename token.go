@@ -24,6 +24,7 @@
 package proto
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -78,6 +79,9 @@ const (
 	tENUM
 	tSTREAM
 
+	// numbers (pos or neg, float)
+	tNUMBER
+
 	// BEGIN proto2
 	tOPTIONAL
 	tGROUP
@@ -117,6 +121,15 @@ func isString(lit string) bool {
 
 func isComment(lit string) bool {
 	return strings.HasPrefix(lit, "//") || strings.HasPrefix(lit, "/*")
+}
+
+func isNumber(lit string) bool {
+	if strings.HasPrefix(lit, "0x") || strings.HasPrefix(lit, "0X") {
+		_, err := strconv.ParseInt(lit, 0, 64)
+		return err == nil
+	}
+	_, err := strconv.ParseFloat(lit, 64)
+	return err == nil
 }
 
 const doubleQuoteRune = rune('"')
@@ -220,6 +233,9 @@ func asToken(literal string) token {
 		return tREQUIRED
 	default:
 		// special cases
+		if isNumber(literal) {
+			return tNUMBER
+		}
 		if isComment(literal) {
 			return tCOMMENT
 		}

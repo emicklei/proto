@@ -51,3 +51,22 @@ func TestUnQuoteCases(t *testing.T) {
 		}
 	}
 }
+
+func TestIsNumber(t *testing.T) {
+	for i, each := range []struct {
+		input    string
+		isNumber bool
+	}{
+		{`1`, true},
+		{`1.2`, true},
+		{`-1.02`, true},
+		{`a1`, false},
+		{`0x12`, true},
+		{`0X77777`, true},
+	} {
+		got := isNumber(each.input)
+		if got != each.isNumber {
+			t.Errorf("[%d] got [%v] want [%v]", i, got, each.isNumber)
+		}
+	}
+}
