@@ -65,6 +65,28 @@ func TestField(t *testing.T) {
 	checkParent(f.Options[0], t)
 }
 
+func TestFieldNoWhitespace(t *testing.T) {
+	proto := `string s=1[a=b];`
+	p := newParserOn(proto)
+	f := newNormalField()
+	err := f.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Type, "string"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Sequence, 1; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].Name, "a"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+	if got, want := f.Options[0].Constant.Source, "b"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestFieldSimple(t *testing.T) {
 	proto := `string optional_string_piece = 24 [ctype=STRING_PIECE];`
 	p := newParserOn(proto)
