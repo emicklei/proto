@@ -198,3 +198,31 @@ func TestMessageWithMessage(t *testing.T) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }
+
+func TestIssue143_Key(t *testing.T) {
+	t.Skip()
+	src := `message Msg {
+  option (option_name) = { [key]: value_name }; // this line fails parsing
+}`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+}
+func TestCommentsInFieldOptionsArray(t *testing.T) {
+	src := `message Msg {
+	repeated string strings_list = 5 [
+		// before
+		(validate.rules).repeated.max_items = 20 // inline
+		// after   
+	];
+}`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+}
