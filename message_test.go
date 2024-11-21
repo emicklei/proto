@@ -200,15 +200,60 @@ func TestMessageWithMessage(t *testing.T) {
 }
 
 func TestIssue143_Key(t *testing.T) {
-	t.Skip()
 	src := `message Msg {
-  option (option_name) = { [key]: value_name }; // this line fails parsing
+  option (option_name) = { [key]: value_name };
 }`
 	p := newParserOn(src)
 	msg := new(Message)
 	p.next()
 	if err := msg.parse(p); err != nil {
 		t.Fatal(err)
+	}
+	name := msg.Elements[0].(*Option).AggregatedConstants[0].Name
+	value := msg.Elements[0].(*Option).AggregatedConstants[0].Literal.Source
+	if got, want := name, "key"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+	if got, want := value, "value_name"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+}
+func TestIssue143_KeyDot(t *testing.T) {
+	src := `message Msg {
+  option (option_name) = { [key.dot]: value_name };
+}`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	name := msg.Elements[0].(*Option).AggregatedConstants[0].Name
+	value := msg.Elements[0].(*Option).AggregatedConstants[0].Literal.Source
+	if got, want := name, "key.dot"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+	if got, want := value, "value_name"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+}
+func TestIssue143_Keyword(t *testing.T) {
+	src := `message Msg {
+  option (option_name) = { [option.message]: repeated }; 
+}`
+	p := newParserOn(src)
+	msg := new(Message)
+	p.next()
+	if err := msg.parse(p); err != nil {
+		t.Fatal(err)
+	}
+	name := msg.Elements[0].(*Option).AggregatedConstants[0].Name
+	value := msg.Elements[0].(*Option).AggregatedConstants[0].Literal.Source
+	if got, want := name, "option.message"; got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+	if got, want := value, "repeated"; got != want {
+		t.Errorf("got %s want %s", got, want)
 	}
 }
 func TestCommentsInFieldOptionsArray(t *testing.T) {

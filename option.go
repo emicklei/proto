@@ -331,12 +331,12 @@ func (b byPosition) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
 	for {
-		pos, tok, lit := p.nextIdentifier()
-		if tRIGHTSQUARE == tok {
-			p.nextPut(pos, tok, lit)
-			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
-			return
-		}
+		_, tok, lit := p.nextMessageLiteralFieldName()
+		// if tRIGHTSQUARE == tok {
+		// 	p.nextPut(pos, tok, lit)
+		// 	// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
+		// 	return
+		// }
 		if tRIGHTCURLY == tok {
 			return
 		}
@@ -371,7 +371,7 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		key := lit
 		printsColon := false
 		// expect colon, aggregate or plain literal
-		pos, tok, lit = p.next()
+		pos, tok, lit := p.next()
 		if tCOLON == tok {
 			// consume it
 			printsColon = true

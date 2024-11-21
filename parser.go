@@ -213,6 +213,15 @@ func (p *Parser) nextIdentifier() (pos scanner.Position, tok token, lit string) 
 	return
 }
 
+func (p *Parser) nextMessageLiteralFieldName() (pos scanner.Position, tok token, lit string) {
+	pos, tok, lit = p.nextIdent(true)
+	if tok == tLEFTSQUARE {
+		pos, tok, lit = p.nextIdent(true)
+		_, _, _ = p.next() // consume right square
+	}
+	return
+}
+
 // nextTypeName implements the Packages and Name Resolution for finding the name of the type.
 // Valid examples:
 // .google.protobuf.Empty
