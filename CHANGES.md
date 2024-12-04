@@ -1,3 +1,7 @@
+## v1.13.3 (2024-12-04)
+
+- fixed inline comment in option (#143)
+
 ## v1.13.2 (2024-01-24)
 
 - allow keyword as field name (such as message,service, etc)
