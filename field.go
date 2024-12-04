@@ -189,6 +189,22 @@ func consumeFieldComments(f *Field, p *Parser) {
 	p.nextPut(pos, tok, lit)
 }
 
+// TODO copy paste
+func consumeOptionComments(o *Option, p *Parser) {
+	pos, tok, lit := p.next()
+	for tok == tCOMMENT {
+		c := newComment(pos, lit)
+		if o.Comment == nil {
+			o.Comment = c
+		} else {
+			o.Comment.Merge(c)
+		}
+		pos, tok, lit = p.next()
+	}
+	// no longer a comment, put it back
+	p.nextPut(pos, tok, lit)
+}
+
 // MapField represents a map entry in a message.
 type MapField struct {
 	*Field

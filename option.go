@@ -44,8 +44,9 @@ type Option struct {
 }
 
 // parse reads an Option body
-// ( ident | "(" fullIdent ")" ) { "." ident } "=" constant ";"
+// ( ident | //... | "(" fullIdent ")" ) { "." ident } "=" constant ";"
 func (o *Option) parse(p *Parser) error {
+	consumeOptionComments(o, p)
 	pos, tok, lit := p.nextIdentifier()
 	if tLEFTPAREN == tok {
 		pos, tok, lit = p.nextIdentifier()
@@ -60,15 +61,6 @@ func (o *Option) parse(p *Parser) error {
 		}
 		o.Name = fmt.Sprintf("(%s)", lit)
 	} else {
-		if tCOMMENT == tok {
-			nc := newComment(pos, lit)
-			if o.Comment != nil {
-				o.Comment.Merge(nc)
-			} else {
-				o.Comment = nc
-			}
-			return o.parse(p)
-		}
 		// non full ident
 		if tIDENT != tok {
 			if !isKeyword(tok) {
@@ -111,6 +103,7 @@ func (o *Option) parse(p *Parser) error {
 			o.Constant = *l
 		}
 	})
+	consumeOptionComments(o, p)
 	return err
 }
 
@@ -213,14 +206,13 @@ func (l *Literal) parse(p *Parser) error {
 		// if it's an empty array, consume the close bracket, set the Array to
 		// an empty array, and return
 		r := p.peekNonWhitespace()
-		if ']' == r {
+		if r == ']' {
 			pos, _, _ := p.next()
 			l.Array = array
 			l.IsString = false
 			l.Position = pos
 			return nil
 		}
-
 		for {
 			e := new(Literal)
 			if err := e.parse(p); err != nil {
@@ -339,12 +331,12 @@ func (b byPosition) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLiteral, err error) {
 	for {
-		pos, tok, lit := p.nextIdentifier()
-		if tRIGHTSQUARE == tok {
-			p.nextPut(pos, tok, lit)
-			// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
-			return
-		}
+		_, tok, lit := p.nextMessageLiteralFieldName()
+		// if tRIGHTSQUARE == tok {
+		// 	p.nextPut(pos, tok, lit)
+		// 	// caller has checked for open square ; will consume rightsquare, rightcurly and semicolon
+		// 	return
+		// }
 		if tRIGHTCURLY == tok {
 			return
 		}
@@ -379,7 +371,7 @@ func parseAggregateConstants(p *Parser, container interface{}) (list []*NamedLit
 		key := lit
 		printsColon := false
 		// expect colon, aggregate or plain literal
-		pos, tok, lit = p.next()
+		pos, tok, lit := p.next()
 		if tCOLON == tok {
 			// consume it
 			printsColon = true
