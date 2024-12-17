@@ -124,6 +124,9 @@ func isComment(lit string) bool {
 }
 
 func isNumber(lit string) bool {
+	if lit == "NaN" || lit == "nan" || lit == "Inf" || lit == "Infinity" || lit == "inf" || lit == "infinity" {
+		return false
+	}
 	if strings.HasPrefix(lit, "0x") || strings.HasPrefix(lit, "0X") {
 		_, err := strconv.ParseInt(lit, 0, 64)
 		return err == nil
