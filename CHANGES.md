@@ -1,3 +1,7 @@
+## v1.13.4 (2024-12-17)
+
+- fixed handling identifiers known as numbers by scanner (PR #146)
+
 ## v1.13.3 (2024-12-04)
 
 - fixed inline comment in option (#143)
