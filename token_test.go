@@ -63,6 +63,12 @@ func TestIsNumber(t *testing.T) {
 		{`a1`, false},
 		{`0x12`, true},
 		{`0X77777`, true},
+		{`NaN`, false},
+		{`nan`, false},
+		{`Inf`, false},
+		{`Infinity`, false},
+		{`inf`, false},
+		{`infinity`, false},
 	} {
 		got := isNumber(each.input)
 		if got != each.isNumber {

@@ -229,3 +229,29 @@ enum Value {
 		t.Fatal(err) // <input>:7:16: found "-" but expected [range integer]
 	}
 }
+
+func TestParseInfMessage(t *testing.T) {
+	const def = `
+message Inf {
+	string field = 1; 
+}
+message NaN {
+	string field = 1; 
+}
+
+message Infinity {
+	string field = 1; 
+}
+message ExampelMessage {
+	Inf inf_field = 1;
+	NaN nan_field = 2; 
+	Infinity infinity_field = 3; 
+}
+`
+
+	p := NewParser(strings.NewReader(def))
+	_, err := p.Parse()
+	if err != nil {
+		t.Fatal(err) // <input>:7:16: found "-" but expected [range integer]
+	}
+}
