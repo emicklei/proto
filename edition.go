@@ -49,7 +49,7 @@ func (e *Edition) parse(p *Parser) error {
 
 // Accept dispatches the call to the visitor.
 func (e *Edition) Accept(v Visitor) {
-	v.VisitEdition(e)
+	// v.VisitEdition(e) in v2
 }
 
 // Doc is part of Documented

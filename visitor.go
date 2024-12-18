@@ -43,8 +43,8 @@ type Visitor interface {
 	// proto2
 	VisitGroup(g *Group)
 	VisitExtensions(e *Extensions)
-	// edition (proto3+)
-	VisitEdition(e *Edition)
+	// edition (proto3+), v2
+	// VisitEdition(e *Edition)
 }
 
 // Visitee is implemented by all Proto elements.
