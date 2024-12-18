@@ -1,6 +1,6 @@
 // Copyright (c) 2018 Ernest Micklei
 //
-// MIT License
+// # MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -121,4 +121,9 @@ func (pc *parentChecker) VisitGroup(g *Group) {
 }
 func (pc *parentChecker) VisitExtensions(e *Extensions) {
 	pc.check("Extensions", "", e.Parent)
+}
+
+// edition (proto3+)
+func (pc *parentChecker) VisitEdition(e *Edition) {
+	pc.check("Edition", "", e.Parent)
 }

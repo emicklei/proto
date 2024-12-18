@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Ernest Micklei
+// Copyright (c) 2024 Ernest Micklei
 //
 // MIT License
 //
@@ -23,37 +23,43 @@
 
 package proto
 
-// Visitor is for dispatching Proto elements.
-type Visitor interface {
-	VisitMessage(m *Message)
-	VisitService(v *Service)
-	VisitSyntax(s *Syntax)
-	VisitPackage(p *Package)
-	VisitOption(o *Option)
-	VisitImport(i *Import)
-	VisitNormalField(i *NormalField)
-	VisitEnumField(i *EnumField)
-	VisitEnum(e *Enum)
-	VisitComment(e *Comment)
-	VisitOneof(o *Oneof)
-	VisitOneofField(o *OneOfField)
-	VisitReserved(r *Reserved)
-	VisitRPC(r *RPC)
-	VisitMapField(f *MapField)
-	// proto2
-	VisitGroup(g *Group)
-	VisitExtensions(e *Extensions)
-	// edition (proto3+), v2
-	// VisitEdition(e *Edition)
+import (
+	"text/scanner"
+)
+
+type Edition struct {
+	Position      scanner.Position
+	Comment       *Comment
+	Value         string
+	InlineComment *Comment
+	Parent        Visitee
 }
 
-// Visitee is implemented by all Proto elements.
-type Visitee interface {
-	Accept(v Visitor)
-	parent(e Visitee)
+func (e *Edition) parse(p *Parser) error {
+	if _, tok, lit := p.next(); tok != tEQUALS {
+		return p.unexpected(lit, "edition =", e)
+	}
+	_, _, lit := p.next()
+	if !isString(lit) {
+		return p.unexpected(lit, "edition string constant", e)
+	}
+	e.Value, _ = unQuote(lit)
+	return nil
 }
 
-// Documented is for types that may have an associated comment (not inlined).
-type Documented interface {
-	Doc() *Comment
+// Accept dispatches the call to the visitor.
+func (e *Edition) Accept(v Visitor) {
+	// v.VisitEdition(e) in v2
 }
+
+// Doc is part of Documented
+func (e *Edition) Doc() *Comment {
+	return e.Comment
+}
+
+// inlineComment is part of commentInliner.
+func (e *Edition) inlineComment(c *Comment) {
+	e.InlineComment = c
+}
+
+func (e *Edition) parent(v Visitee) { e.Parent = v }

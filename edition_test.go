@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Ernest Micklei
+// Copyright (c) 2024 Ernest Micklei
 //
 // MIT License
 //
@@ -23,37 +23,17 @@
 
 package proto
 
-// Visitor is for dispatching Proto elements.
-type Visitor interface {
-	VisitMessage(m *Message)
-	VisitService(v *Service)
-	VisitSyntax(s *Syntax)
-	VisitPackage(p *Package)
-	VisitOption(o *Option)
-	VisitImport(i *Import)
-	VisitNormalField(i *NormalField)
-	VisitEnumField(i *EnumField)
-	VisitEnum(e *Enum)
-	VisitComment(e *Comment)
-	VisitOneof(o *Oneof)
-	VisitOneofField(o *OneOfField)
-	VisitReserved(r *Reserved)
-	VisitRPC(r *RPC)
-	VisitMapField(f *MapField)
-	// proto2
-	VisitGroup(g *Group)
-	VisitExtensions(e *Extensions)
-	// edition (proto3+), v2
-	// VisitEdition(e *Edition)
-}
+import "testing"
 
-// Visitee is implemented by all Proto elements.
-type Visitee interface {
-	Accept(v Visitor)
-	parent(e Visitee)
-}
-
-// Documented is for types that may have an associated comment (not inlined).
-type Documented interface {
-	Doc() *Comment
+func TestEdition(t *testing.T) {
+	proto := `edition = "1967";`
+	p := newParserOn(proto)
+	pr, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := pr.elements()[0].(*Edition)
+	if got, want := e.Value, "1967"; got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
 }
