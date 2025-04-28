@@ -255,3 +255,43 @@ message ExampelMessage {
 		t.Fatal(err) // <input>:7:16: found "-" but expected [range integer]
 	}
 }
+
+func TestFullIdent(t *testing.T) {
+	for _, tc := range []struct {
+		src string
+		tok token
+	}{
+		{"i", tIDENT},
+		{"ident12_", tIDENT},
+		{"ident12_ident42.Ident01_Ident2", tIDENT},
+		{"enum", tENUM},
+		{"enum_enum", tIDENT},
+	} {
+		p := newParserOn(tc.src)
+		_, tok, lit := p.nextFullIdent(false)
+		if got, want := tok, tc.tok; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+		if got, want := lit, tc.src; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
+}
+func TestFullIdentStartingWithKeyword(t *testing.T) {
+	for _, tc := range []struct {
+		src string
+	}{
+		{"service"},
+		{"enum_service"},
+		{"message_enum.service"},
+	} {
+		p := newParserOn(tc.src)
+		_, tok, lit := p.nextFullIdent(true)
+		if got, want := tok, tIDENT; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+		if got, want := lit, tc.src; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
+}
