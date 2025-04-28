@@ -46,12 +46,15 @@ type Option struct {
 func (o *Option) parse(p *Parser) error {
 	consumeOptionComments(o, p)
 
-	o.parseOptionName(p)
+	if err := o.parseOptionName(p); err != nil {
+		return err
+	}
+	// check for =
 	pos, tok, lit := p.next()
-
 	if tEQUALS != tok {
 		return p.unexpected(lit, "option value assignment =", o)
 	}
+	// parse value
 	r := p.peekNonWhitespace()
 	var err error
 	// values of an option can have illegal escape sequences
