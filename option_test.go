@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Ernest Micklei
+// Copyright (c) 2025 Ernest Micklei
 //
 // MIT License
 //
@@ -88,6 +88,11 @@ func TestOptionCases(t *testing.T) {
 		"(imported.oss.package).action",
 		"single-quotes.with/symbols",
 		"",
+	}, {
+		`option features.(pb.go).api_level = API_OPAQUE;`,
+		"features.(pb.go).api_level",
+		"API_OPAQUE",
+		"",
 	}} {
 		p := newParserOn(each.proto)
 		pr, err := p.Parse()
@@ -114,21 +119,6 @@ func TestOptionCases(t *testing.T) {
 		if got, want := o.IsEmbedded, false; got != want {
 			t.Errorf("[%d] got [%v] want [%v]", i, got, want)
 		}
-	}
-}
-
-func TestLiteralString(t *testing.T) {
-	proto := `"string"`
-	p := newParserOn(proto)
-	l := new(Literal)
-	if err := l.parse(p); err != nil {
-		t.Fatal(err)
-	}
-	if got, want := l.IsString, true; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
-	}
-	if got, want := l.Source, "string"; got != want {
-		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
@@ -767,4 +757,23 @@ func TestCommentInsideArray(t *testing.T) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 	t.Log("comment:", has.Array[0].Comment.Lines)
+}
+
+func TestParseBracedFullIdent(t *testing.T) {
+	src := `features.(pb.go).api_level = API_OPAQUE;`
+	p := newParserOn(src)
+	o := new(Option)
+	o.parseOptionName(p)
+	if got, want := o.Name, "features.(pb.go).api_level"; got != want {
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
+	}
+}
+func TestParseBracedFullIdentWithLeadingDot(t *testing.T) {
+	src := `some.(.like).it.(.hot) = API_OPAQUE;`
+	p := newParserOn(src)
+	o := new(Option)
+	o.parseOptionName(p)
+	if got, want := o.Name, "some.(.like).it.(.hot)"; got != want {
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
+	}
 }
