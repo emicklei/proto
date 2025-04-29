@@ -1,3 +1,7 @@
+## v1.14.1 (2025-04-29)
+
+- fix option name with brackets (ISSUE #148)
+
 ## v1.14.0 (2024-12-18)
 
 - parse edition element (PR #147, ISSUE #145)
