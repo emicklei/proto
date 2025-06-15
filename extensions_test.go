@@ -57,3 +57,38 @@ func TestExtensions(t *testing.T) {
 		t.Errorf("got [%s] want [%s]", got, want)
 	}
 }
+
+// https://github.com/emicklei/proto/issues/150
+func TestExtensionsWithDeclaration(t *testing.T) {
+	proto := `message M {
+		extensions 536000000 [declaration = {
+			number: 536000000
+			type: ".buf.descriptor.v1.FileDescriptorSetExtension"
+			full_name: ".buf.descriptor.v1.buf_file_descriptor_set_extension"
+		}];
+	}`
+	p := newParserOn(proto)
+	p.next() // consume message
+	m := new(Message)
+	err := m.parse(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(m.Elements) != 1 {
+		t.Fatal("1 elements expected, got", len(m.Elements), m.Elements)
+	}
+	f := m.Elements[0].(*Extensions)
+	if got, want := len(f.Ranges), 1; got != want {
+		t.Fatalf("got [%d] want [%d]", got, want)
+	}
+	if got, want := f.Ranges[0].SourceRepresentation(), "536000000"; got != want {
+		t.Errorf("got [%s] want [%s]", got, want)
+	}
+	if len(f.Options) != 1 {
+		t.Fatalf("got [%d] want [%d]", len(f.Options), 1)
+	}
+	opt := f.Options[0]
+	if opt.Name != "declaration" {
+		t.Errorf("got [%s] want [%s]", opt.Name, "declaration")
+	}
+}
