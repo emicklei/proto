@@ -1,3 +1,7 @@
+## v1.14.2 (2025-06-18)
+
+- fix parsing options for extensions (ISSUE #150)
+
 ## v1.14.1 (2025-04-29)
 
 - fix option name with brackets (ISSUE #148)
