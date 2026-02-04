@@ -89,6 +89,11 @@ func TestOptionCases(t *testing.T) {
 		"single-quotes.with/symbols",
 		"",
 	}, {
+		`option (imported.oss.package).action = 'single-quotes.with//double-slashes';`,
+		"(imported.oss.package).action",
+		"single-quotes.with//double-slashes",
+		"",
+	}, {
 		`option features.(pb.go).api_level = API_OPAQUE;`,
 		"features.(pb.go).api_level",
 		"API_OPAQUE",
