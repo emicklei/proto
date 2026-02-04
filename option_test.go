@@ -740,6 +740,7 @@ func TestCommentInsideArray(t *testing.T) {
 			  {has : [ 
 				// comment on test
 				"test" 
+				// ignored comment at the end
 			  ]}
 			]
 		  };
@@ -768,6 +769,7 @@ func TestParseBracedFullIdent(t *testing.T) {
 		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 }
+
 func TestParseBracedFullIdentWithLeadingDot(t *testing.T) {
 	src := `some.(.like).it.(.hot) = API_OPAQUE;`
 	p := newParserOn(src)
